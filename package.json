@@ -1,0 +1,29 @@
+{
+  "name": "wglut",
+  "version": "0.0.1",
+  "description": "webgl utility toolkit",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soyemi/wglut.git"
+  },
+  "keywords": [
+    "webgl",
+    "webgl2"
+  ],
+  "author": "Zheng Chu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/soyemi/wglut/issues"
+  },
+  "homepage": "https://github.com/soyemi/wglut#readme",
+  "devDependencies": {
+    "@types/webgl2": "0.0.4",
+    "gulp": "^3.9.1",
+    "gulp-typescript": "^5.0.0-alpha.3",
+    "typescript": "^2.9.2"
+  }
+}
