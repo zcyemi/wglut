@@ -2,7 +2,8 @@
   "name": "wglut",
   "version": "0.0.1",
   "description": "webgl utility toolkit",
-  "main": "src/index.ts",
+  "main": "dist/wglut.js",
+  "typings":  "dist/wglut.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

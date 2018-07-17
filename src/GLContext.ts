@@ -1,10 +1,8 @@
 import { GLProgram } from "./GLProgram";
 
-
 export class GLContext{
 
-    private gl:WebGL2RenderingContext;
-
+    public gl:WebGL2RenderingContext;
     private constructor(wgl:WebGL2RenderingContext){
         this.gl = wgl;
     }
