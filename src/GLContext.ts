@@ -65,14 +65,15 @@ export class GLContext{
 
                 if(name in tar.Unifroms){
                     tar[name] =tar.Unifroms[name];
-                    console.log('get:' +name);
                     return tar[name];
                 }
                 else if(name in tar.Attributes){
                     tar[name] = tar.Attributes[name];
-                    console.log('get:' +name);
                     return tar[name];
                 }
+
+                console.warn('program can not find attr/uniform:' + name);
+                tar[name] = undefined;
                 return null;
             }
         }

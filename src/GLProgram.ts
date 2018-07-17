@@ -16,7 +16,6 @@ export class GLProgram{
 
     }
 
-
     public constructor(gl: WebGLRenderingContext, program: WebGLProgram) {
         this.Program = program;
 
