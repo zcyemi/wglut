@@ -15,6 +15,7 @@ function Build(){
     gulp.src('./src/**/*.ts').pipe(gulpts({
         outFile:'wglut.js',
         module:'amd',
+        lib: ['es2015','dom'],
         declarationFiles: true,
     }))
     .pipe(gulp.dest('./dist/'));

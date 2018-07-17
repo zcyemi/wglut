@@ -83,7 +83,25 @@ define("GLContext", ["require", "exports", "GLProgram"], function (require, expo
             }
             if (program == null)
                 return null;
-            return new GLProgram_1.GLProgram(gl, program);
+            var p = new GLProgram_1.GLProgram(gl, program);
+            var handler = {
+                get: function (tar, name) {
+                    if (name in tar)
+                        return tar[name];
+                    if (name in tar.Unifroms) {
+                        tar[name] = tar.Unifroms[name];
+                        console.log('get:' + name);
+                        return tar[name];
+                    }
+                    else if (name in tar.Attributes) {
+                        tar[name] = tar.Attributes[name];
+                        console.log('get:' + name);
+                        return tar[name];
+                    }
+                    return null;
+                }
+            };
+            return new Proxy(p, handler);
         };
         GLContext.prototype.createTextureImage = function (src, callback) {
             var img = new Image();

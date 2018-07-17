@@ -13,6 +13,7 @@ export class GLProgram{
 
     public GetAttribute(key:string):any{
         return this.Attributes[key];
+
     }
 
 

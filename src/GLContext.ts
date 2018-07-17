@@ -57,7 +57,27 @@ export class GLContext{
         }
 
         if(program == null) return null;
-        return new GLProgram(gl, program);
+
+        let p = new GLProgram(gl, program);
+        let handler = {
+            get: function(tar:GLProgram,name:string){
+                if(name in tar) return tar[name];
+
+                if(name in tar.Unifroms){
+                    tar[name] =tar.Unifroms[name];
+                    console.log('get:' +name);
+                    return tar[name];
+                }
+                else if(name in tar.Attributes){
+                    tar[name] = tar.Attributes[name];
+                    console.log('get:' +name);
+                    return tar[name];
+                }
+                return null;
+            }
+        }
+
+        return new Proxy(p,handler);
     }
 
     public createTextureImage(src: string,callback?:()=>void): WebGLTexture | null{

@@ -29,3 +29,4 @@ declare module "wglut" {
     export * from "GLContext";
     export * from "GLProgram";
 }
+//# sourceMappingURL=wglut.d.ts.map
