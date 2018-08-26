@@ -1,11 +1,18 @@
 {
   "name": "wglut",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "webgl utility toolkit",
   "main": "dist/wglut.js",
-  "typings": "dist/wglut.d.ts",
+  "module": "dist/wglut.es5.js",
+  "typings": "dist/types/wglut.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "rollup -c rollup.config.ts -w",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts",
+    "prebuild": "rimraf dist"
   },
   "repository": {
     "type": "git",
@@ -23,8 +30,13 @@
   "homepage": "https://github.com/soyemi/wglut#readme",
   "devDependencies": {
     "@types/webgl2": "0.0.4",
-    "gulp": "^3.9.1",
-    "gulp-typescript": "^5.0.0-alpha.3",
+    "lodash.camelcase": "^4.3.0",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.65.0",
+    "rollup-plugin-commonjs": "^9.1.6",
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "rollup-plugin-typescript2": "^0.16.1",
     "typescript": "^2.9.2"
   }
 }
