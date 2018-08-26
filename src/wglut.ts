@@ -1,2 +1,2 @@
-export * from './GLContext';
-export * from './GLProgram';
+export * from "./GLContext"
+export * from "./GLProgram";

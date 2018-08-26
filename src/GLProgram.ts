@@ -13,7 +13,6 @@ export class GLProgram{
 
     public GetAttribute(key:string):any{
         return this.Attributes[key];
-
     }
 
     public constructor(gl: WebGLRenderingContext, program: WebGLProgram) {

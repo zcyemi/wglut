@@ -60,7 +60,7 @@ export class GLContext{
 
         let p = new GLProgram(gl, program);
         let handler = {
-            get: function(tar:GLProgram,name:string){
+            get: function(tar:GLProgram | any,name:string){
                 if(name in tar) return tar[name];
 
                 if(name in tar.Unifroms){
