@@ -1,6 +1,6 @@
 {
   "name": "wglut",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "webgl utility toolkit",
   "main": "./dist/wglut.umd.js",
   "module": "./dist/wglut.es.js",
