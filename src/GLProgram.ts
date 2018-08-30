@@ -1,5 +1,3 @@
-
-
 export class GLProgram{
 
     public Program: WebGLProgram;
