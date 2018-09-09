@@ -172,7 +172,7 @@ export class vec3 {
         }
     }
 
-    public mul(v: number | vec4 | mat3 | number[] | quat) {
+    public mul(v: number | vec4 | mat3 | number[] | quat):vec3 {
         if (v instanceof vec3 || v instanceof vec4) {
             let x = v.x * this.x;
             let y = v.y * this.y;
@@ -186,10 +186,10 @@ export class vec3 {
             return glmath.vec3(x, y, z);
         }
         else if (v instanceof mat3) {
-            return null;
+            return vec3.zero;
         }
         else if (v instanceof quat) {
-            return null;
+            return v.rota(this);
         }
         else {
             return glmath.vec3(this.x * v, this.y * v, this.z * v);
@@ -223,4 +223,7 @@ export class vec3 {
     public normalize():vec3{
         return this.div(this.lenth);
     }
+
+    public static readonly zero:vec3 = new vec3([0,0,0]);
+    public static readonly one:vec3 = new vec3([1,1,1]);
 }

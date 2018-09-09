@@ -29,5 +29,3 @@ describe('vec3',()=>{
     });
 })
 
-describe('dot',()=>{
-})
