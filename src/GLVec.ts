@@ -78,7 +78,7 @@ export class vec4 {
             return glmath.vec4(v[0] * this.x, v[1] * this.y, v[2] * this.z, v[3] * this.w);
         }
         else if (v instanceof mat4) {
-            return null;
+            return v.mulvec(this);
         }
         else if (v instanceof quat) {
             return null;
