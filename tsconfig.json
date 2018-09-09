@@ -10,6 +10,7 @@
       "allowSyntheticDefaultImports": true,
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true,
+      "strictPropertyInitialization":false,
       "outDir": "dist",
       //"outFile": "./dist/wglut.js",
       "typeRoots": [

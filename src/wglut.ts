@@ -1,4 +1,7 @@
-import {GLContext} from './GLContext';
-import {GLProgram} from './GLProgram';
+export * from './GLContext';
+export * from './GLProgram';
 
-export {GLContext,GLProgram};
+export * from './GLMath';
+export * from './GLVec';
+export * from './GLQuaternion';
+export * from './GLMatrix';
