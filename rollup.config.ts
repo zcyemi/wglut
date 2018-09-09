@@ -9,7 +9,12 @@ let config = {
         {file: 'dist/wglut.es.js',format: 'es'}
     ],
     plugins: [
-        typescript({useTsconfigDeclarationDir:true}),
+        typescript({
+            tsconfigOverride:{
+                compilerOptions:{module:'es2015'}
+            },
+            useTsconfigDeclarationDir:true
+        }),
         resolve({
             jsnext:true,
             extensions: ['.ts','.js']
