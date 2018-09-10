@@ -117,4 +117,54 @@ export class GLContext{
 
         return tex;
     }
+
+
+    private m_tempFrameBuffer:WebGLFramebuffer;
+    public saveTextureToImage(texture:WebGLTexture):HTMLImageElement | null{
+        if(texture == null) return null;
+        let gl =this.gl;
+        if(this.m_tempFrameBuffer == null){
+            this.m_tempFrameBuffer = <WebGLFramebuffer>gl.createFramebuffer();
+        }
+
+        let curfb = gl.getParameter(gl.FRAMEBUFFER_BINDING);
+        let curtex = gl.getParameter(gl.TEXTURE_BINDING_2D);
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER,this.m_tempFrameBuffer);
+        gl.bindTexture(gl.TEXTURE_2D,texture);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,texture,0);
+
+        let image = this.saveCurrentFrameBufferToImage();
+
+        gl.bindTexture(gl.TEXTURE_2D,curtex);
+        gl.bindFramebuffer(gl.FRAMEBUFFER,curfb);
+
+        return image;
+    }
+
+    public saveCurrentFrameBufferToImage(x:number=0,y:number =0,w:number|null =null,h:number| null = null):HTMLImageElement{
+        let gl = this.gl;
+
+        if(w == null || h == null){
+            let canvas = gl.canvas;
+            w = canvas.width;
+            h = canvas.height;
+        }
+
+        let data = new Uint8Array(w *h *4);
+        gl.readPixels(x,y,w,h,gl.RGBA,gl.UNSIGNED_BYTE,data);
+
+        let tempcanvas = document.createElement('canvas');
+        tempcanvas.width = w;
+        tempcanvas.height = h;
+
+        var ctx2d = <CanvasRenderingContext2D>tempcanvas.getContext('2d');
+        var imgdata = ctx2d.createImageData(w,h);
+        imgdata.data.set(data);
+        ctx2d.putImageData(imgdata,0,0);
+
+        var img = new Image();
+        img.src = tempcanvas.toDataURL();
+        return img;
+    }
 }
