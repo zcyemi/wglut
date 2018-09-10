@@ -6,11 +6,9 @@ export class GLContext{
     private constructor(wgl:WebGL2RenderingContext){
         this.gl = wgl;
     }
-
     public static createFromGL(wgl:WebGL2RenderingContext) :GLContext{
         return new GLContext(wgl);
     }
-
     public static createFromCanvas(canvas:HTMLCanvasElement):GLContext | null{
         let g:any = canvas.getContext('webgl2');
         if(g == null){
@@ -85,6 +83,7 @@ export class GLContext{
         var img = new Image();
         var gl = this.gl;
         var tex = gl.createTexture();
+
         img.onload = () => {
             gl.bindTexture(gl.TEXTURE_2D, tex);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
@@ -98,7 +97,6 @@ export class GLContext{
         img.src = src;
         return tex;
     }
-
     public createTexture(internalFormat: number, width: number, height: number,linear:boolean = false,mipmap:boolean = false): WebGLTexture | null {
         let gl = this.gl;
 
@@ -141,7 +139,6 @@ export class GLContext{
 
         return image;
     }
-
     public saveCurrentFrameBufferToImage(x:number=0,y:number =0,w:number|null =null,h:number| null = null):HTMLImageElement{
         let gl = this.gl;
 
@@ -167,4 +164,78 @@ export class GLContext{
         img.src = tempcanvas.toDataURL();
         return img;
     }
+
+    private m_drawTexAryBuffer:WebGLBuffer;
+    private m_drawTexBuffer:Float32Array = new Float32Array(16);
+    private m_drawTexProgram:GLProgram;
+    private m_drawTexInited:boolean =false;
+    private drawTexCheckInit():boolean{
+        if(this.m_drawTexInited) return true;
+        let gl =this.gl;
+        if(this.m_drawTexAryBuffer == null){
+            this.m_drawTexAryBuffer = <WebGLBuffer>gl.createBuffer();
+        }
+        
+        let program = this.createProgram(INTERNAL_SHADER_VS_DEF,INTERNAL_SHADER_PS_COLOR);
+        if(program == null) return false;
+        this.m_drawTexProgram = program;
+
+        this.m_drawTexInited = true;
+
+        return true;
+    }
+    public drawTexFullscreen(tex:WebGLTexture,retainState:boolean = true){
+        let gl =this.gl;
+        if(!gl.isTexture(tex))return;
+        if(!this.drawTexCheckInit()){
+            console.log('draw tex init failed');
+            return;
+        }
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER,this.m_drawTexAryBuffer);
+        this.m_drawTexBuffer.set([
+            -1.0,1.0,0,1.0,
+            1.0,1.0,1.0,1.0,
+            -1.0,-1.0,0,0,
+            1.0,-1.0,1.0,0
+        ]);
+        gl.bufferData(gl.ARRAY_BUFFER,this.m_drawTexBuffer,gl.DYNAMIC_DRAW);
+
+        let p = this.m_drawTexProgram;
+        gl.useProgram(p.Program);
+        let attrp = p.Attributes['aPosition'];
+        let attruv = p.Attributes['aUV'];
+        gl.vertexAttribPointer(attrp,2,gl.FLOAT,false,16,0);
+        gl.vertexAttribPointer(attruv,2,gl.FLOAT,false,16,8);
+        gl.enableVertexAttribArray(attrp);
+        gl.enableVertexAttribArray(attruv);
+
+        gl.bindTexture(gl.TEXTURE_2D,tex);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.uniform1i(p.Unifroms['uSampler'],0);
+
+        gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+    }
 }
+
+const INTERNAL_SHADER_VS_DEF = '\
+#version 300 es           \n\
+precision mediump float;    \
+in vec2 aPosition;          \
+in vec2 aUV;                \
+out vec2 vUV;               \
+void main(){                \
+    gl_Position = vec4(aPosition,-1.0,1.0);\
+    vUV = aUV;              \
+}                           \
+';
+const INTERNAL_SHADER_PS_COLOR ='\
+#version 300 es           \n\
+precision lowp float;       \
+uniform sampler2D uSampler; \
+in vec2 vUV;                \
+out vec4 fragColor;         \
+void main(){                \
+    fragColor = texture(uSampler,vUV);\
+}\
+';
