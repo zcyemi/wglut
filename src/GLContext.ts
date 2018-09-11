@@ -1,4 +1,6 @@
 import { GLProgram } from "./GLProgram";
+import { vec4 } from "./GLVec";
+import { GLShaderComposer, GLShaderType, GLSL_TYPE, GLSL_PREFIX } from "./GLShderComposer";
 
 export class GLContext{
 
@@ -169,12 +171,31 @@ export class GLContext{
     private m_drawTexBuffer:Float32Array = new Float32Array(16);
     private m_drawTexProgram:GLProgram;
     private m_drawTexInited:boolean =false;
+    
     private drawTexCheckInit():boolean{
         if(this.m_drawTexInited) return true;
         let gl =this.gl;
         if(this.m_drawTexAryBuffer == null){
             this.m_drawTexAryBuffer = <WebGLBuffer>gl.createBuffer();
         }
+
+        //vs
+        let shadervs = GLShaderComposer.create(GLShaderType.vertex)
+            .attr(GLSL_TYPE.vec2,'aPosition')
+            .attr(GLSL_TYPE.vec2,'aUV')
+            .vary(GLSL_TYPE.vec2,'vUV',GLSL_PREFIX.out)
+            .main(f=>f
+                .line('gl_Position = vec4(aPosition,-1.0,1.0)')
+                .line('vUV = aUV'))
+            .compile(gl);
+        //ps
+        let shderps = GLShaderComposer.create(GLShaderType.fragment)
+        .uniform(GLSL_TYPE.sampler2D,'uSampler')
+        .vary(GLSL_TYPE.vec2,'vUV',GLSL_PREFIX.in)
+        .vary(GLSL_TYPE.vec4,'fragColor',GLSL_PREFIX.out)
+        .main(f=>f
+            .line('fragColor = texture(uSampler,vUV)'))
+        .compile(gl);
         
         let program = this.createProgram(INTERNAL_SHADER_VS_DEF,INTERNAL_SHADER_PS_COLOR);
         if(program == null) return false;
@@ -215,6 +236,11 @@ export class GLContext{
         gl.uniform1i(p.Unifroms['uSampler'],0);
 
         gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+
+    }
+
+    public drawSampleRect(x:number,y:number,w:number,h:number,color:vec4){
+
     }
 }
 
