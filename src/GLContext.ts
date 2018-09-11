@@ -1,6 +1,7 @@
 import { GLProgram } from "./GLProgram";
 import { vec4 } from "./GLVec";
 import { GLShaderComposer, GLShaderType, GLSL_TYPE, GLSL_PREFIX, GLSL_PRECISION } from "./GLShderComposer";
+import { GLFrameBuffer } from "./GLFrameBuffer";
 
 export class GLContext{
 
@@ -116,6 +117,10 @@ export class GLContext{
             gl.generateMipmap(gl.TEXTURE_2D);
 
         return tex;
+    }
+
+    public createFrameBuffer(colorInternalFormat:number,depthInternalFormat?:number,width?:number,height?:number):GLFrameBuffer|null{
+        return GLFrameBuffer.create(this.gl,colorInternalFormat,depthInternalFormat,width,height);
     }
 
 
