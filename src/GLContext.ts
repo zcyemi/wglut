@@ -1,6 +1,6 @@
 import { GLProgram } from "./GLProgram";
 import { vec4 } from "./GLVec";
-import { GLShaderComposer, GLShaderType, GLSL_TYPE, GLSL_PREFIX } from "./GLShderComposer";
+import { GLShaderComposer, GLShaderType, GLSL_TYPE, GLSL_PREFIX, GLSL_PRECISION } from "./GLShderComposer";
 
 export class GLContext{
 
@@ -184,20 +184,22 @@ export class GLContext{
             .attr(GLSL_TYPE.vec2,'aPosition')
             .attr(GLSL_TYPE.vec2,'aUV')
             .vary(GLSL_TYPE.vec2,'vUV',GLSL_PREFIX.out)
+            .precision(GLSL_TYPE.float,GLSL_PRECISION.mediump)
             .main(f=>f
                 .line('gl_Position = vec4(aPosition,-1.0,1.0)')
                 .line('vUV = aUV'))
-            .compile(gl);
+            .compile();
         //ps
         let shderps = GLShaderComposer.create(GLShaderType.fragment)
         .uniform(GLSL_TYPE.sampler2D,'uSampler')
         .vary(GLSL_TYPE.vec2,'vUV',GLSL_PREFIX.in)
         .vary(GLSL_TYPE.vec4,'fragColor',GLSL_PREFIX.out)
+        .precision(GLSL_TYPE.float,GLSL_PRECISION.lowp)
         .main(f=>f
             .line('fragColor = texture(uSampler,vUV)'))
-        .compile(gl);
+        .compile();
         
-        let program = this.createProgram(INTERNAL_SHADER_VS_DEF,INTERNAL_SHADER_PS_COLOR);
+        let program = this.createProgram(shadervs,shderps);
         if(program == null) return false;
         this.m_drawTexProgram = program;
 
@@ -236,32 +238,13 @@ export class GLContext{
         gl.uniform1i(p.Unifroms['uSampler'],0);
 
         gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
-
     }
 
     public drawSampleRect(x:number,y:number,w:number,h:number,color:vec4){
-
+        let gl =this.gl;
+        if(!this.drawTexCheckInit()){
+            console.log('draw tex init failed');
+            return;
+        }
     }
 }
-
-const INTERNAL_SHADER_VS_DEF = '\
-#version 300 es           \n\
-precision mediump float;    \
-in vec2 aPosition;          \
-in vec2 aUV;                \
-out vec2 vUV;               \
-void main(){                \
-    gl_Position = vec4(aPosition,-1.0,1.0);\
-    vUV = aUV;              \
-}                           \
-';
-const INTERNAL_SHADER_PS_COLOR ='\
-#version 300 es           \n\
-precision lowp float;       \
-uniform sampler2D uSampler; \
-in vec2 vUV;                \
-out vec4 fragColor;         \
-void main(){                \
-    fragColor = texture(uSampler,vUV);\
-}\
-';
