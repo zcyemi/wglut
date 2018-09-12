@@ -2,6 +2,7 @@ import { GLProgram } from "./GLProgram";
 import { vec4 } from "./GLVec";
 import { GLShaderComposer, GLShaderType, GLSL_TYPE, GLSL_PREFIX, GLSL_PRECISION } from "./GLShderComposer";
 import { GLFrameBuffer } from "./GLFrameBuffer";
+import { GLPipelineState } from "./GLPipelineState";
 
 export class GLContext{
 
@@ -119,8 +120,8 @@ export class GLContext{
         return tex;
     }
 
-    public createFrameBuffer(colorInternalFormat:number,depthInternalFormat?:number,width?:number,height?:number):GLFrameBuffer|null{
-        return GLFrameBuffer.create(this.gl,colorInternalFormat,depthInternalFormat,width,height);
+    public createFrameBuffer(retain:boolean,colorInternalFormat:number,depthInternalFormat?:number,width?:number,height?:number):GLFrameBuffer|null{
+        return GLFrameBuffer.create(retain,this,colorInternalFormat,depthInternalFormat,width,height);
     }
 
 
@@ -175,6 +176,7 @@ export class GLContext{
     private m_drawTexAryBuffer:WebGLBuffer;
     private m_drawTexBuffer:Float32Array = new Float32Array(16);
     private m_drawTexProgram:GLProgram;
+    private m_drawRectColorProgram:GLProgram;
     private m_drawTexInited:boolean =false;
     
     private drawTexCheckInit():boolean{
@@ -195,7 +197,7 @@ export class GLContext{
                 .line('vUV = aUV'))
             .compile();
         //ps
-        let shderps = GLShaderComposer.create(GLShaderType.fragment)
+        let shaderps = GLShaderComposer.create(GLShaderType.fragment)
         .uniform(GLSL_TYPE.sampler2D,'uSampler')
         .vary(GLSL_TYPE.vec2,'vUV',GLSL_PREFIX.in)
         .vary(GLSL_TYPE.vec4,'fragColor',GLSL_PREFIX.out)
@@ -203,22 +205,38 @@ export class GLContext{
         .main(f=>f
             .line('fragColor = texture(uSampler,vUV)'))
         .compile();
-        
-        let program = this.createProgram(shadervs,shderps);
-        if(program == null) return false;
-        this.m_drawTexProgram = program;
+        //ps color
+        let shaderpsCol = GLShaderComposer.create(GLShaderType.fragment)
+            .precision(GLSL_TYPE.float,GLSL_PRECISION.lowp)
+            .uniform(GLSL_TYPE.vec4,'uColor')
+            .vary(GLSL_TYPE.vec2,'vUV',GLSL_PREFIX.in)
+            .vary(GLSL_TYPE.vec4,'fragColor',GLSL_PREFIX.out)
+            .main(f=>f.line('fragColor = uColor'))
+            .compile();
+        {
+            let program = this.createProgram(shadervs,shaderps);
+            if(program == null) throw new Error('Internal shader compile error!');
+            this.m_drawTexProgram = program;
+        }
+        {
+            let program = this.createProgram(shadervs,shaderpsCol);
+            if(program == null) throw new Error('Internal shader compile error!');
+            this.m_drawRectColorProgram = program;
+        }
 
         this.m_drawTexInited = true;
 
         return true;
     }
-    public drawTexFullscreen(tex:WebGLTexture,retainState:boolean = true){
+    public drawTexFullscreen(tex:WebGLTexture,retain:boolean = true){
         let gl =this.gl;
         if(!gl.isTexture(tex))return;
         if(!this.drawTexCheckInit()){
             console.log('draw tex init failed');
             return;
         }
+
+        let state = retain? this.savePipeline(gl.ARRAY_BUFFER_BINDING,gl.TEXTURE_BINDING_2D) : null;
         
         gl.bindBuffer(gl.ARRAY_BUFFER,this.m_drawTexAryBuffer);
         this.m_drawTexBuffer.set([
@@ -243,13 +261,60 @@ export class GLContext{
         gl.uniform1i(p.Unifroms['uSampler'],0);
 
         gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+
+        if(state != null){
+            this.restorePipeline(state);
+        }
     }
 
-    public drawSampleRect(x:number,y:number,w:number,h:number,color:vec4){
+    public drawSampleRect(retain:boolean,x:number,y:number,w:number,h:number,color:vec4 = vec4.one){
         let gl =this.gl;
         if(!this.drawTexCheckInit()){
             console.log('draw tex init failed');
             return;
         }
+
+        let state = retain? this.savePipeline(gl.ARRAY_BUFFER_BINDING,gl.TEXTURE_BINDING_2D) : null;
+        {
+            let vp = gl.getParameter(gl.VIEWPORT);
+            let vw = vp[2];
+            let vh = vp[3];
+            let dx1 = 2*x/vw -1;
+            let dy1 = 2*y/vh -1;
+
+            let dx2 = dx1+ 2*w /vw;
+            let dy2 = dy1+ 2*h /vh;
+           
+            gl.bindBuffer(gl.ARRAY_BUFFER,this.m_drawTexAryBuffer);
+            this.m_drawTexBuffer.set([
+                dx1,dy2,0,1.0,
+                dx2,dy2,1.0,1.0,
+                dx1,dy1,0,0,
+                dx2,dy1,1.0,0
+            ]);
+
+            gl.bufferData(gl.ARRAY_BUFFER,this.m_drawTexBuffer,gl.DYNAMIC_DRAW);
+
+            let p = this.m_drawRectColorProgram;
+            gl.useProgram(p.Program);
+            let attrp = p.Attributes['aPosition'];
+            let attruv = p.Attributes['aUV'];
+            gl.vertexAttribPointer(attrp,2,gl.FLOAT,false,16,0);
+            gl.vertexAttribPointer(attruv,2,gl.FLOAT,false,16,8);
+            gl.enableVertexAttribArray(attrp);
+            gl.enableVertexAttribArray(attruv);
+            gl.uniform4fv(p.Unifroms['uColor'],color.raw);
+            gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+        }
+        if(state != null) this.restorePipeline(state);
+    }
+
+    public savePipeline(...type:number[]):GLPipelineState{
+        return new GLPipelineState(this.gl,...type);
+    }
+
+    public restorePipeline(state:GLPipelineState){
+        if(state == null) return;
+        state.restore(this.gl);
     }
 }

@@ -1,3 +1,4 @@
+import { GLContext } from "./GLContext";
 
 
 export class GLFrameBuffer{
@@ -12,7 +13,8 @@ export class GLFrameBuffer{
     public width:number;
     public height:number;
 
-    public static create(gl:WebGL2RenderingContext,colorInternalFormat:number,depthInternalFormat?:number,width?:number,height?:number):GLFrameBuffer|null{
+    public static create(retain:boolean,glctx:GLContext,colorInternalFormat:number,depthInternalFormat?:number,width?:number,height?:number):GLFrameBuffer|null{
+        let gl = glctx.gl;
         if(width == null) width = gl.canvas.width;
         if(height == null) height = gl.canvas.height;
 
@@ -20,6 +22,11 @@ export class GLFrameBuffer{
         if(fb == null) return null;
 
         let glfb = new GLFrameBuffer();
+
+        let state = retain? glctx.savePipeline(
+            gl.FRAMEBUFFER_BINDING,
+            gl.TEXTURE_BINDING_2D
+            ): null;
 
         gl.bindFramebuffer(gl.FRAMEBUFFER,fb);
 
@@ -49,9 +56,14 @@ export class GLFrameBuffer{
         glfb.colorFormat =  colorInternalFormat;
         glfb.depthFormat = depthInternalFormat;
 
-
+        if(state != null){
+            glctx.restorePipeline(state);
+        }
         return glfb;
+    }
 
+    public bind(gl:WebGL2RenderingContext){
+        gl.bindFramebuffer(gl.FRAMEBUFFER,this.frambuffer);
     }
 
 }
