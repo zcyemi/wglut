@@ -1,30 +1,27 @@
 
-export enum GLShaderType{
-    vertex,
-    fragment,
-}
-
-export enum GLSL_TYPE{
+export enum GLSL{
+    vs,
+    ps,
     vec2,
     vec3,
     vec4,
     float,
     int,
     sampler2D,
-    void
-}
-
-export enum GLSL_PREFIX{
+    void,
     in,
     out,
     inout,
-}
-
-export enum GLSL_PRECISION{
     lowp,
     mediump,
     highp
 }
+
+export type GLSL_SHADER = GLSL.vs | GLSL.ps;
+export type GLSL_TYPE = GLSL.vec2 | GLSL.vec3 | GLSL.vec4 | GLSL.float | GLSL.int | GLSL.sampler2D | GLSL.void;
+export type GLSL_PREFIX = GLSL.in | GLSL.out | GLSL.inout;
+export type GLSL_PRECISION = GLSL.lowp | GLSL.mediump | GLSL.highp;
+
 
 
 type GLSL_PARAM = {type:GLSL_TYPE,symbol:string,prefix?:GLSL_PREFIX}
@@ -38,7 +35,7 @@ type GLSL_PRECISION_DEFINE = {type:GLSL_TYPE,level:GLSL_PRECISION};
 
 export class GLSL_FUNC{
     public name:string;
-    public rettype:GLSL_TYPE = GLSL_TYPE.void;
+    public rettype:GLSL_TYPE = GLSL.void;
 
     public code:string = '';
     public parameters:GLSL_PARAM[] = [];
@@ -75,10 +72,10 @@ export class GLSL_FUNC{
     }
 
     public mergeCode():string{
-        let source = `${GLSL_TYPE[this.rettype]} ${this.name} (`;
+        let source = `${GLSL[this.rettype]} ${this.name} (`;
         for(var i=0,len=this.parameters.length;i<len;i++){
             let p =this.parameters[i];
-            source += `${p.prefix == null? '': GLSL_PREFIX[p.prefix]} ${GLSL_TYPE[p.type]} ${p.symbol}`
+            source += `${p.prefix == null? '': GLSL[p.prefix]} ${GLSL[p.type]} ${p.symbol}`
             if(i !=len-1) source +=',';
         };
         source +='){\n';
@@ -91,7 +88,7 @@ export class GLSL_FUNC{
 
 export class GLShaderComposer{
 
-    private m_shadertype:GLShaderType;
+    private m_shadertype:GLSL_SHADER;
     private m_attrs:GLSL_ATTR[]=[];
     private m_varys:GLSL_VARY[] = [];
     private m_uniform:GLSL_UNIFORM[] = [];
@@ -102,7 +99,7 @@ export class GLShaderComposer{
 
     private m_shaderSource:string;
 
-    public static create(type:GLShaderType):GLShaderComposer{
+    public static create(type:GLSL_SHADER):GLShaderComposer{
         
         let shader = new GLShaderComposer();
         shader.m_shadertype = type;
@@ -110,7 +107,7 @@ export class GLShaderComposer{
         return shader;
     }
 
-    public attr(type:GLSL_TYPE,sym:string,prefix:GLSL_PREFIX = GLSL_PREFIX.in):GLShaderComposer{
+    public attr(type:GLSL_TYPE,sym:string,prefix:GLSL_PREFIX = GLSL.in):GLShaderComposer{
         this.m_attrs.push({symbol:sym,type:type});
         return this;
     }
@@ -155,17 +152,17 @@ export class GLShaderComposer{
     private mergeShaderSource(){
         let source=  "#version 300 es\n";
         this.m_precisions.forEach(p=>{
-            source+= `precision ${GLSL_PRECISION[p.level]} ${GLSL_TYPE[p.type]};`;
+            source+= `precision ${GLSL[p.level]} ${GLSL[p.type]};`;
         });
         this.m_attrs.forEach(a=>{
-            source+= `${GLSL_PREFIX[a.prefix == null? GLSL_PREFIX.in: a.prefix]} ${GLSL_TYPE[a.type]} ${a.symbol};`;
+            source+= `${GLSL[a.prefix == null? GLSL.in: a.prefix]} ${GLSL[a.type]} ${a.symbol};`;
         });
         this.m_varys.forEach(v=>{
-            let prefix = v.prefix == null?(this.m_shadertype == GLShaderType.vertex? GLSL_PREFIX.out: GLSL_PREFIX.in): v.prefix;
-            source += `${GLSL_PREFIX[prefix]} ${GLSL_TYPE[v.type]} ${v.symbol};`;
+            let prefix = v.prefix == null?(this.m_shadertype == GLSL.vs? GLSL.out: GLSL.in): v.prefix;
+            source += `${GLSL[prefix]} ${GLSL[v.type]} ${v.symbol};`;
         });
         this.m_uniform.forEach(u=>{
-            source += `uniform ${GLSL_TYPE[u.type]} ${u.symbol};`
+            source += `uniform ${GLSL[u.type]} ${u.symbol};`
         })
         source += this.m_main.mergeCode();
 

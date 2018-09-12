@@ -1,6 +1,6 @@
 import { GLProgram } from "./GLProgram";
 import { vec4 } from "./GLVec";
-import { GLShaderComposer, GLShaderType, GLSL_TYPE, GLSL_PREFIX, GLSL_PRECISION } from "./GLShderComposer";
+import { GLShaderComposer, GLSL } from "./GLShderComposer";
 import { GLFrameBuffer } from "./GLFrameBuffer";
 import { GLPipelineState } from "./GLPipelineState";
 
@@ -187,30 +187,30 @@ export class GLContext{
         }
 
         //vs
-        let shadervs = GLShaderComposer.create(GLShaderType.vertex)
-            .attr(GLSL_TYPE.vec2,'aPosition')
-            .attr(GLSL_TYPE.vec2,'aUV')
-            .vary(GLSL_TYPE.vec2,'vUV',GLSL_PREFIX.out)
-            .precision(GLSL_TYPE.float,GLSL_PRECISION.mediump)
+        let shadervs = GLShaderComposer.create(GLSL.vs)
+            .attr(GLSL.vec2,'aPosition')
+            .attr(GLSL.vec2,'aUV')
+            .vary(GLSL.vec2,'vUV',GLSL.out)
+            .precision(GLSL.float,GLSL.mediump)
             .main(f=>f
                 .line('gl_Position = vec4(aPosition,-1.0,1.0)')
                 .line('vUV = aUV'))
             .compile();
         //ps
-        let shaderps = GLShaderComposer.create(GLShaderType.fragment)
-        .uniform(GLSL_TYPE.sampler2D,'uSampler')
-        .vary(GLSL_TYPE.vec2,'vUV',GLSL_PREFIX.in)
-        .vary(GLSL_TYPE.vec4,'fragColor',GLSL_PREFIX.out)
-        .precision(GLSL_TYPE.float,GLSL_PRECISION.lowp)
+        let shaderps = GLShaderComposer.create(GLSL.ps)
+        .uniform(GLSL.sampler2D,'uSampler')
+        .vary(GLSL.vec2,'vUV',GLSL.in)
+        .vary(GLSL.vec4,'fragColor',GLSL.out)
+        .precision(GLSL.float,GLSL.lowp)
         .main(f=>f
             .line('fragColor = texture(uSampler,vUV)'))
         .compile();
         //ps color
-        let shaderpsCol = GLShaderComposer.create(GLShaderType.fragment)
-            .precision(GLSL_TYPE.float,GLSL_PRECISION.lowp)
-            .uniform(GLSL_TYPE.vec4,'uColor')
-            .vary(GLSL_TYPE.vec2,'vUV',GLSL_PREFIX.in)
-            .vary(GLSL_TYPE.vec4,'fragColor',GLSL_PREFIX.out)
+        let shaderpsCol = GLShaderComposer.create(GLSL.ps)
+            .precision(GLSL.float,GLSL.lowp)
+            .uniform(GLSL.vec4,'uColor')
+            .vary(GLSL.vec2,'vUV',GLSL.in)
+            .vary(GLSL.vec4,'fragColor',GLSL.out)
             .main(f=>f.line('fragColor = uColor'))
             .compile();
         {
