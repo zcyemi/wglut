@@ -228,7 +228,7 @@ export class GLContext{
 
         return true;
     }
-    public drawTexFullscreen(tex:WebGLTexture,retain:boolean = true){
+    public drawTexFullscreen(tex:WebGLTexture,flipY:boolean = false,retain:boolean = true){
         let gl =this.gl;
         if(!gl.isTexture(tex))return;
         if(!this.drawTexCheckInit()){
@@ -237,15 +237,23 @@ export class GLContext{
         }
 
         let state = retain? this.savePipeline(gl.ARRAY_BUFFER_BINDING,gl.TEXTURE_BINDING_2D) : null;
+
+        const dataNoFlipped = [
+            -1, 1, 0, 1,
+            1, 1, 1.0, 1,
+            -1, -1, 0, 0,
+            1, -1, 1, 0
+        ];
+        const dataFlipped = [
+            -1, 1, 0, 0,
+            1, 1, 1, 0,
+            -1, -1, 0, 1,
+            1, -1, 1, 1
+        ];
         
         gl.bindBuffer(gl.ARRAY_BUFFER,this.m_drawTexAryBuffer);
-        this.m_drawTexBuffer.set([
-            -1.0,1.0,0,1.0,
-            1.0,1.0,1.0,1.0,
-            -1.0,-1.0,0,0,
-            1.0,-1.0,1.0,0
-        ]);
-        gl.bufferData(gl.ARRAY_BUFFER,this.m_drawTexBuffer,gl.DYNAMIC_DRAW);
+        this.m_drawTexBuffer.set(flipY? dataFlipped:dataNoFlipped);
+        gl.bufferData(gl.ARRAY_BUFFER,this.m_drawTexBuffer,gl.STREAM_DRAW);
 
         let p = this.m_drawTexProgram;
         gl.useProgram(p.Program);
@@ -293,7 +301,7 @@ export class GLContext{
                 dx2,dy1,1.0,0
             ]);
 
-            gl.bufferData(gl.ARRAY_BUFFER,this.m_drawTexBuffer,gl.DYNAMIC_DRAW);
+            gl.bufferData(gl.ARRAY_BUFFER,this.m_drawTexBuffer,gl.STREAM_DRAW);
 
             let p = this.m_drawRectColorProgram;
             gl.useProgram(p.Program);
