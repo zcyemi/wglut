@@ -239,6 +239,12 @@ export class vec3 {
 
     public static readonly zero: vec3 = new vec3([0, 0, 0]);
     public static readonly one: vec3 = new vec3([1, 1, 1]);
+    public static readonly up:vec3 = new vec3([0,1,0]);
+    public static readonly forward:vec3 = new vec3([0,0,1]);
+    public static readonly back:vec3 = new vec3([0,0,-1]);
+    public static readonly left:vec3 = new vec3([-1,0,0]);
+    public static readonly right:vec3 = new vec3([1,0,0]);
+    public static readonly down:vec3 = new vec3([0,-1,0]);
 }
 
 const DEG2RAD_HALF = Math.PI / 360.0;
