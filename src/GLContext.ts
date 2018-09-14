@@ -1,8 +1,8 @@
 import { GLProgram } from "./GLProgram";
-import { vec4 } from "./GLVec";
 import { GLShaderComposer, GLSL } from "./GLShderComposer";
 import { GLFrameBuffer } from "./GLFrameBuffer";
 import { GLPipelineState } from "./GLPipelineState";
+import { vec4 } from "./GLMath";
 
 export class GLContext{
 
