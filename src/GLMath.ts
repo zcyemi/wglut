@@ -2,6 +2,7 @@ export class glmath {
     public static vec3(x: number, y: number, z: number): vec3 {
         return new vec3([x, y, z]);
     }
+    
 
     public static vec4(x: number, y: number, z: number, w: number): vec4 {
         return new vec4([x, y, z, w]);
@@ -226,11 +227,23 @@ export class vec3 {
     }
 
     public cross(v: vec3) {
+        return vec3.Cross(this,v);
+    }
+
+    public static Cross(v1:vec3,v2:vec3):vec3{
         return new vec3([
-            this.y * v.z - this.z * v.y,
-            this.z * v.x - this.x * v.z,
-            this.x * v.y - this.y * v.x
+            v1.y * v2.z - v1.z * v2.y,
+            v1.z * v2.x - v1.x * v2.z,
+            v1.x * v2.y - v1.y * v2.x
         ]);
+    }
+
+    public static Dot(v1: vec3, v2: vec3) {
+        return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+    }
+
+    public static Add(v1:vec3,v2:vec3){
+        return new vec3([v1.x+v2.x,v1.y+v2.y,v1.z+v2.z]);
     }
 
     public normalize(): vec3 {
@@ -282,6 +295,7 @@ export class quat {
         ])
     }
 
+
     public static readonly Identity: quat = new quat([
         0, 0, 0, 1
     ]);
@@ -330,7 +344,7 @@ export class quat {
         return v;
     }
 
-    public axisRotation(axis: vec3, angle: number) {
+    public static axisRotation(axis: vec3, angle: number) {
         let d = 1.0 / axis.lenth;
         let sin = Math.sin(angle / 2);
         let cos = Math.cos(angle / 2);
