@@ -80,7 +80,7 @@ describe("mat3",()=>{
 
     it("mat3-rotation",()=>{
         let mtx = mat3.RotationDeg(60.9,-75.2,17.4);
-        let q = quat.fromEuler(60.9,-75.2,17.4);
+        let q = quat.fromEulerDeg(60.9,-75.2,17.4);
         let v = glmath.vec3(1,-2,3);
 
         let v1 = mtx.mulvec(v);
@@ -92,19 +92,19 @@ describe("mat3",()=>{
 
 describe('quaternion',()=>{
     it('fromEuler-0',()=>{
-        let q = quat.fromEuler(10,20,30);
+        let q = quat.fromEulerDeg(10,20,30);
         pairwise(q.raw,(s,t)=>{
             expect(s).closeTo(t,0.001);
         },[0.128,0.145,0.269,0.944]);
     });
     it('fromEuler-1',()=>{
-        let q = quat.fromEuler(-125.830, 90.831,-22.499);
+        let q = quat.fromEulerDeg(-125.830, 90.831,-22.499);
         pairwise(q.raw,(s,t)=>{
             expect(s).closeTo(t,0.001);
         },[-0.676,0.196,-0.684,0.190]);
     });
     it('fromEuler-2',()=>{
-        let q = quat.fromEuler(-90,0,-180.0);
+        let q = quat.fromEulerDeg(-90,0,-180.0);
         pairwise(q.raw,(s,t)=>{
             expect(s).closeTo(t,0.001);
         },[0.0,-0.707,-0.707,0.0]);
@@ -113,20 +113,16 @@ describe('quaternion',()=>{
     it('quat-multiple',()=>{
         var p = quat.axisRotation(glmath.vec3(2,3,5),1.0);
         var q = quat.axisRotation(glmath.vec3(-1,2,0.7),-5.0);
-
         var f = p.mul(q);
         //verify
         var p0 = p.w;
         var q0  =q.w;
         var pv = glmath.vec3(p.x,p.y,p.z);
         var qv = glmath.vec3(q.x,q.y,q.z);
-
         var cross = vec3.Cross(pv,qv);
         var dot = vec3.Dot(pv,qv);
-``
         var s = cross.add(pv.mul(q0)).add(qv.mul(p0));
         let sv = new vec4([s.x,s.y,s.z, q0 * p0 - dot]);
-
         expectPair(f.raw,sv.raw);
     });
 
@@ -138,7 +134,7 @@ describe('quaternion',()=>{
     });
 
     it('quat_euler_cross_verify',()=>{
-        var qeuler = quat.fromEuler(271,-34,59);
+        var qeuler = quat.fromEulerDeg(271,-34,59);
         var qx = quat.axisRotationDeg(vec3.right,271);
         var qy = quat.axisRotationDeg(vec3.up,-34);
         var qz = quat.axisRotationDeg(vec3.forward,59);
@@ -147,30 +143,62 @@ describe('quaternion',()=>{
     })
 
     it("quat-2-mtx",()=>{
-        var qeuler = quat.fromEuler(51,-20,165);
-
+        var qeuler = quat.fromEulerDeg(51,-20,165);
         var v = new vec3([1,-2,3]).normalize();
         let qmtx = quat.QuatToMtx(qeuler);
-
         var v1 = qeuler.rota(v);
         var v2 = qmtx.mulvec(v);
-
         expectPair(v1.raw,v2.raw);
     })
 
     it("mtx-2-quat-1",()=>{
-        var qeuler = quat.fromEuler(51,-20,165);
+        var qeuler = quat.fromEulerDeg(51,-20,165);
         let qv4 = quat.MtxToQuat(quat.QuatToMtx(qeuler));
         expect(qeuler.equals(qv4)).that.eq(true);
     })
 
     it("mtx-2-quat-2",()=>{
-        var q = quat.fromEuler(30,-70,90);
-
+        var q = quat.fromEulerDeg(30,-70,90);
         let mtxrota =mat3.RotationDeg(30,-70,90);
         let qm = quat.MtxToQuat(mtxrota);
-
         expectPair(q.raw,qm.raw);
-
     });
+
+    it("quat-rota-to",()=>{
+        let tar = new vec3([-1.9,13.5,2.7]);
+        let length = tar.length;
+        let q =quat.RotaTo(tar);
+        let v = q.rota(vec3.right.mul(length));
+        expectPair(v.raw, tar.raw);
+    });
+
+    it("quat-from-to",()=>{
+
+        let from = glmath.vec3(23,-3,5);
+        let to = glmath.vec3(-7,11,3);
+
+        let q = quat.FromTo(from,to);
+        let v = q.rota(from).normalize().mul(to.length);
+
+        expectPair(v.raw,to.raw);
+    });
+
+    it("quat-div-1",()=>{
+        let q1 = quat.fromEuler(Math.random(),Math.random(),Math.random());
+        let q2 = quat.fromEuler(Math.random(),Math.random(),Math.random());
+        let q = q1.mul(q2);
+        let qdiv = quat.Div(q,q2);
+        expectPair(qdiv.raw,q1.raw);
+    })
+
+    it("quat-div-2",()=>{
+        let q1 = quat.Random();
+        let q2 = quat.Random();
+
+        let qdiv = quat.Div(q2,q1);
+
+        let q = qdiv.mul(q1);
+
+        expectPair(q.raw, q2.raw);
+    })
 })

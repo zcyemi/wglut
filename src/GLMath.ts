@@ -144,8 +144,15 @@ export class vec3 {
     public set y(v: number) { this.raw[1] = v; }
     public set z(v: number) { this.raw[2] = v; }
 
-    public get lenth(): number {
+    public get length(): number {
         return Math.sqrt(this.dot(this));
+    }
+
+    public get length2():number{
+        let x = this.x;
+        let y = this.y;
+        let z = this.z;
+        return x*x + y* y +z*z;
     }
 
     public constructor(v?: number[]) {
@@ -255,7 +262,7 @@ export class vec3 {
     }
 
     public normalize(): vec3 {
-        return this.div(this.lenth);
+        return this.div(this.length);
     }
 
     public static readonly zero: vec3 = new vec3([0, 0, 0]);
@@ -294,6 +301,10 @@ export class quat {
         }
     }
 
+    public conjugate():quat{
+        return quat.Conjugate(this);
+    }
+
     public mul(r: quat) {
         let l = this;
         return new quat([
@@ -315,7 +326,7 @@ export class quat {
         return p.add(t.mul(this.w)).add(q.cross(t));
     }
 
-    public static fromEuler(degx: number, degy: number, degz: number) {
+    public static fromEulerDeg(degx: number, degy: number, degz: number) {
         let rx = degx * DEG2RAD_HALF;
         let ry = degy * DEG2RAD_HALF;
         let rz = degz * DEG2RAD_HALF;
@@ -325,6 +336,24 @@ export class quat {
         let sinx = Math.sin(rx);
         let siny = Math.sin(ry);
         let sinz = Math.sin(rz);
+        return new quat([
+            sinx * cosy * cosz + cosx * siny * sinz,
+            cosx * siny * cosz - sinx * cosy * sinz,
+            cosx * cosy * sinz + sinx * siny * cosz,
+            cosx * cosy * cosz - sinx * siny * sinz
+        ]);
+    }
+
+    public static fromEuler(rx: number, ry: number, rz: number) {
+        let rxh = rx/2.0;
+        let ryh = ry/2.0;
+        let rzh = rz/2.0;
+        let cosx = Math.cos(rxh);
+        let cosy = Math.cos(ryh);
+        let cosz = Math.cos(rzh);
+        let sinx = Math.sin(rxh);
+        let siny = Math.sin(ryh);
+        let sinz = Math.sin(rzh);
         return new quat([
             sinx * cosy * cosz + cosx * siny * sinz,
             cosx * siny * cosz - sinx * cosy * sinz,
@@ -354,7 +383,7 @@ export class quat {
     }
 
     public static axisRotation(axis: vec3, angle: number) {
-        let d = 1.0 / axis.lenth;
+        let d = 1.0 / axis.length;
         let sin = Math.sin(angle / 2);
         let cos = Math.cos(angle / 2);
         let v4 = axis.mul(d * sin).vec4(cos);
@@ -363,11 +392,26 @@ export class quat {
 
     public static axisRotationDeg(axis: vec3, deg: number) {
         let angle = deg * DEG2RAD;
-        let d = 1.0 / axis.lenth;
+        let d = 1.0 / axis.length;
         let sin = Math.sin(angle / 2);
         let cos = Math.cos(angle / 2);
         let v4 = axis.mul(d * sin).vec4(cos);
         return new quat(v4.raw);
+    }
+
+    public static RotaTo(vec:vec3):quat{
+        let len2 = vec.length2;
+        if(len2 == 0) return quat.Identity;
+        let v = vec.normalize();
+        let rady = Math.atan2(-v.z,v.x);
+        let radz = Math.atan2(v.y, Math.sqrt(1 - v.y * v.y));
+        return quat.fromEuler(0,rady,radz);
+    }
+
+    public static FromTo(from:vec3,to:vec3):quat{
+        let q1 = quat.RotaTo(from);
+        let q2 = quat.RotaTo(to);
+        return quat.Div(q2,q1);
     }
 
     public static QuatToMtx(q:quat):mat3{
@@ -393,6 +437,14 @@ export class quat {
             zx2 + wy2, yz2 - wx2, 1 - x2 - y2
         ]);
         
+    }
+
+    public static Conjugate(q:quat):quat{
+        return new quat([-q.x,-q.y,-q.z,q.w]);
+    }
+
+    public static Div(q1:quat,q2:quat): quat{
+        return q1.mul(q2.conjugate());
     }
 
     public static MtxToQuat(mtx:mat3){
@@ -432,6 +484,11 @@ export class quat {
         let w = this.w;
 
         return x * x + y * y + z * z + w * w;
+    }
+
+    public static Random():quat{
+
+        return quat.axisRotation(glmath.vec3(Math.random(),Math.random(),Math.random()),Math.PI * 2 * Math.random());
     }
 }
 
