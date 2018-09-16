@@ -370,41 +370,59 @@ export class quat {
         return new quat(v4.raw);
     }
 
-    public static QuatToMtx(q:quat):mat4{
-        var mat1 = mat4.Identity;
-        var mati = new mat4([
-            0,0,0,1,
-            0,0,1,0,
-            0,-1,0,0,
-            -1,0,0,0
+    public static QuatToMtx(q:quat):mat3{
+        let x = q.x;
+        let y = q.y;
+        let z = q.z;
+        let w = q.w;
+        let x2 = 2 * x * x;
+        let y2 = 2 * y * y;
+        let z2 = 2 * z * z;
+
+        let xy2 = x * y * 2;
+        let yz2 = y * z * 2;
+        let zx2 = z * x * 2;
+
+        let wx2 = w * x * 2;
+        let wy2 = w * y * 2;
+        let wz2 = w * z * 2;
+
+        return new mat3([
+            1 - y2 - z2, xy2 + wz2, zx2 - wy2,
+            xy2 - wz2, 1 - x2 - z2, yz2 + wx2,
+            zx2 + wy2, yz2 - wx2, 1 - x2 - y2
         ]);
-
-        var matj = new mat4([
-            0,0,0,-1,
-            0,0,1,0,
-            0,-1,0,0,
-            1,0,0,0
-        ]);
-
-        var matk = new mat4([
-            0,1,0,0,
-            -1,0,0,0,
-            0,0,0,-1,
-            0,0,1,0
-        ])
-
-        let mf = mat1.mulnum(q.w).add(mati.mulnum(q.x)).add(matj.mulnum(q.y)).add(matk.mulnum(q.w))
-
-        return mf;
+        
     }
 
-    public static MtxToQuat(){
+    public static MtxToQuat(mtx:mat3){
+        let raw = mtx.raw;
+        let a1 = raw[1];
+        let a3 = raw[3];
+        let a5 = raw[5];
+        let a7 = raw[7];
+        let a8 = raw[8];
+        let a0 = raw[0];
+        let a4 = raw[4];
+        let w2 = (a0 + a4 + 1 + a8)/4;
+        let x2 = (a0 + 1 - 2*w2)/2;
 
+        let x = Math.sqrt(x2);
+        let y = (a1 + a3)/4.0 /x;
+        let z = (a5+a7)/4.0 / y;
+        let w = (a1 - a3) /4.0/z;
+
+        return w<0 ?new quat([-x,-y,-z,-w]): new quat([x,y,z,w]);
     }
 
 
     public equals(q: quat) {
-        return this.x == q.x && this.y == q.y && this.z == q.z && this.w == q.w;
+        let qraw = q.w < 0 ? [-q.x,-q.y,-q.z,-q.w] : q.raw;
+
+        for(let i=0;i<4;i++){
+            if(Math.abs(qraw[i] - this.raw[i]) > 0.0001) return false;
+        }
+        return true;
     }
 
     public determination() {
@@ -708,6 +726,36 @@ export class mat3 {
             mat.row(1).dot(v),
             mat.row(2).dot(v),
         ])
+    }
+
+    public static Scale(sx:number,sy:number,sz:number):mat3{
+        return new mat3([
+            sx,0,0,
+            0,sy,0,
+            0,0,sz
+        ]);
+    }
+
+    public static Rotation(rx:number, ry:number, rz:number): mat3 {
+        let cosx = Math.cos(rx);
+        let sinx = Math.sin(rx);
+        let cosy = Math.cos(ry);
+        let siny = Math.sin(ry);
+        let cosz = Math.cos(rz);
+        let sinz = Math.sin(rz);
+        return new mat3([
+            cosy * cosz, sinx * siny * cosz + cosx * sinz, -cosx * siny * cosz + sinx * sinz,
+            -cosy * sinz, -sinx * siny * sinz + cosx * cosz, cosx * siny * sinz + sinx * cosz,
+            siny, -sinx * cosy, cosx * cosy
+        ]);
+    }
+
+    public static RotationDeg(degx:number,degy:number,degz:number){
+        let rx = degx * DEG2RAD;
+        let ry = degy * DEG2RAD;
+        let rz = degz * DEG2RAD;
+
+        return this.Rotation(rx,ry,rz);
     }
     
 }

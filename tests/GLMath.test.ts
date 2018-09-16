@@ -77,6 +77,17 @@ describe("mat3",()=>{
         let c2 = mtxclhs.mulvec(v1);
         expectPair(c1.raw,c2.raw);
     })
+
+    it("mat3-rotation",()=>{
+        let mtx = mat3.RotationDeg(60.9,-75.2,17.4);
+        let q = quat.fromEuler(60.9,-75.2,17.4);
+        let v = glmath.vec3(1,-2,3);
+
+        let v1 = mtx.mulvec(v);
+        let v2 = q.rota(v);
+
+        expectPair(v1.raw,v2.raw);
+    })
 })
 
 describe('quaternion',()=>{
@@ -135,12 +146,31 @@ describe('quaternion',()=>{
         expectPair(qeuler.raw,qm.raw);
     })
 
-    it("quat_2_mtx",()=>{
-        var qeuler = quat.fromEuler(90,0,0);
-        var mtx = quat.QuatToMtx(qeuler);
+    it("quat-2-mtx",()=>{
+        var qeuler = quat.fromEuler(51,-20,165);
 
-        var vm = mtx.mulvec(new vec4([1,0,0,0]));
-        let vm3 = vm.mulNum(1.0/vm.w).vec3().normalize();
-        var vq = qeuler.rota(new vec3([1,0,0])).normalize();
+        var v = new vec3([1,-2,3]).normalize();
+        let qmtx = quat.QuatToMtx(qeuler);
+
+        var v1 = qeuler.rota(v);
+        var v2 = qmtx.mulvec(v);
+
+        expectPair(v1.raw,v2.raw);
     })
+
+    it("mtx-2-quat-1",()=>{
+        var qeuler = quat.fromEuler(51,-20,165);
+        let qv4 = quat.MtxToQuat(quat.QuatToMtx(qeuler));
+        expect(qeuler.equals(qv4)).that.eq(true);
+    })
+
+    it("mtx-2-quat-2",()=>{
+        var q = quat.fromEuler(30,-70,90);
+
+        let mtxrota =mat3.RotationDeg(30,-70,90);
+        let qm = quat.MtxToQuat(mtxrota);
+
+        expectPair(q.raw,qm.raw);
+
+    });
 })
