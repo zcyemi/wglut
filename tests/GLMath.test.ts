@@ -28,7 +28,7 @@ describe('vec3',()=>{
     });
 })
 
-describe('matrix',()=>{
+describe('matrix4',()=>{
     it('mat4 inverse',()=>{
         let m = new mat4([
             2,4,0,0,
@@ -46,11 +46,38 @@ describe('matrix',()=>{
             0.25,-0.5,0.5,0,
             -39,58,-44,1
         ])
-
-        
     })
 })
 
+describe("mat3",()=>{
+    it("mat3-transpose",()=>{
+        let mtx = new mat3([
+            3,5,-1,
+            4,-7,0,
+            2,6,3
+        ]);
+        let mtxtt = mtx.transpose().transpose();
+        expectPair(mtx.raw,mtxtt.raw);
+    })
+
+    it("mat3-cross-lhs",()=>{
+        let v1 = new vec3([1,4,6]);
+        let v2 = new vec3([-6,-7,2]);
+        let c1 = vec3.Cross(v1,v2);
+        let mtxclhs = mat3.Cross(v1);
+        let c2 = mtxclhs.mulvec(v2);
+        expectPair(c1.raw,c2.raw);
+    })
+
+    it("mat3-cross-rhs",()=>{
+        let v1 = new vec3([1,4,6]);
+        let v2 = new vec3([-6,-7,2]);
+        let c1 = v1.cross(v2);
+        let mtxclhs = mat3.CrossRHS(v2);
+        let c2 = mtxclhs.mulvec(v1);
+        expectPair(c1.raw,c2.raw);
+    })
+})
 
 describe('quaternion',()=>{
     it('fromEuler-0',()=>{
@@ -85,10 +112,35 @@ describe('quaternion',()=>{
 
         var cross = vec3.Cross(pv,qv);
         var dot = vec3.Dot(pv,qv);
-
+``
         var s = cross.add(pv.mul(q0)).add(qv.mul(p0));
         let sv = new vec4([s.x,s.y,s.z, q0 * p0 - dot]);
 
         expectPair(f.raw,sv.raw);
+    });
+
+    it('quat_vec',()=>{
+        var q = quat.axisRotation(glmath.vec3(2,3,5),1.0);
+        var v = glmath.vec3(20,-11,4);
+        var vr = q.rota(v);
+        expectPair(vr.raw,[20.605,7.595,-7.399]);
+    });
+
+    it('quat_euler_cross_verify',()=>{
+        var qeuler = quat.fromEuler(271,-34,59);
+        var qx = quat.axisRotationDeg(vec3.right,271);
+        var qy = quat.axisRotationDeg(vec3.up,-34);
+        var qz = quat.axisRotationDeg(vec3.forward,59);
+        var qm = qx.mul(qy).mul(qz);
+        expectPair(qeuler.raw,qm.raw);
+    })
+
+    it("quat_2_mtx",()=>{
+        var qeuler = quat.fromEuler(90,0,0);
+        var mtx = quat.QuatToMtx(qeuler);
+
+        var vm = mtx.mulvec(new vec4([1,0,0,0]));
+        let vm3 = vm.mulNum(1.0/vm.w).vec3().normalize();
+        var vq = qeuler.rota(new vec3([1,0,0])).normalize();
     })
 })

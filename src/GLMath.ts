@@ -1,3 +1,5 @@
+import { isNumber } from "util";
+
 export class glmath {
     public static vec3(x: number, y: number, z: number): vec3 {
         return new vec3([x, y, z]);
@@ -83,7 +85,12 @@ export class vec4 {
         }
     }
 
+    public mulNum(v:number){
+        return glmath.vec4(this.x * v, this.y * v, this.z * v, this.w * v);
+    }
+
     public mul(v: number | vec4 | mat4 | number[] | quat) {
+
         if (v instanceof vec4) {
             return glmath.vec4(v.x * this.x, v.y * this.y, v.z * this.z, v.w * this.w);
         }
@@ -96,7 +103,7 @@ export class vec4 {
         else if (v instanceof quat) {
             return null;
         }
-        else {
+        else if(isNumber(v)){
             return glmath.vec4(this.x * v, this.y * v, this.z * v, this.w * v);
         }
     }
@@ -230,13 +237,14 @@ export class vec3 {
         return vec3.Cross(this,v);
     }
 
-    public static Cross(v1:vec3,v2:vec3):vec3{
+    public static Cross(lhs:vec3,rhs:vec3):vec3{
         return new vec3([
-            v1.y * v2.z - v1.z * v2.y,
-            v1.z * v2.x - v1.x * v2.z,
-            v1.x * v2.y - v1.y * v2.x
+            lhs.y * rhs.z - lhs.z * rhs.y,
+            lhs.z * rhs.x - lhs.x * rhs.z,
+            lhs.x * rhs.y - lhs.y * rhs.x
         ]);
     }
+
 
     public static Dot(v1: vec3, v2: vec3) {
         return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
@@ -261,6 +269,7 @@ export class vec3 {
 }
 
 const DEG2RAD_HALF = Math.PI / 360.0;
+const DEG2RAD = Math.PI / 180.0;
 const RAD2DEG = 180.0 / Math.PI;
 
 export class quat {
@@ -351,6 +360,48 @@ export class quat {
         let v4 = axis.mul(d * sin).vec4(cos);
         return new quat(v4.raw);
     }
+
+    public static axisRotationDeg(axis: vec3, deg: number) {
+        let angle = deg * DEG2RAD;
+        let d = 1.0 / axis.lenth;
+        let sin = Math.sin(angle / 2);
+        let cos = Math.cos(angle / 2);
+        let v4 = axis.mul(d * sin).vec4(cos);
+        return new quat(v4.raw);
+    }
+
+    public static QuatToMtx(q:quat):mat4{
+        var mat1 = mat4.Identity;
+        var mati = new mat4([
+            0,0,0,1,
+            0,0,1,0,
+            0,-1,0,0,
+            -1,0,0,0
+        ]);
+
+        var matj = new mat4([
+            0,0,0,-1,
+            0,0,1,0,
+            0,-1,0,0,
+            1,0,0,0
+        ]);
+
+        var matk = new mat4([
+            0,1,0,0,
+            -1,0,0,0,
+            0,0,0,-1,
+            0,0,1,0
+        ])
+
+        let mf = mat1.mulnum(q.w).add(mati.mulnum(q.x)).add(matj.mulnum(q.y)).add(matk.mulnum(q.w))
+
+        return mf;
+    }
+
+    public static MtxToQuat(){
+
+    }
+
 
     public equals(q: quat) {
         return this.x == q.x && this.y == q.y && this.z == q.z && this.w == q.w;
@@ -545,8 +596,32 @@ export class mat4 {
         ])
     }
 
+    public add(m:mat4){
+        return mat4.add(this,m);
+    }
+
+    public static add(m1:mat4,m2:mat4){
+        let ary = [];
+        let raw1 = m1.raw;
+        let raw2 = m2.raw;
+        for(var i=0;i<16;i++){
+            ary.push(raw1[i] + raw2[i]);
+        }
+        return new mat4(ary);
+    }
+
     public mulvec(v:vec4):vec4{
         return mat4.mul(this,v);
+    }
+
+    public mulnum(n:number):mat4{
+        let nary = [];
+        let raw = this.raw;
+        for(var i=0;i<16;i++){
+            nary.push(raw[i] *n);
+        }
+
+        return new mat4(nary);
     }
 
     public mul(n:mat4):mat4{
@@ -590,7 +665,49 @@ export class mat3 {
     public row(index: number): vec3 {
         let raw = this.raw;
         let o = index;
-        return new vec3([raw[o], raw[o + 4], raw[o + 8]]);
+        return new vec3([raw[o], raw[o + 3], raw[o + 6]]);
     }
     public static readonly Identity: mat3 = new mat3([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+
+    public static Transpose(m:mat3){
+        let raw = m.raw;
+        return new mat3([
+            raw[0],raw[3],raw[6],
+            raw[1],raw[4],raw[7],
+            raw[2],raw[5],raw[8]
+        ]);
+    }
+
+    public transpose():mat3{
+        return mat3.Transpose(this);
+    }
+
+    public static Cross(lhs:vec3){
+        return new mat3([
+            0, lhs.z, -lhs.y,
+            -lhs.z,0,lhs.x,
+            lhs.y,-lhs.x,0
+        ])
+    }
+
+    public static CrossRHS(rhs:vec3){
+        return new mat3([
+            0, -rhs.z, rhs.y,
+            rhs.z,0,-rhs.x,
+            -rhs.y,rhs.x,0
+        ])
+    }
+
+    public mulvec(v:vec3):vec3{
+        return mat3.MulVec(this,v);
+    }
+
+    public static MulVec(mat:mat3,v:vec3):vec3{
+        return new vec3([
+            mat.row(0).dot(v),
+            mat.row(1).dot(v),
+            mat.row(2).dot(v),
+        ])
+    }
+    
 }
