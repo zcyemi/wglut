@@ -1,6 +1,8 @@
 import typescript from "rollup-plugin-typescript2";
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
+import builtins from 'rollup-plugin-node-builtins';
+import globals from 'rollup-plugin-node-globals';
 
 let config = {
     input: './src/wglut.ts',
@@ -19,7 +21,9 @@ let config = {
             jsnext:true,
             extensions: ['.ts','.js']
         }),
-        commonjs()
+        commonjs(),
+        builtins(),
+        globals()
     ]
 }
 
