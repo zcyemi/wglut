@@ -319,7 +319,6 @@ export class quat {
         ])
     }
 
-
     public static readonly Identity: quat = new quat([
         0, 0, 0, 1
     ]);
@@ -698,7 +697,6 @@ export class mat4 {
         for(var i=0;i<16;i++){
             nary.push(raw[i] *n);
         }
-
         return new mat4(nary);
     }
 
@@ -735,28 +733,26 @@ export class mat4 {
 
     public setTRS(translate:vec3,rota:quat,scale:vec3){
         let raw = this.raw;
-        
         let r = quat.QuatToMtx(rota).raw;
-
-        raw[0] = r[0] * scale.x;
-        raw[1] = r[1];
-        raw[2] = r[2];
+        let x = scale.x;
+        let y = scale.y;
+        let z = scale.z;
+        raw[0] = r[0] * x;
+        raw[1] = r[1] * x;
+        raw[2] = r[2] * x;
         raw[3] = 0;
-
-        raw[4] = r[3];
-        raw[5] = r[4]* scale.y;
-        raw[6] = r[5];
+        raw[4] = r[3] * y;
+        raw[5] = r[4] * y;
+        raw[6] = r[5] * y;
         raw[7] = 0;
-
-        raw[8] = r[7];
-        raw[9] = r[8];
-        raw[10] = r[9]* scale.z;
+        raw[8] = r[6] * z;
+        raw[9] = r[7] * z;
+        raw[10] = r[8] * z;
         raw[11] = 0;
-
         raw[12] = translate.x;
         raw[13] = translate.y;
         raw[14] = translate.z;
-        raw[15] = 0;
+        raw[15] = 1;
     }
 
     public mul(rhs:mat4):mat4{
@@ -764,12 +760,10 @@ export class mat4 {
         let m1 = this.row(1);
         let m2 = this.row(2);
         let m3 = this.row(3);
-
         let n0 = rhs.column(0);
         let n1 = rhs.column(1);
         let n2 = rhs.column(2);
         let n3 = rhs.column(3);
-
         return new mat4([
             m0.dot(n0),m1.dot(n0),m2.dot(n0),m3.dot(n0),
             m0.dot(n1),m1.dot(n1),m2.dot(n1),m3.dot(n1),

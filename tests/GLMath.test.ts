@@ -111,6 +111,13 @@ describe('mat4',()=>{
         
     });
 
+    it("TRS-setTRS",()=>{
+        let mtx = mat4.TRS(vec3.zero,quat.Identity,vec3.one);
+        let m = mat4.Identity;
+        m.setTRS(vec3.zero,quat.Identity,vec3.one);
+        expectPair(mtx.raw,m.raw);
+    })
+
     it("Rota-vector",()=>{
         let q = quat.Random();
         let v = vec3.Random();
@@ -118,6 +125,7 @@ describe('mat4',()=>{
         let v2 = mat4.Rotation(q).mulvec(v.vec4(0)).vec3();
         expectVec3(v1,v2);
     })
+
 
     it("Rota-point",()=>{
         let q= quat.Random();

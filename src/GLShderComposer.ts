@@ -14,11 +14,13 @@ export enum GLSL{
     inout,
     lowp,
     mediump,
-    highp
+    highp,
+    mat3,
+    mat4
 }
 
 export type GLSL_SHADER = GLSL.vs | GLSL.ps;
-export type GLSL_TYPE = GLSL.vec2 | GLSL.vec3 | GLSL.vec4 | GLSL.float | GLSL.int | GLSL.sampler2D | GLSL.void;
+export type GLSL_TYPE = GLSL.vec2 | GLSL.vec3 | GLSL.vec4 | GLSL.float | GLSL.int | GLSL.sampler2D | GLSL.void | GLSL.mat3 | GLSL.mat4;
 export type GLSL_PREFIX = GLSL.in | GLSL.out | GLSL.inout;
 export type GLSL_PRECISION = GLSL.lowp | GLSL.mediump | GLSL.highp;
 
