@@ -200,7 +200,7 @@ export class vec3 {
         }
     }
 
-    public mul(v: number | vec4 | mat3 | number[] | quat): vec3 {
+    public mul(v: number | vec3 | vec4 | mat3 | number[] | quat): vec3 {
         if (v instanceof vec3 || v instanceof vec4) {
             let x = v.x * this.x;
             let y = v.y * this.y;
@@ -263,6 +263,10 @@ export class vec3 {
 
     public normalize(): vec3 {
         return this.div(this.length);
+    }
+
+    public static Random():vec3{
+        return new vec3([Math.random(),Math.random(),Math.random()]);
     }
 
     public static readonly zero: vec3 = new vec3([0, 0, 0]);
@@ -487,7 +491,6 @@ export class quat {
     }
 
     public static Random():quat{
-
         return quat.axisRotation(glmath.vec3(Math.random(),Math.random(),Math.random()),Math.PI * 2 * Math.random());
     }
 }
@@ -653,7 +656,7 @@ export class mat4 {
         return new mat4(dst);
     }
     
-    public static translate(v:vec3){
+    public static Translate(v:vec3){
         return new mat4([
             1,0,0,0,
             0,1,0,0,
@@ -699,33 +702,94 @@ export class mat4 {
         return new mat4(nary);
     }
 
-    public static TRS(translate:vec3,rota:quat,scale:vec3){
-        let mtxr = quat.QuatToMtx(rota).raw;
+    public static Scale(scale:vec3):mat4{
         return new mat4([
-            mtxr[0]* scale.x, mtxr[1],mtxr[2],0,
-            mtxr[3],mtxr[4]* scale.y ,mtxr[5],0,
-            mtxr[6],mtxr[7],mtxr[8]* scale.z,0,
-            translate.x,translate.y,translate.z,0
-        ])
+            scale.x,0,0,0,
+            0,scale.y,0,0,
+            0,0,scale.z,0,
+            0,0,0,1
+        ]);
     }
 
-    public mul(n:mat4):mat4{
+    public static Rotation(q:quat):mat4{
+        let mtx = quat.QuatToMtx(q).toMat4();
+        mtx.raw[15] = 1;
+        return mtx;
+    }
+    public static RotationEler(rad:vec3):mat4{
+        return mat3.Rotation(rad.x,rad.y,rad.z).toMat4();
+    }
+
+    public static TRS(translate:vec3,rota:quat,scale:vec3){
+        let mtxr = quat.QuatToMtx(rota).raw;
+        let x = scale.x;
+        let y = scale.y;
+        let z = scale.z;
+        return new mat4([
+            mtxr[0] * x, mtxr[1] * x, mtxr[2] * x, 0,
+            mtxr[3] * y, mtxr[4] * y, mtxr[5] * y, 0,
+            mtxr[6] * z, mtxr[7] * z, mtxr[8] * z, 0,
+            translate.x, translate.y, translate.z, 1
+        ]);
+    }
+
+    public setTRS(translate:vec3,rota:quat,scale:vec3){
+        let raw = this.raw;
+        
+        let r = quat.QuatToMtx(rota).raw;
+
+        raw[0] = r[0] * scale.x;
+        raw[1] = r[1];
+        raw[2] = r[2];
+        raw[3] = 0;
+
+        raw[4] = r[3];
+        raw[5] = r[4]* scale.y;
+        raw[6] = r[5];
+        raw[7] = 0;
+
+        raw[8] = r[7];
+        raw[9] = r[8];
+        raw[10] = r[9]* scale.z;
+        raw[11] = 0;
+
+        raw[12] = translate.x;
+        raw[13] = translate.y;
+        raw[14] = translate.z;
+        raw[15] = 0;
+    }
+
+    public mul(rhs:mat4):mat4{
         let m0 = this.row(0);
         let m1 = this.row(1);
         let m2 = this.row(2);
         let m3 = this.row(3);
 
-        let n0 = n.column(0);
-        let n1 = n.column(1);
-        let n2 = n.column(2);
-        let n3 = n.column(3);
+        let n0 = rhs.column(0);
+        let n1 = rhs.column(1);
+        let n2 = rhs.column(2);
+        let n3 = rhs.column(3);
 
         return new mat4([
-            m0.dot(n0),m0.dot(n1),m0.dot(n2),m0.dot(n3),
-            m1.dot(n0),m1.dot(n1),m1.dot(n2),m1.dot(n3),
-            m2.dot(n0),m2.dot(n1),m2.dot(n2),m2.dot(n3),
-            m3.dot(n0),m3.dot(n1),m3.dot(n2),m3.dot(n3)
+            m0.dot(n0),m1.dot(n0),m2.dot(n0),m3.dot(n0),
+            m0.dot(n1),m1.dot(n1),m2.dot(n1),m3.dot(n1),
+            m0.dot(n2),m1.dot(n2),m2.dot(n2),m3.dot(n2),
+            m0.dot(n3),m1.dot(n3),m2.dot(n3),m3.dot(n3)
         ])
+    }
+
+    public transpose():mat4{
+        return mat4.Transpose(this);
+    }
+
+    public static Transpose(m:mat4){
+        let raw = m.raw;
+        return new mat4([
+            raw[0],raw[4],raw[8],raw[10],
+            raw[1],raw[5],raw[7],raw[11],
+            raw[2],raw[6],raw[8],raw[12],
+            raw[3],raw[7],raw[9],raw[13],
+        ]);
     }
 }
 
@@ -765,6 +829,20 @@ export class mat3 {
 
     public transpose():mat3{
         return mat3.Transpose(this);
+    }
+
+    public toMat4(){
+        return mat3.ToMat4(this);
+    }
+
+    public static ToMat4(m:mat3){
+        let r = m.raw;
+        return new mat4([
+            r[0],r[1],r[2],0,
+            r[3],r[4],r[5],0,
+            r[6],r[7],r[8],0,
+            0,0,0,0
+        ])
     }
 
     public static Cross(lhs:vec3){

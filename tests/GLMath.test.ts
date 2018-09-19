@@ -1,5 +1,5 @@
 import * as chai from 'chai';
-import { pairwise, expectPair} from './GLTestHelper';
+import { pairwise, expectPair, expectVec3, expectVec4} from './GLTestHelper';
 import { glmath,vec3,vec4,mat3,mat4,quat} from '../src/wglut';
 
 const expect = chai.expect;
@@ -28,7 +28,7 @@ describe('vec3',()=>{
     });
 })
 
-describe('matrix4',()=>{
+describe('mat4',()=>{
     it('mat4 inverse',()=>{
         let m = new mat4([
             2,4,0,0,
@@ -46,6 +46,85 @@ describe('matrix4',()=>{
             0.25,-0.5,0.5,0,
             -39,58,-44,1
         ])
+    });
+
+    it("Translate",()=>{
+        let v = vec3.Random();
+        let v1 = vec3.Random();
+        let mtx = mat4.Translate(v1);
+        let v2 = v.add(v1);
+        let v3 = mtx.mulvec(v.vec4(1)).vec3();
+        expectVec3(v2,v3);
+    })
+
+    it("Scale",()=>{
+       let v = vec3.Random();
+       let s =vec3.Random();
+       let mtx = mat4.Scale(s);
+       let v1 = v.mul(s).vec4();
+       let v2 = mtx.mulvec(v.vec4());
+       expectVec4(v1,v2);
+    })
+
+    it("TS",()=>{
+        let t = vec3.Random();
+        let s = vec3.Random();
+        let v=  vec3.Random();
+        let mtxt = mat4.Translate(t);
+        let mtxs = mat4.Scale(s);
+
+        let mtxts = mtxt.mul(mtxs);
+        let v1 = v.mul(s).add(t);
+        let v2 = mtxts.mulvec(v.vec4(1)).vec3();
+
+        expectVec3(v1,v2);
+    })
+
+    it("RS",()=>{
+        let r = quat.Random();
+        let s = glmath.vec3(1,2,-1);
+        let v = vec3.Random();
+        let v1 = r.rota(v.mul(s)).vec4(1);
+
+        let mtxs = mat4.Scale(s);
+        let mtxr = mat4.Rotation(r);
+
+        let v2 = mtxs.mulvec(v.vec4(1));
+        let v3 = mtxr.mulvec(v2);
+
+        let mtxrs =mtxr.mul(mtxs);
+        let v4 = mtxrs.mulvec(v.vec4(1));
+        expectVec4(v1,v3);
+        expectVec4(v1,v4);
+    });
+
+
+    it("TRS",()=>{
+        let t = vec3.Random();
+        let s = vec3.Random();
+        let r = quat.Random();
+
+        let trs = mat4.TRS(t,r,s);
+        let trs1 = mat4.Translate(t).mul(mat4.Rotation(r).mul(mat4.Scale(s)));
+
+        expectPair(trs.raw,trs1.raw);
+        
+    });
+
+    it("Rota-vector",()=>{
+        let q = quat.Random();
+        let v = vec3.Random();
+        let v1 = q.rota(v);
+        let v2 = mat4.Rotation(q).mulvec(v.vec4(0)).vec3();
+        expectVec3(v1,v2);
+    })
+
+    it("Rota-point",()=>{
+        let q= quat.Random();
+        let p = vec3.Random();
+        let p1 = q.rota(p).vec4(1);
+        let p2= mat4.Rotation(q).mulvec(p.vec4(1));
+        expectVec4(p1,p2);
     })
 })
 
@@ -78,15 +157,35 @@ describe("mat3",()=>{
         expectPair(c1.raw,c2.raw);
     })
 
+    it("mat3-mul-vec",()=>{
+        let m = new mat3([5,6,4,8,9,7,-4,-5,-2]);
+        let v = m.mulvec(new vec3([2,-3,1]));
+        expectPair(v.raw,[-18,-20,-15]);
+        
+        let m4 = m.toMat4();
+        let v4 =m4.mulvec(new vec4([2,-3,1,0]));
+        expectPair(v4.raw,[-18,-20,-15,0]);
+    })
+
     it("mat3-rotation",()=>{
         let mtx = mat3.RotationDeg(60.9,-75.2,17.4);
         let q = quat.fromEulerDeg(60.9,-75.2,17.4);
-        let v = glmath.vec3(1,-2,3);
-
+        let v = vec3.Random();
         let v1 = mtx.mulvec(v);
         let v2 = q.rota(v);
 
         expectPair(v1.raw,v2.raw);
+    })
+
+    it("mat3-toMat4",()=>{
+        let rota = vec3.Random();
+        let v =vec3.Random();
+        let rmat3 = mat3.Rotation(rota.x,rota.y,rota.z);
+        let rmat4 =rmat3.toMat4();
+        let v1 = rmat3.mulvec(v).vec4();
+        let v2 = rmat4.mulvec(v.vec4(0));
+        expectPair(v1.raw,v2.raw,0.00001);
+    
     })
 })
 
