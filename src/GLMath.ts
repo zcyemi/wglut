@@ -309,15 +309,42 @@ export class quat {
         return quat.Conjugate(this);
     }
 
-    public mul(r: quat) {
+    public mul(r: quat):quat {
         let l = this;
+        let rw = r.w;
+        let rx = r.x;
+        let ry = r.y;
+        let rz = r.z;
+        let lx = l.x;
+        let ly = l.y;
+        let lz = l.z;
+        let lw = l.w;
+
         return new quat([
-            r.w * l.x + l.w * r.x + l.y * r.z - l.z * r.y,
-            r.w * l.y + l.w * r.y + l.z * r.x - l.x * r.z,
-            r.w * l.z + l.w * r.z + l.x * r.y - l.y * r.x,
-            r.w * l.w - l.x * r.x - l.y * r.y - l.z * r.z
+            rw * lx + lw * rx + ly * rz - lz * ry,
+            rw * ly + lw * ry + lz * rx - lx * rz,
+            rw * lz + lw * rz + lx * ry - ly * rx,
+            rw * lw - lx * rx - ly * ry - lz * rz
         ])
     }
+
+    public selfRota(l:quat){
+        let rw = this.w;
+        let rx = this.x;
+        let ry = this.y;
+        let rz = this.z;
+        let lx = l.x;
+        let ly = l.y;
+        let lz = l.z;
+        let lw = l.w;
+
+        this.x = rw * lx + lw * rx + ly * rz - lz * ry;
+        this.y = rw * ly + lw * ry + lz * rx - lx * rz;
+        this.z = rw * lz + lw * rz + lx * ry - ly * rx;
+        this.w = rw * lw - lx * rx - ly * ry - lz * rz;
+    }
+
+    
 
     public static readonly Identity: quat = new quat([
         0, 0, 0, 1
