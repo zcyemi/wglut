@@ -699,6 +699,16 @@ export class mat4 {
         return new mat4(nary);
     }
 
+    public static TRS(translate:vec3,rota:quat,scale:vec3){
+        let mtxr = quat.QuatToMtx(rota).raw;
+        return new mat4([
+            mtxr[0]* scale.x, mtxr[1],mtxr[2],0,
+            mtxr[3],mtxr[4]* scale.y ,mtxr[5],0,
+            mtxr[6],mtxr[7],mtxr[8]* scale.z,0,
+            translate.x,translate.y,translate.z,0
+        ])
+    }
+
     public mul(n:mat4):mat4{
         let m0 = this.row(0);
         let m1 = this.row(1);
