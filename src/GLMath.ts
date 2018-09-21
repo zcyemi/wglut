@@ -346,9 +346,11 @@ export class quat {
 
     
 
-    public static readonly Identity: quat = new quat([
-        0, 0, 0, 1
-    ]);
+    public static get Identity(): quat{
+        return new quat([
+            0, 0, 0, 1
+        ]);
+    }
 
     public rota(p: vec3) {
         var q = new vec3([this.x, this.y, this.z]);
@@ -545,11 +547,13 @@ export class mat4 {
         return new vec4([raw[o], raw[o + 4], raw[o + 8], raw[o + 12]]);
     }
 
-    public static readonly Identity: mat4 = new mat4([
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1]);
+    public static get Identity(): mat4 {
+        return new mat4([
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1]);
+    }
 
     public static lookAt(eye: vec3, target: vec3, up: vec3) {
         let vz = eye.sub(target).normalize();
@@ -837,7 +841,10 @@ export class mat3 {
         let o = index;
         return new vec3([raw[o], raw[o + 3], raw[o + 6]]);
     }
-    public static readonly Identity: mat3 = new mat3([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+
+    public static get Identity(): mat3 {
+        return new mat3([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    }
 
     public static Transpose(m:mat3){
         let raw = m.raw;
