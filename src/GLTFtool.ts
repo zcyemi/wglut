@@ -1,3 +1,5 @@
+import * as fs from  'fs';
+
 type TODO = any;
 
 type int = number;
@@ -272,29 +274,78 @@ export class GLTFfile {
 
 export class GLTFdata{
     public gltf:GLTFfile;
-    public binarys:object[];
-    public images:object[];
+    public rawBinary:Buffer;
 }
+
 
 
 export class GLTFbinary{
-    public async LoadGLB(){
+
+    private constructor(){
 
     }
+    public static fromBuffer(buffer:Buffer):GLTFdata|undefined{
+    
+        let pos = 0;
+        let magic = buffer.readUInt32LE(0);
+        if(magic != 0x46546C67) return undefined;
+        let data = new GLTFdata();
+        pos+=4;
+        let version =buffer.readUInt32LE(pos);
+        pos +=4;
+        let length = buffer.readUInt32LE(pos);
+        pos +=4;
+        pos =this.parseChunk(data,buffer,pos);
+        pos =this.parseChunk(data,buffer,pos);
+
+
+        return data;
+    }
+
+    private static parseChunk(data:GLTFdata,buffer:Buffer,pos:number):number{
+        let chunkLen = buffer.readUInt32LE(pos);
+        pos +=4;
+        let chunkType = buffer.readUInt32LE(pos);
+        pos+=4;
+
+        let start = pos;
+
+        if(chunkType == 0x4E4F534A){
+            let jsonstr = buffer.toString("UTF8",start,start +chunkLen);
+            data.gltf = JSON.parse(jsonstr);
+        }
+        else if(chunkType == 0x004E4942){
+            let binary = buffer.slice(start,start+ chunkLen);
+            data.rawBinary = binary;
+        }
+        else{
+            throw new Error("unknown chunk. ");
+        }
+
+        pos+=chunkLen;
+        return pos;
+    }
+
 }
 
 export class GLTFtool{
-
     public static async LoadGLTF(json:string,bin?:string,images?:string[]){
         return new Promise<GLTFdata>((res,rej)=>{
-
         });
     }
-
     public static async LoadGLTFBinary(uri:string){
         return new Promise<GLTFdata>((res,rej)=>{
 
+            fs.readFile(uri,(err,data)=>{
+                if(err != null){
+                    rej(err);
+                    return;
+                }
+                res(GLTFbinary.fromBuffer(data));
+            });
+            
+            
         });
     }
-
 }
+

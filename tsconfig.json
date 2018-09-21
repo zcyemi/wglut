@@ -11,6 +11,7 @@
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true,
       "strictPropertyInitialization":false,
+      "strictNullChecks": false,
       "outDir": "dist",
       //"outFile": "./dist/wglut.js",
       "typeRoots": [
