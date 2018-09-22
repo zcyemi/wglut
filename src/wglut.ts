@@ -7,3 +7,4 @@ export * from './GLMath';
 export * from './GLFrameBuffer';
 export * from './GLShderComposer';
 export * from './GLPipelineState';
+export * from './GLTFtool';

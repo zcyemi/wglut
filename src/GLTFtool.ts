@@ -1,4 +1,4 @@
-import * as fs from  'fs';
+import { GLUtility } from "./GLUtility";
 
 type TODO = any;
 
@@ -274,48 +274,44 @@ export class GLTFfile {
 
 export class GLTFdata{
     public gltf:GLTFfile;
-    public rawBinary:Buffer;
+    public rawBinary:ArrayBuffer;
 }
 
-
-
 export class GLTFbinary{
-
+    private static textdecoder:TextDecoder = new TextDecoder();
     private constructor(){
-
     }
-    public static fromBuffer(buffer:Buffer):GLTFdata|undefined{
+    public static fromBuffer(arybuffer:ArrayBuffer):GLTFdata|undefined{
     
+        let dataview = new DataView(arybuffer,0,arybuffer.byteLength);
         let pos = 0;
-        let magic = buffer.readUInt32LE(0);
+        let magic = dataview.getUint32(0,true);
         if(magic != 0x46546C67) return undefined;
         let data = new GLTFdata();
         pos+=4;
-        let version =buffer.readUInt32LE(pos);
+        let version =dataview.getUint32(pos,true);
         pos +=4;
-        let length = buffer.readUInt32LE(pos);
+        let length = dataview.getUint32(pos);
         pos +=4;
-        pos =this.parseChunk(data,buffer,pos);
-        pos =this.parseChunk(data,buffer,pos);
-
-
+        pos =this.parseChunk(data,dataview,pos);
+        pos =this.parseChunk(data,dataview,pos);
         return data;
     }
 
-    private static parseChunk(data:GLTFdata,buffer:Buffer,pos:number):number{
-        let chunkLen = buffer.readUInt32LE(pos);
+    private static parseChunk(data:GLTFdata,dataview:DataView,pos:number):number{
+        let chunkLen = dataview.getUint32(pos,true);
         pos +=4;
-        let chunkType = buffer.readUInt32LE(pos);
+        let chunkType = dataview.getUint32(pos,true);
         pos+=4;
 
         let start = pos;
 
         if(chunkType == 0x4E4F534A){
-            let jsonstr = buffer.toString("UTF8",start,start +chunkLen);
+            let jsonstr = this.textdecoder.decode(new DataView(dataview.buffer,start,chunkLen));
             data.gltf = JSON.parse(jsonstr);
         }
         else if(chunkType == 0x004E4942){
-            let binary = buffer.slice(start,start+ chunkLen);
+            let binary = dataview.buffer.slice(start,start+ chunkLen);
             data.rawBinary = binary;
         }
         else{
@@ -325,7 +321,6 @@ export class GLTFbinary{
         pos+=chunkLen;
         return pos;
     }
-
 }
 
 export class GLTFtool{
@@ -333,18 +328,14 @@ export class GLTFtool{
         return new Promise<GLTFdata>((res,rej)=>{
         });
     }
-    public static async LoadGLTFBinary(uri:string){
+    public static async LoadGLTFBinary(uri:string):Promise<GLTFdata>{
         return new Promise<GLTFdata>((res,rej)=>{
-
-            fs.readFile(uri,(err,data)=>{
-                if(err != null){
-                    rej(err);
-                    return;
-                }
-                res(GLTFbinary.fromBuffer(data));
-            });
-            
-            
+            let buffer:Promise<ArrayBuffer> = GLUtility.HttpGet(uri,"arraybuffer");
+            buffer.then((result)=>{
+                res(GLTFbinary.fromBuffer(result));
+            },(err)=>{
+                rej("load failed");
+            })
         });
     }
 }
