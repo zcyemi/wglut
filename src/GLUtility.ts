@@ -33,4 +33,24 @@ export class GLUtility{
         }
         window.requestAnimationFrame(GLUtility.onAnimationFrame);
     }
+
+    public static async HttpGet(url:string,type:XMLHttpRequestResponseType):Promise<any>{
+        return new Promise<any>((res,rej)=>{
+            let xhr = new XMLHttpRequest();
+            xhr.responseType = type;
+            xhr.onload = evt=>{
+                if(type == "blob" || type == "arraybuffer"){
+                    res(xhr.response);
+                }
+                else{
+                    res(xhr.responseText);
+                }
+            }
+            xhr.onerror = evt=>{
+                rej(evt.target);
+            }
+            xhr.open("GET",url,true);
+            xhr.send();
+        })
+    }
 }

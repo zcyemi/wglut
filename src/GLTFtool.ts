@@ -1,3 +1,5 @@
+import { GLUtility } from "./GLUtility";
+
 type TODO = any;
 
 type int = number;
@@ -272,29 +274,69 @@ export class GLTFfile {
 
 export class GLTFdata{
     public gltf:GLTFfile;
-    public binarys:object[];
-    public images:object[];
+    public rawBinary:ArrayBuffer;
 }
 
-
 export class GLTFbinary{
-    public async LoadGLB(){
+    private static textdecoder:TextDecoder = new TextDecoder();
+    private constructor(){
+    }
+    public static fromBuffer(arybuffer:ArrayBuffer):GLTFdata|undefined{
+    
+        let dataview = new DataView(arybuffer,0,arybuffer.byteLength);
+        let pos = 0;
+        let magic = dataview.getUint32(0,true);
+        if(magic != 0x46546C67) return undefined;
+        let data = new GLTFdata();
+        pos+=4;
+        let version =dataview.getUint32(pos,true);
+        pos +=4;
+        let length = dataview.getUint32(pos);
+        pos +=4;
+        pos =this.parseChunk(data,dataview,pos);
+        pos =this.parseChunk(data,dataview,pos);
+        return data;
+    }
 
+    private static parseChunk(data:GLTFdata,dataview:DataView,pos:number):number{
+        let chunkLen = dataview.getUint32(pos,true);
+        pos +=4;
+        let chunkType = dataview.getUint32(pos,true);
+        pos+=4;
+
+        let start = pos;
+
+        if(chunkType == 0x4E4F534A){
+            let jsonstr = this.textdecoder.decode(new DataView(dataview.buffer,start,chunkLen));
+            data.gltf = JSON.parse(jsonstr);
+        }
+        else if(chunkType == 0x004E4942){
+            let binary = dataview.buffer.slice(start,start+ chunkLen);
+            data.rawBinary = binary;
+        }
+        else{
+            throw new Error("unknown chunk. ");
+        }
+
+        pos+=chunkLen;
+        return pos;
     }
 }
 
 export class GLTFtool{
-
     public static async LoadGLTF(json:string,bin?:string,images?:string[]){
         return new Promise<GLTFdata>((res,rej)=>{
-
         });
     }
-
-    public static async LoadGLTFBinary(uri:string){
+    public static async LoadGLTFBinary(uri:string):Promise<GLTFdata>{
         return new Promise<GLTFdata>((res,rej)=>{
-
+            let buffer:Promise<ArrayBuffer> = GLUtility.HttpGet(uri,"arraybuffer");
+            buffer.then((result)=>{
+                res(GLTFbinary.fromBuffer(result));
+            },(err)=>{
+                rej("load failed");
+            })
         });
     }
-
 }
+
