@@ -5,6 +5,8 @@ export class GLProgram{
     public Attributes: { [key: string]: number } = {};
     public Unifroms: { [key: string]: WebGLUniformLocation | null } = {};
 
+    public extras?:any;
+
     public GetUnifrom(key:string):WebGLUniformLocation | null{
         return this.Unifroms[key];
     }

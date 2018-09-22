@@ -26,12 +26,11 @@ export type GLSL_PRECISION = GLSL.lowp | GLSL.mediump | GLSL.highp;
 
 
 
-type GLSL_PARAM = {type:GLSL_TYPE,symbol:string,prefix?:GLSL_PREFIX}
-type GLSL_ATTR = GLSL_PARAM;
-type GLSL_UNIFORM = {type:GLSL_TYPE,symbol:string};
-type GLSL_VARY = GLSL_PARAM;
-
-type GLSL_PRECISION_DEFINE = {type:GLSL_TYPE,level:GLSL_PRECISION};
+export type GLSL_PARAM = {type:GLSL_TYPE,symbol:string,prefix?:GLSL_PREFIX}
+export type GLSL_ATTR = GLSL_PARAM;
+export type GLSL_UNIFORM = {type:GLSL_TYPE,symbol:string};
+export type GLSL_VARY = GLSL_PARAM;
+export type GLSL_PRECISION_DEFINE = {type:GLSL_TYPE,level:GLSL_PRECISION};
 
 
 
@@ -90,16 +89,16 @@ export class GLSL_FUNC{
 
 export class GLShaderComposer{
 
-    private m_shadertype:GLSL_SHADER;
-    private m_attrs:GLSL_ATTR[]=[];
-    private m_varys:GLSL_VARY[] = [];
-    private m_uniform:GLSL_UNIFORM[] = [];
-    private m_precisions:GLSL_PRECISION_DEFINE[] = [];
+    protected m_shadertype:GLSL_SHADER;
+    protected m_attrs:GLSL_ATTR[]=[];
+    protected m_varys:GLSL_VARY[] = [];
+    protected m_uniform:GLSL_UNIFORM[] = [];
+    protected m_precisions:GLSL_PRECISION_DEFINE[] = [];
 
-    private m_main:GLSL_FUNC= new GLSL_FUNC('main');
-    private m_funcs:GLSL_FUNC[] = [];
+    protected m_main:GLSL_FUNC= new GLSL_FUNC('main');
+    protected m_funcs:GLSL_FUNC[] = [];
 
-    private m_shaderSource:string;
+    protected m_shaderSource:string;
 
     public static create(type:GLSL_SHADER):GLShaderComposer{
         
@@ -167,7 +166,6 @@ export class GLShaderComposer{
             source += `uniform ${GLSL[u.type]} ${u.symbol};`
         })
         source += this.m_main.mergeCode();
-
         this.m_shaderSource = source;
         
     }
