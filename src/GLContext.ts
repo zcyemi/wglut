@@ -61,26 +61,7 @@ export class GLContext{
         if(program == null) return null;
 
         let p = new GLProgram(gl, program);
-        let handler = {
-            get: function(tar:GLProgram | any,name:string){
-                if(name in tar) return tar[name];
-
-                if(name in tar.Unifroms){
-                    tar[name] =tar.Unifroms[name];
-                    return tar[name];
-                }
-                else if(name in tar.Attributes){
-                    tar[name] = tar.Attributes[name];
-                    return tar[name];
-                }
-
-                console.warn('program can not find attr/uniform:' + name);
-                tar[name] = undefined;
-                return null;
-            }
-        }
-
-        return new Proxy(p,handler);
+        return p;
     }
 
     public createTextureImage(src: string,callback?:()=>void): WebGLTexture | null{
