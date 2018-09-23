@@ -13,8 +13,8 @@ export class GLContext{
     public static createFromGL(wgl:WebGL2RenderingContext) :GLContext{
         return new GLContext(wgl);
     }
-    public static createFromCanvas(canvas:HTMLCanvasElement):GLContext | null{
-        let g:any = canvas.getContext('webgl2');
+    public static createFromCanvas(canvas:HTMLCanvasElement,attrib?:WebGLContextAttributes):GLContext | null{
+        let g:any = canvas.getContext('webgl2',attrib);
         if(g == null){
             g = canvas.getContext('webgl');
         }
