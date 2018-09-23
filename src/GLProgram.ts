@@ -1,14 +1,17 @@
+
+
 export class GLProgram{
 
     public Program: WebGLProgram;
 
     public Attributes: { [key: string]: number } = {};
-    public Unifroms: { [key: string]: WebGLUniformLocation | null } = {};
+    public Uniforms: { [key: string]: WebGLUniformLocation | null } = {};
+    public UniformsInfo:{[key:string]:WebGLActiveInfo} = {};
 
     public extras?:any;
 
-    public GetUnifrom(key:string):WebGLUniformLocation | null{
-        return this.Unifroms[key];
+    public GetUniform(key:string):WebGLUniformLocation | null{
+        return this.Uniforms[key];
     }
 
     public GetAttribute(key:string):any{
@@ -30,8 +33,10 @@ export class GLProgram{
         for (let i = 0; i < numUniform; i++) {
             const uniformInfo = gl.getActiveUniform(program, i);
             if (uniformInfo == null) continue;
-            const uniformLoca = gl.getUniformLocation(program, uniformInfo.name);
-            this.Unifroms[uniformInfo.name] = uniformLoca;
+            let uname = uniformInfo.name;
+            this.UniformsInfo[uname] = uniformInfo;
+            const uniformLoca = gl.getUniformLocation(program, uname);
+            this.Uniforms[uname] = uniformLoca;
         }
     }
 }

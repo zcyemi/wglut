@@ -128,6 +128,10 @@ export class vec4 {
         return this.div(this.lenth);
     }
 
+    public static Random():vec4{
+        return new vec4([Math.random(),Math.random(),Math.random(),Math.random()]);
+    }
+
     public static readonly one: vec4 = new vec4([1, 1, 1, 1]);
     public static readonly zero: vec4 = new vec4([0, 0, 0, 0]);
 }

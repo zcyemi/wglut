@@ -247,7 +247,7 @@ export class GLContext{
 
         gl.bindTexture(gl.TEXTURE_2D,tex);
         gl.activeTexture(gl.TEXTURE0);
-        gl.uniform1i(p.Unifroms['uSampler'],0);
+        gl.uniform1i(p.Uniforms['uSampler'],0);
 
         gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
 
@@ -292,7 +292,7 @@ export class GLContext{
             gl.vertexAttribPointer(attruv,2,gl.FLOAT,false,16,8);
             gl.enableVertexAttribArray(attrp);
             gl.enableVertexAttribArray(attruv);
-            gl.uniform4fv(p.Unifroms['uColor'],color.raw);
+            gl.uniform4fv(p.Uniforms['uColor'],color.raw);
             gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
         }
         if(state != null) this.restorePipeline(state);
