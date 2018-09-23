@@ -30,6 +30,7 @@ export class GLContext{
         gl.compileShader(vs);
 
         if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
+            console.error(vsource);
             console.error('compile vertex shader failed: ' + gl.getShaderInfoLog(vs));
             gl.deleteShader(vs);
             return null;
@@ -40,6 +41,7 @@ export class GLContext{
         gl.compileShader(ps);
 
         if (!gl.getShaderParameter(ps, gl.COMPILE_STATUS)) {
+            console.error(psource);
             console.error('compile fragment shader failed: ' + gl.getShaderInfoLog(ps));
             gl.deleteShader(ps);
             return null;

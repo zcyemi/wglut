@@ -80,6 +80,7 @@ export class GLShaderComposerBase<T extends GLShaderComposerBase<T>>{
     protected m_main:GLSL_FUNC= new GLSL_FUNC('main');
     protected m_funcs:GLSL_FUNC[] = [];
     protected m_shaderSource:string;
+    protected m_defines:string[] = [];
     public constructor(type:GLSL_SHADER){
         this.m_shadertype = type;
     }
@@ -98,6 +99,10 @@ export class GLShaderComposerBase<T extends GLShaderComposerBase<T>>{
     public attrs(attr:GLSL_ATTR[]):T{
         this.m_attrs = this.m_attrs.concat(attr);
         return  this.composer;
+    }
+    public define(code:string):T{
+        this.m_defines.push(code);
+        return this.composer;
     }
     public main(init:(f:GLSL_FUNC)=>void):T{
         init(this.m_main);
@@ -120,17 +125,20 @@ export class GLShaderComposerBase<T extends GLShaderComposerBase<T>>{
     private mergeShaderSource(){
         let source=  "#version 300 es\n";
         this.m_precisions.forEach(p=>{
-            source+= `precision ${GLSL[p.level]} ${GLSL[p.type]};`;
+            source+= `precision ${GLSL[p.level]} ${GLSL[p.type]};\n`;
         });
         this.m_attrs.forEach(a=>{
-            source+= `${GLSL[a.prefix == null? GLSL.in: a.prefix]} ${GLSL[a.type]} ${a.symbol};`;
+            source+= `${GLSL[a.prefix == null? GLSL.in: a.prefix]} ${GLSL[a.type]} ${a.symbol};\n`;
         });
         this.m_varys.forEach(v=>{
             let prefix = v.prefix == null?(this.m_shadertype == GLSL.vs? GLSL.out: GLSL.in): v.prefix;
-            source += `${GLSL[prefix]} ${GLSL[v.type]} ${v.symbol};`;
+            source += `${GLSL[prefix]} ${GLSL[v.type]} ${v.symbol};\n`;
         });
         this.m_uniform.forEach(u=>{
-            source += `uniform ${GLSL[u.type]} ${u.symbol};`
+            source += `uniform ${GLSL[u.type]} ${u.symbol};\n`
+        })
+        this.m_defines.forEach(d=>{
+            source += `${d}\n`;
         })
         source += this.m_main.mergeCode();
         this.m_shaderSource = source;
