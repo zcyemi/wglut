@@ -32,7 +32,7 @@ export class vec4 {
     public set z(v: number) { this.raw[2] = v; }
     public set w(v: number) { this.raw[3] = v; }
 
-    public get lenth(): number {
+    public get length(): number {
         return Math.sqrt(this.dot(this));
     }
 
@@ -125,7 +125,7 @@ export class vec4 {
     }
 
     public normalize(): vec4 {
-        return this.div(this.lenth);
+        return this.div(this.length);
     }
 
     public static Random():vec4{
@@ -576,15 +576,15 @@ export class mat4 {
     }
 
     public static coord(pos: vec3, forward: vec3, up: vec3) {
-        let vz = forward.normalize();
-        let vy = up.normalize();
-        let vx = vy.cross(vz);
+        let f = forward.normalize();
+        let u = up.normalize();
+        let r = u.cross(f);
 
         return new mat4([
-            vx.x, vx.y, vx.z, 0,
-            vy.x, vy.y, vy.z, 0,
-            vz.x, vz.y, vz.z, 0,
-            pos.x, pos.y, pos.z, 1
+            r.x, u.x, f.x, 0,
+            r.y, u.y, f.y, 0,
+            r.z, u.z, f.z, 0,
+            -r.dot(pos), -u.dot(pos), -f.dot(pos), 1
         ]);
     }
 

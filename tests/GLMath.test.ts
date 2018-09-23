@@ -134,6 +134,24 @@ describe('mat4',()=>{
         let p2= mat4.Rotation(q).mulvec(p.vec4(1));
         expectVec4(p1,p2);
     })
+
+    it("coord",()=>{
+        let p = glmath.vec4(1,2,3,1);
+        let cp = glmath.vec3(-5,0,0);
+
+        let dist = glmath.vec3(6,2,3).length;
+
+        for(let i=0;i<10;i++){
+            let forward = vec3.Random();
+            let random =  vec3.Random();
+            let up = vec3.Cross(random,forward);
+            let mat = mat4.coord(cp,forward,up);
+            let p1 = mat.mulvec(p);
+
+            expect(p1.vec3().length).closeTo(dist,0.00001);
+        }
+
+    })
 })
 
 describe("mat3",()=>{
