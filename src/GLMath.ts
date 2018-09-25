@@ -45,7 +45,30 @@ export class vec4 {
         }
     }
 
-    public add(v: number | vec3 | vec4 | number[]) {
+    public add(v: number | vec3 | vec4 | number[]):vec4{
+        if (v instanceof vec3 || v instanceof vec4) {
+            this.x += v.x;
+            this.y += v.y;
+            this.z += v.z;
+            this.w += ((v instanceof vec4) ? v.w : 0);
+        }
+        else if (v instanceof Array) {
+            this.x += v[0];
+            this.y += v[1];
+            this.z += v[2];
+            this.w += v[3];
+        }
+        else {
+            this.x += v;
+            this.y += v;
+            this.z += v;
+            this.w += v;
+        }
+
+        return this;
+    }
+
+    public addToRef(v: number | vec3 | vec4 | number[]) {
         if (v instanceof vec3 || v instanceof vec4) {
             let x = v.x + this.x;
             let y = v.y + this.y;
@@ -65,7 +88,30 @@ export class vec4 {
         }
     }
 
-    public sub(v: number | vec3 | vec4 | number[]) {
+
+    public sub(v: number | vec3 | vec4 | number[]):vec4 {
+        if (v instanceof vec3 || v instanceof vec4) {
+            this.x -= v.x;
+            this.y -= v.y;
+            this.z -= v.z;
+            this.w -= ((v instanceof vec4) ? v.w : 0);
+        }
+        else if (v instanceof Array) {
+            this.x -= v[0];
+            this.y -= v[1];
+            this.z -= v[2];
+            this.w -= v[3];
+        }
+        else {
+            this.x -= v;
+            this.y -= v;
+            this.z -= v;
+            this.w -= v;
+        }
+        return this;
+    }
+
+    public subToRef(v: number | vec3 | vec4 | number[]) {
         if (v instanceof vec3 || v instanceof vec4) {
             let x = v.x - this.x;
             let y = v.y - this.y;
@@ -86,11 +132,46 @@ export class vec4 {
     }
 
     public mulNum(v:number){
+        this.x *=v;
+        this.y *=v;
+        this.z *=v;
+        this.w *=v;
+        return this;
+    }
+
+    public mulNumToRef(v:number){
         return glmath.vec4(this.x * v, this.y * v, this.z * v, this.w * v);
     }
 
-    public mul(v: number | vec4 | mat4 | number[] | quat) {
+    public mul(v: number | vec4 | mat4 | number[] | quat):vec4{
+        if (v instanceof vec4) {
+            this.x *=v.x;
+            this.y *=v.y;
+            this.z *=v.z;
+            this.w *=v.w;
+        }
+        else if (v instanceof Array) {
+            this.x *= v[0];
+            this.y *= v[1];
+            this.z *= v[2];
+            this.w *= v[3];
+        }
+        else if (v instanceof mat4) {
+            this.raw =v.mulvec(this).raw;
+        }
+        else if (v instanceof quat) {
+            this.raw = v.rota(new vec3([this.x,this.y,this.z])).raw;
+        }
+        else if(isNumber(v)){
+            this.x *=v;
+            this.y *=v;
+            this.z *=v;
+            this.w *=v;
+        }
+        return this;
+    }
 
+    public mulToRef(v: number | vec4 | mat4 | number[] | quat) {
         if (v instanceof vec4) {
             return glmath.vec4(v.x * this.x, v.y * this.y, v.z * this.z, v.w * this.w);
         }
@@ -109,6 +190,14 @@ export class vec4 {
     }
 
     public div(v: number) {
+        this.x /=v;
+        this.y /=v;
+        this.z /=v;
+        this.w /=v;
+        return this;
+    }
+
+    public divToRef(v: number) {
         return glmath.vec4(this.x / v, this.y / v, this.z / v, this.w / v);
     }
 
@@ -128,12 +217,17 @@ export class vec4 {
         return this.div(this.length);
     }
 
+    /** return new vec4 ref */
+    public normalized():vec4{
+        return this.divToRef(this.length);
+    }
+
     public static Random():vec4{
         return new vec4([Math.random(),Math.random(),Math.random(),Math.random()]);
     }
 
-    public static readonly one: vec4 = new vec4([1, 1, 1, 1]);
-    public static readonly zero: vec4 = new vec4([0, 0, 0, 0]);
+    public static readonly zero: vec4 = new vec4([0, 0, 0,0]);
+    public static readonly one: vec4 = new vec4([1, 1, 1,1]);
 }
 
 export class vec3 {
@@ -168,7 +262,26 @@ export class vec3 {
         }
     }
 
-    public add(v: number | vec3 | vec4 | number[]): vec3 {
+    public add(v: number | vec3 | vec4 | number[]):vec3{
+        if (v instanceof vec3 || v instanceof vec4) {
+            this.x += v.x;
+            this.y += v.y;
+            this.z += v.z;
+        }
+        else if (v instanceof Array) {
+            this.x += v[0];
+            this.x += v[1];
+            this.x += v[2];
+        }
+        else {
+            this.x +=v;
+            this.y +=v;
+            this.z +=v;
+        }
+        return this;
+    }
+
+    public addToRef(v: number | vec3 | vec4 | number[]):vec3{
         if (v instanceof vec3 || v instanceof vec4) {
             let x = v.x + this.x;
             let y = v.y + this.y;
@@ -188,6 +301,25 @@ export class vec3 {
 
     public sub(v: number | vec3 | vec4 | number[]): vec3 {
         if (v instanceof vec3 || v instanceof vec4) {
+            this.x -= v.x;
+            this.y -= v.y;
+            this.z -= v.z;
+        }
+        else if (v instanceof Array) {
+            this.x -= v[0];
+            this.y -= v[1];
+            this.z -= v[2];
+        }
+        else {
+            this.x -= v;
+            this.y -= v;
+            this.z -= v;
+        }
+        return this;
+    }
+
+    public subToRef(v: number | vec3 | vec4 | number[]): vec3 {
+        if (v instanceof vec3 || v instanceof vec4) {
             let x = v.x - this.x;
             let y = v.y - this.y;
             let z = v.z - this.z;
@@ -204,7 +336,33 @@ export class vec3 {
         }
     }
 
+
     public mul(v: number | vec3 | vec4 | mat3 | number[] | quat): vec3 {
+        if (v instanceof vec3 || v instanceof vec4) {
+            this.x *=v.x;
+            this.y *=v.y;
+            this.z *=v.z;
+        }
+        else if (v instanceof Array) {
+            this.x *= v[0];
+            this.y *= v[1];
+            this.z *= v[2];
+        }
+        else if (v instanceof mat3) {
+            this.raw = v.mulvec(this).raw;
+        }
+        else if (v instanceof quat) {
+            this.raw = v.rota(this).raw;
+        }
+        else {
+            this.x *=v;
+            this.y *=v;
+            this.z *=v;
+        }
+        return this;
+    }
+
+    public mulToRef(v: number | vec3 | vec4 | mat3 | number[] | quat): vec3 {
         if (v instanceof vec3 || v instanceof vec4) {
             let x = v.x * this.x;
             let y = v.y * this.y;
@@ -228,7 +386,14 @@ export class vec3 {
         }
     }
 
-    public div(v: number) {
+    public div(v: number):vec3 {
+        this.x /=v;
+        this.y /=v;
+        this.z /=v;
+        return this;
+    }
+
+    public divToRef(v: number):vec3 {
         return glmath.vec3(this.x / v, this.y / v, this.z / v);
     }
 
@@ -269,18 +434,22 @@ export class vec3 {
         return this.div(this.length);
     }
 
+    public normalized(): vec3 {
+        return this.divToRef(this.length);
+    }
+
     public static Random():vec3{
         return new vec3([Math.random(),Math.random(),Math.random()]);
     }
 
-    public static readonly zero: vec3 = new vec3([0, 0, 0]);
-    public static readonly one: vec3 = new vec3([1, 1, 1]);
-    public static readonly up:vec3 = new vec3([0,1,0]);
-    public static readonly forward:vec3 = new vec3([0,0,1]);
-    public static readonly back:vec3 = new vec3([0,0,-1]);
-    public static readonly left:vec3 = new vec3([-1,0,0]);
-    public static readonly right:vec3 = new vec3([1,0,0]);
-    public static readonly down:vec3 = new vec3([0,-1,0]);
+    public static get zero(): vec3 { return new vec3([0, 0, 0]) };
+    public static get one(): vec3 { return new vec3([1, 1, 1]) };
+    public static get up(): vec3 { return new vec3([0, 1, 0]) };
+    public static get forward(): vec3 { return new vec3([0, 0, 1]) };
+    public static get back(): vec3 { return new vec3([0, 0, -1]) };
+    public static get left(): vec3 { return new vec3([-1, 0, 0]) };
+    public static get right(): vec3 { return new vec3([1, 0, 0]) };
+    public static get down(): vec3 { return new vec3([0, -1, 0]); }
 }
 
 const DEG2RAD_HALF = Math.PI / 360.0;
@@ -356,10 +525,10 @@ export class quat {
         ]);
     }
 
-    public rota(p: vec3) {
+    public rota(p: vec3):vec3 {
         var q = new vec3([this.x, this.y, this.z]);
         var t = q.cross(p).mul(2);
-        return p.add(t.mul(this.w)).add(q.cross(t));
+        return p.clone().add(t.mulToRef(this.w)).add(q.cross(t));
     }
 
     public static fromEulerDeg(degx: number, degy: number, degz: number) {
@@ -422,7 +591,7 @@ export class quat {
         let d = 1.0 / axis.length;
         let sin = Math.sin(angle / 2);
         let cos = Math.cos(angle / 2);
-        let v4 = axis.mul(d * sin).vec4(cos);
+        let v4 = axis.mulToRef(d * sin).vec4(cos);
         return new quat(v4.raw);
     }
 
@@ -431,14 +600,14 @@ export class quat {
         let d = 1.0 / axis.length;
         let sin = Math.sin(angle / 2);
         let cos = Math.cos(angle / 2);
-        let v4 = axis.mul(d * sin).vec4(cos);
+        let v4 = axis.mulToRef(d * sin).vec4(cos);
         return new quat(v4.raw);
     }
 
     public static RotaTo(vec:vec3):quat{
         let len2 = vec.length2;
         if(len2 == 0) return quat.Identity;
-        let v = vec.normalize();
+        let v = vec.normalized();
         let rady = Math.atan2(-v.z,v.x);
         let radz = Math.atan2(v.y, Math.sqrt(1 - v.y * v.y));
         return quat.fromEuler(0,rady,radz);
@@ -560,7 +729,7 @@ export class mat4 {
     }
 
     public static lookAt(eye: vec3, target: vec3, up: vec3) {
-        let vz = eye.sub(target).normalize();
+        let vz = eye.subToRef(target).normalize();
         let vx = up.cross(vz).normalize();
         var vy = vz.cross(vx);
 
@@ -725,6 +894,7 @@ export class mat4 {
     public mulvec(v:vec4):vec4{
         return mat4.mul(this,v);
     }
+    
 
     public mulnum(n:number):mat4{
         let nary = [];
