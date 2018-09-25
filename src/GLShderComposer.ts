@@ -61,8 +61,12 @@ export class GLSL_FUNC{
         this.code+=codel;
         return this;
     }
-    public params(plist:GLSL_PARAM[]){
+    public params(plist:GLSL_PARAM[]):GLSL_FUNC{
         this.parameters = plist;
+        return this;
+    }
+    public parameter(t:GLSL_TYPE,name:string,prefix?:GLSL_PREFIX):GLSL_FUNC{
+        this.parameters.push({type:t,symbol:name,prefix:prefix});
         return this;
     }
     public body(code:string):GLSL_FUNC{
