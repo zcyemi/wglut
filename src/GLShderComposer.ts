@@ -140,6 +140,9 @@ export class GLShaderComposerBase<T extends GLShaderComposerBase<T>>{
         this.m_defines.forEach(d=>{
             source += `${d}\n`;
         })
+        this.m_funcs.forEach(f=>{
+            source += f.mergeCode();
+        })
         source += this.m_main.mergeCode();
         this.m_shaderSource = source;
     }
