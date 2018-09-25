@@ -52,7 +52,7 @@ describe('mat4',()=>{
         let v = vec3.Random();
         let v1 = vec3.Random();
         let mtx = mat4.Translate(v1);
-        let v2 = v.add(v1);
+        let v2 = v.addToRef(v1);
         let v3 = mtx.mulvec(v.vec4(1)).vec3();
         expectVec3(v2,v3);
     })
@@ -61,7 +61,7 @@ describe('mat4',()=>{
        let v = vec3.Random();
        let s =vec3.Random();
        let mtx = mat4.Scale(s);
-       let v1 = v.mul(s).vec4();
+       let v1 = v.mulToRef(s).vec4();
        let v2 = mtx.mulvec(v.vec4());
        expectVec4(v1,v2);
     })
@@ -74,7 +74,7 @@ describe('mat4',()=>{
         let mtxs = mat4.Scale(s);
 
         let mtxts = mtxt.mul(mtxs);
-        let v1 = v.mul(s).add(t);
+        let v1 = v.mulToRef(s).add(t);
         let v2 = mtxts.mulvec(v.vec4(1)).vec3();
 
         expectVec3(v1,v2);
@@ -84,7 +84,7 @@ describe('mat4',()=>{
         let r = quat.Random();
         let s = glmath.vec3(1,2,-1);
         let v = vec3.Random();
-        let v1 = r.rota(v.mul(s)).vec4(1);
+        let v1 = r.rota(v.mulToRef(s)).vec4(1);
 
         let mtxs = mat4.Scale(s);
         let mtxr = mat4.Rotation(r);
@@ -293,7 +293,7 @@ describe('quaternion',()=>{
         let tar = new vec3([-1.9,13.5,2.7]);
         let length = tar.length;
         let q =quat.RotaTo(tar);
-        let v = q.rota(vec3.right.mul(length));
+        let v = q.rota(vec3.right.mulToRef(length));
         expectPair(v.raw, tar.raw);
     });
 
