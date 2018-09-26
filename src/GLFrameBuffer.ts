@@ -33,6 +33,10 @@ export class GLFrameBuffer{
         let colortex = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D,colortex);
         gl.texStorage2D(gl.TEXTURE_2D,1,colorInternalFormat,width,height);
+
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
         gl.bindTexture(gl.TEXTURE_2D,null);
         gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,colortex,0);
 
@@ -53,7 +57,7 @@ export class GLFrameBuffer{
         glfb.frambuffer = fb;
         glfb.width = width;
         glfb.height = height;
-        glfb.colorFormat =  colorInternalFormat;
+        glfb.colorFormat = colorInternalFormat;
         glfb.depthFormat = depthInternalFormat;
 
         if(state != null){

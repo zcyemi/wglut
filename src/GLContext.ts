@@ -219,7 +219,8 @@ export class GLContext{
             return;
         }
 
-        let state = retain? this.savePipeline(gl.ARRAY_BUFFER_BINDING,gl.TEXTURE_BINDING_2D) : null;
+        let state = retain? this.savePipeline(gl.ARRAY_BUFFER_BINDING,gl.TEXTURE_BINDING_2D,gl.CULL_FACE) : null;
+
 
         const dataNoFlipped = [
             -1, 1, 0, 1,
@@ -233,6 +234,8 @@ export class GLContext{
             -1, -1, 0, 1,
             1, -1, 1, 1
         ];
+
+        gl.disable(gl.CULL_FACE);
         
         gl.bindBuffer(gl.ARRAY_BUFFER,this.m_drawTexAryBuffer);
         this.m_drawTexBuffer.set(flipY? dataFlipped:dataNoFlipped);
@@ -265,7 +268,8 @@ export class GLContext{
             return;
         }
 
-        let state = retain? this.savePipeline(gl.ARRAY_BUFFER_BINDING,gl.TEXTURE_BINDING_2D) : null;
+
+        let state = retain? this.savePipeline(gl.ARRAY_BUFFER_BINDING,gl.TEXTURE_BINDING_2D,gl.CULL_FACE) : null;
         {
             let vp = gl.getParameter(gl.VIEWPORT);
             let vw = vp[2];
@@ -275,6 +279,8 @@ export class GLContext{
 
             let dx2 = dx1+ 2*w /vw;
             let dy2 = dy1+ 2*h /vh;
+
+            gl.disable(gl.CULL_FACE);
            
             gl.bindBuffer(gl.ARRAY_BUFFER,this.m_drawTexAryBuffer);
             this.m_drawTexBuffer.set([

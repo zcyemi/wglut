@@ -46,6 +46,14 @@ export class GLPipelineState{
             case gl.ELEMENT_ARRAY_BUFFER:
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,data);
                 break;
+            case gl.CULL_FACE:
+                if(data){
+                    gl.enable(gl.CULL_FACE);
+                }
+                else{
+                    gl.disable(gl.CULL_FACE);
+                }
+                break;
 
         }
     }

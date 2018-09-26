@@ -413,6 +413,10 @@ export class vec3 {
         return vec3.Cross(this,v);
     }
 
+    public crossLHS(v: vec3) {
+        return vec3.Cross(v,this);
+    }
+
     public static Cross(lhs:vec3,rhs:vec3):vec3{
         return new vec3([
             lhs.y * rhs.z - lhs.z * rhs.y,
