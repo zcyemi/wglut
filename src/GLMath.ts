@@ -752,6 +752,7 @@ export class mat4 {
         let f = forward.normalize();
         let u = up.normalize();
         let r = u.cross(f);
+        u = f.cross(r);
 
         return new mat4([
             r.x, u.x, f.x, 0,
@@ -760,6 +761,21 @@ export class mat4 {
             -r.dot(pos), -u.dot(pos), -f.dot(pos), 1
         ]);
     }
+
+    public static coordLHS(pos: vec3, forward: vec3, up: vec3) {
+        let f = forward.normalize();
+        let u = up.normalize();
+        let r = u.crossLHS(f);
+        u = f.crossLHS(r);
+
+        return new mat4([
+            r.x, u.x, f.x, 0,
+            r.y, u.y, f.y, 0,
+            r.z, u.z, f.z, 0,
+            -r.dot(pos), -u.dot(pos), -f.dot(pos), 1
+        ]);
+    }
+
 
     public static perspective(w: number, h: number, n: number, f: number) {
         return new mat4([

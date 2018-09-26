@@ -138,18 +138,36 @@ describe('mat4',()=>{
     it("coord",()=>{
         let p = glmath.vec4(1,2,3,1);
         let cp = glmath.vec3(-5,0,0);
-
         let dist = glmath.vec3(6,2,3).length;
-
         for(let i=0;i<10;i++){
             let forward = vec3.Random();
             let random =  vec3.Random();
             let up = vec3.Cross(random,forward);
             let mat = mat4.coord(cp,forward,up);
             let p1 = mat.mulvec(p);
-
             expect(p1.vec3().length).closeTo(dist,0.00001);
         }
+    })
+
+    it("coord-test",()=>{
+        //rhs coordinate
+        let f = glmath.vec3(0,0,-1);
+        let u = glmath.vec3(0,1,0);
+
+        let m1 = mat4.coord(vec3.zero,f,u);
+        let m2 = mat4.coord(vec3.zero,f.mulToRef(-1.0),u);
+
+        let m3 = mat4.coordLHS(vec3.zero,f,u);
+
+        let p = glmath.vec4(1,1,-1,1);
+
+        let p1 = m1.mulvec(p);
+        let p2 = m2.mulvec(p);
+        let p3 = m3.mulvec(p);
+        
+        expectVec4(p3,glmath.vec4(1,1,1,1));
+        expectVec4(p2,glmath.vec4(1,1,-1,1));
+        expectVec4(p1,glmath.vec4(-1,1,1,1));
 
     })
 })
@@ -211,7 +229,6 @@ describe("mat3",()=>{
         let v1 = rmat3.mulvec(v).vec4();
         let v2 = rmat4.mulvec(v.vec4(0));
         expectPair(v1.raw,v2.raw,0.00001);
-    
     })
 })
 
