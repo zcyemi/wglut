@@ -776,7 +776,13 @@ export class mat4 {
         ]);
     }
 
-
+    /**
+     * Left Hand Coordinate
+     * @param w 
+     * @param h 
+     * @param n 
+     * @param f 
+     */
     public static perspective(w: number, h: number, n: number, f: number) {
         return new mat4([
             2 * n / w, 0, 0, 0,
@@ -786,10 +792,28 @@ export class mat4 {
         ])
     }
 
+
+    /**
+     * Left Hand Coordinate
+     * @param fov 
+     * @param aspect 
+     * @param n 
+     * @param f 
+     */
     public static perspectiveFoV(fov: number, aspect: number, n: number, f: number) {
         let h = Math.tan(fov / 360.0 * Math.PI) * n * 2;
         let w = h * aspect;
         return this.perspective(w, h, n, f);
+    }
+
+    public static orthographic(w:number,h:number,n:number,f:number){
+        let d = n-f;
+        return new mat4([
+            2.0/w,0,0,0,
+            0,2.0/h,0,0,
+            0,0,2.0/d,0,
+            0,0,(n+f)/d,1
+        ]);
     }
 
     public inverse(): mat4 {
