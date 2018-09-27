@@ -4,25 +4,25 @@ import { GLFrameBuffer } from "./GLFrameBuffer";
 import { GLPipelineState } from "./GLPipelineState";
 import { vec4 } from "./GLMath";
 
-export class GLContext{
+export class GLContext {
 
-    public gl:WebGL2RenderingContext;
-    private constructor(wgl:WebGL2RenderingContext){
+    public gl: WebGL2RenderingContext;
+    private constructor(wgl: WebGL2RenderingContext) {
         this.gl = wgl;
     }
-    public static createFromGL(wgl:WebGL2RenderingContext) :GLContext{
+    public static createFromGL(wgl: WebGL2RenderingContext): GLContext {
         return new GLContext(wgl);
     }
-    public static createFromCanvas(canvas:HTMLCanvasElement,attrib?:WebGLContextAttributes):GLContext | null{
-        let g:any = canvas.getContext('webgl2',attrib);
-        if(g == null){
+    public static createFromCanvas(canvas: HTMLCanvasElement, attrib?: WebGLContextAttributes): GLContext | null {
+        let g: any = canvas.getContext('webgl2', attrib);
+        if (g == null) {
             g = canvas.getContext('webgl');
         }
-        if(g == null) return null;
+        if (g == null) return null;
         return new GLContext(g);
     }
 
-    public createProgram(vsource:string,psource:string): GLProgram | null{
+    public createProgram(vsource: string, psource: string): GLProgram | null {
 
         let gl = this.gl;
         let vs = gl.createShader(gl.VERTEX_SHADER);
@@ -60,13 +60,13 @@ export class GLContext{
             return null;
         }
 
-        if(program == null) return null;
+        if (program == null) return null;
 
         let p = new GLProgram(gl, program);
         return p;
     }
 
-    public createTextureImage(src: string,callback?:()=>void): WebGLTexture | null{
+    public createTextureImage(src: string, callback?: () => void): WebGLTexture | null {
         var img = new Image();
         var gl = this.gl;
         var tex = gl.createTexture();
@@ -76,134 +76,171 @@ export class GLContext{
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
             gl.generateMipmap(gl.TEXTURE_2D);
 
-            gl.bindTexture(gl.TEXTURE_2D,null);
+            gl.bindTexture(gl.TEXTURE_2D, null);
 
             console.log('init webgl texture');
-            if(callback!= null) callback();
+            if (callback != null) callback();
         };
         img.src = src;
         return tex;
     }
-    public createTexture(internalFormat: number, width: number, height: number,linear:boolean = false,mipmap:boolean = false): WebGLTexture | null {
+
+    public async createTextureImageAsync(src: string, min_filter?: number, mag_filter?: number): Promise<WebGLTexture> {
+        var gl = this.gl;
+        return new Promise<WebGLTexture>((res, rej) => {
+            var img = new Image();
+            img.onload = () => {
+                let tex = gl.createTexture();
+                try {
+                    gl.bindTexture(gl.TEXTURE_2D, tex);
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+
+                    if (min_filter == null) {
+                        min_filter = gl.LINEAR_MIPMAP_LINEAR;
+                    }
+                    if (mag_filter == null) {
+                        mag_filter = gl.LINEAR;
+                    }
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, mag_filter);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, min_filter);
+
+                    gl.generateMipmap(gl.TEXTURE_2D);
+                    gl.bindTexture(gl.TEXTURE_2D, null);
+                    res(tex);
+                }
+                catch (e) {
+                    gl.deleteTexture(tex);
+                    rej(e);
+                }
+
+            };
+            img.onerror = (ev: ErrorEvent) => {
+                rej(ev.message);
+            }
+            img.src = src;
+        })
+    }
+
+    public createTexture(internalFormat: number, width: number, height: number, linear: boolean = false, mipmap: boolean = false): WebGLTexture | null {
         let gl = this.gl;
 
         let tex = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, tex);
-        gl.texStorage2D(gl.TEXTURE_2D,1,internalFormat,width,height);
-        
-        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,linear? gl.LINEAR: gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER, linear?( mipmap? gl.LINEAR_MIPMAP_LINEAR:gl.LINEAR): gl.NEAREST);
+        gl.texStorage2D(gl.TEXTURE_2D, 1, internalFormat, width, height);
 
-        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, linear ? gl.LINEAR : gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, linear ? (mipmap ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR) : gl.NEAREST);
 
-        if(mipmap)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        if (mipmap)
             gl.generateMipmap(gl.TEXTURE_2D);
 
         return tex;
     }
 
-    public createFrameBuffer(retain:boolean,colorInternalFormat:number,depthInternalFormat?:number,width?:number,height?:number):GLFrameBuffer|null{
-        return GLFrameBuffer.create(retain,this,colorInternalFormat,depthInternalFormat,width,height);
+    public createFrameBuffer(retain: boolean, colorInternalFormat: number, depthInternalFormat?: number, width?: number, height?: number): GLFrameBuffer | null {
+        return GLFrameBuffer.create(retain, this, colorInternalFormat, depthInternalFormat, width, height);
     }
 
 
-    private m_tempFrameBuffer:WebGLFramebuffer;
-    public saveTextureToImage(texture:WebGLTexture):HTMLImageElement | null{
-        if(texture == null) return null;
-        let gl =this.gl;
-        if(this.m_tempFrameBuffer == null){
+    private m_tempFrameBuffer: WebGLFramebuffer;
+    public saveTextureToImage(texture: WebGLTexture): HTMLImageElement | null {
+        if (texture == null) return null;
+        let gl = this.gl;
+        if (this.m_tempFrameBuffer == null) {
             this.m_tempFrameBuffer = <WebGLFramebuffer>gl.createFramebuffer();
         }
 
         let curfb = gl.getParameter(gl.FRAMEBUFFER_BINDING);
         let curtex = gl.getParameter(gl.TEXTURE_BINDING_2D);
 
-        gl.bindFramebuffer(gl.FRAMEBUFFER,this.m_tempFrameBuffer);
-        gl.bindTexture(gl.TEXTURE_2D,texture);
-        gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,texture,0);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.m_tempFrameBuffer);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
 
         let image = this.saveCurrentFrameBufferToImage();
 
-        gl.bindTexture(gl.TEXTURE_2D,curtex);
-        gl.bindFramebuffer(gl.FRAMEBUFFER,curfb);
+        gl.bindTexture(gl.TEXTURE_2D, curtex);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, curfb);
 
         return image;
     }
-    public saveCurrentFrameBufferToImage(x:number=0,y:number =0,w:number|null =null,h:number| null = null):HTMLImageElement{
+    public saveCurrentFrameBufferToImage(x: number = 0, y: number = 0, w: number | null = null, h: number | null = null): HTMLImageElement {
         let gl = this.gl;
 
-        if(w == null || h == null){
+        if (w == null || h == null) {
             let canvas = gl.canvas;
             w = canvas.width;
             h = canvas.height;
         }
 
-        let data = new Uint8Array(w *h *4);
-        gl.readPixels(x,y,w,h,gl.RGBA,gl.UNSIGNED_BYTE,data);
+        let data = new Uint8Array(w * h * 4);
+        gl.readPixels(x, y, w, h, gl.RGBA, gl.UNSIGNED_BYTE, data);
 
         let tempcanvas = document.createElement('canvas');
         tempcanvas.width = w;
         tempcanvas.height = h;
 
         var ctx2d = <CanvasRenderingContext2D>tempcanvas.getContext('2d');
-        var imgdata = ctx2d.createImageData(w,h);
+        var imgdata = ctx2d.createImageData(w, h);
         imgdata.data.set(data);
-        ctx2d.putImageData(imgdata,0,0);
+        ctx2d.putImageData(imgdata, 0, 0);
 
         var img = new Image();
         img.src = tempcanvas.toDataURL();
         return img;
     }
 
-    private m_drawTexAryBuffer:WebGLBuffer;
-    private m_drawTexBuffer:Float32Array = new Float32Array(16);
-    private m_drawTexProgram:GLProgram;
-    private m_drawRectColorProgram:GLProgram;
-    private m_drawTexInited:boolean =false;
-    
-    private drawTexCheckInit():boolean{
-        if(this.m_drawTexInited) return true;
-        let gl =this.gl;
-        if(this.m_drawTexAryBuffer == null){
+    private m_drawTexAryBuffer: WebGLBuffer;
+    private m_drawTexBuffer: Float32Array = new Float32Array(16);
+    private m_drawTexProgram: GLProgram;
+    private m_drawRectColorProgram: GLProgram;
+    private m_drawTexInited: boolean = false;
+
+    private drawTexCheckInit(): boolean {
+        if (this.m_drawTexInited) return true;
+        let gl = this.gl;
+        if (this.m_drawTexAryBuffer == null) {
             this.m_drawTexAryBuffer = <WebGLBuffer>gl.createBuffer();
         }
 
         //vs
         let shadervs = GLShaderComposer.create(GLSL.vs)
-            .attr(GLSL.vec2,'aPosition')
-            .attr(GLSL.vec2,'aUV')
-            .vary(GLSL.vec2,'vUV',GLSL.out)
-            .precision(GLSL.float,GLSL.mediump)
-            .main(f=>f
+            .attr(GLSL.vec2, 'aPosition')
+            .attr(GLSL.vec2, 'aUV')
+            .vary(GLSL.vec2, 'vUV', GLSL.out)
+            .precision(GLSL.float, GLSL.mediump)
+            .main(f => f
                 .line('gl_Position = vec4(aPosition,-1.0,1.0)')
                 .line('vUV = aUV'))
             .compile();
         //ps
         let shaderps = GLShaderComposer.create(GLSL.ps)
-        .uniform(GLSL.sampler2D,'uSampler')
-        .vary(GLSL.vec2,'vUV',GLSL.in)
-        .vary(GLSL.vec4,'fragColor',GLSL.out)
-        .precision(GLSL.float,GLSL.lowp)
-        .main(f=>f
-            .line('fragColor = texture(uSampler,vUV)'))
-        .compile();
+            .uniform(GLSL.sampler2D, 'uSampler')
+            .vary(GLSL.vec2, 'vUV', GLSL.in)
+            .vary(GLSL.vec4, 'fragColor', GLSL.out)
+            .precision(GLSL.float, GLSL.lowp)
+            .main(f => f
+                .line('fragColor = texture(uSampler,vUV)'))
+            .compile();
         //ps color
         let shaderpsCol = GLShaderComposer.create(GLSL.ps)
-            .precision(GLSL.float,GLSL.lowp)
-            .uniform(GLSL.vec4,'uColor')
-            .vary(GLSL.vec2,'vUV',GLSL.in)
-            .vary(GLSL.vec4,'fragColor',GLSL.out)
-            .main(f=>f.line('fragColor = uColor'))
+            .precision(GLSL.float, GLSL.lowp)
+            .uniform(GLSL.vec4, 'uColor')
+            .vary(GLSL.vec2, 'vUV', GLSL.in)
+            .vary(GLSL.vec4, 'fragColor', GLSL.out)
+            .main(f => f.line('fragColor = uColor'))
             .compile();
         {
-            let program = this.createProgram(shadervs,shaderps);
-            if(program == null) throw new Error('Internal shader compile error!');
+            let program = this.createProgram(shadervs, shaderps);
+            if (program == null) throw new Error('Internal shader compile error!');
             this.m_drawTexProgram = program;
         }
         {
-            let program = this.createProgram(shadervs,shaderpsCol);
-            if(program == null) throw new Error('Internal shader compile error!');
+            let program = this.createProgram(shadervs, shaderpsCol);
+            if (program == null) throw new Error('Internal shader compile error!');
             this.m_drawRectColorProgram = program;
         }
 
@@ -211,15 +248,15 @@ export class GLContext{
 
         return true;
     }
-    public drawTexFullscreen(tex:WebGLTexture,flipY:boolean = false,retain:boolean = true){
-        let gl =this.gl;
-        if(!gl.isTexture(tex))return;
-        if(!this.drawTexCheckInit()){
+    public drawTexFullscreen(tex: WebGLTexture, flipY: boolean = false, retain: boolean = true) {
+        let gl = this.gl;
+        if (!gl.isTexture(tex)) return;
+        if (!this.drawTexCheckInit()) {
             console.log('draw tex init failed');
             return;
         }
 
-        let state = retain? this.savePipeline(gl.ARRAY_BUFFER_BINDING,gl.TEXTURE_BINDING_2D,gl.CULL_FACE) : null;
+        let state = retain ? this.savePipeline(gl.ARRAY_BUFFER_BINDING, gl.TEXTURE_BINDING_2D, gl.CULL_FACE) : null;
 
 
         const dataNoFlipped = [
@@ -236,82 +273,82 @@ export class GLContext{
         ];
 
         gl.disable(gl.CULL_FACE);
-        
-        gl.bindBuffer(gl.ARRAY_BUFFER,this.m_drawTexAryBuffer);
-        this.m_drawTexBuffer.set(flipY? dataFlipped:dataNoFlipped);
-        gl.bufferData(gl.ARRAY_BUFFER,this.m_drawTexBuffer,gl.STREAM_DRAW);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.m_drawTexAryBuffer);
+        this.m_drawTexBuffer.set(flipY ? dataFlipped : dataNoFlipped);
+        gl.bufferData(gl.ARRAY_BUFFER, this.m_drawTexBuffer, gl.STREAM_DRAW);
 
         let p = this.m_drawTexProgram;
         gl.useProgram(p.Program);
         let attrp = p.Attributes['aPosition'];
         let attruv = p.Attributes['aUV'];
-        gl.vertexAttribPointer(attrp,2,gl.FLOAT,false,16,0);
-        gl.vertexAttribPointer(attruv,2,gl.FLOAT,false,16,8);
+        gl.vertexAttribPointer(attrp, 2, gl.FLOAT, false, 16, 0);
+        gl.vertexAttribPointer(attruv, 2, gl.FLOAT, false, 16, 8);
         gl.enableVertexAttribArray(attrp);
         gl.enableVertexAttribArray(attruv);
 
-        gl.bindTexture(gl.TEXTURE_2D,tex);
         gl.activeTexture(gl.TEXTURE0);
-        gl.uniform1i(p.Uniforms['uSampler'],0);
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.uniform1i(p.Uniforms['uSampler'], 0);
 
-        gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-        if(state != null){
+        if (state != null) {
             this.restorePipeline(state);
         }
     }
 
-    public drawSampleRect(retain:boolean,x:number,y:number,w:number,h:number,color:vec4 = vec4.one){
-        let gl =this.gl;
-        if(!this.drawTexCheckInit()){
+    public drawSampleRect(retain: boolean, x: number, y: number, w: number, h: number, color: vec4 = vec4.one) {
+        let gl = this.gl;
+        if (!this.drawTexCheckInit()) {
             console.log('draw tex init failed');
             return;
         }
 
 
-        let state = retain? this.savePipeline(gl.ARRAY_BUFFER_BINDING,gl.TEXTURE_BINDING_2D,gl.CULL_FACE) : null;
+        let state = retain ? this.savePipeline(gl.ARRAY_BUFFER_BINDING, gl.TEXTURE_BINDING_2D, gl.CULL_FACE) : null;
         {
             let vp = gl.getParameter(gl.VIEWPORT);
             let vw = vp[2];
             let vh = vp[3];
-            let dx1 = 2*x/vw -1;
-            let dy1 = 2*y/vh -1;
+            let dx1 = 2 * x / vw - 1;
+            let dy1 = 2 * y / vh - 1;
 
-            let dx2 = dx1+ 2*w /vw;
-            let dy2 = dy1+ 2*h /vh;
+            let dx2 = dx1 + 2 * w / vw;
+            let dy2 = dy1 + 2 * h / vh;
 
             gl.disable(gl.CULL_FACE);
-           
-            gl.bindBuffer(gl.ARRAY_BUFFER,this.m_drawTexAryBuffer);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.m_drawTexAryBuffer);
             this.m_drawTexBuffer.set([
-                dx1,dy2,0,1.0,
-                dx2,dy2,1.0,1.0,
-                dx1,dy1,0,0,
-                dx2,dy1,1.0,0
+                dx1, dy2, 0, 1.0,
+                dx2, dy2, 1.0, 1.0,
+                dx1, dy1, 0, 0,
+                dx2, dy1, 1.0, 0
             ]);
 
-            gl.bufferData(gl.ARRAY_BUFFER,this.m_drawTexBuffer,gl.STREAM_DRAW);
+            gl.bufferData(gl.ARRAY_BUFFER, this.m_drawTexBuffer, gl.STREAM_DRAW);
 
             let p = this.m_drawRectColorProgram;
             gl.useProgram(p.Program);
             let attrp = p.Attributes['aPosition'];
             let attruv = p.Attributes['aUV'];
-            gl.vertexAttribPointer(attrp,2,gl.FLOAT,false,16,0);
-            gl.vertexAttribPointer(attruv,2,gl.FLOAT,false,16,8);
+            gl.vertexAttribPointer(attrp, 2, gl.FLOAT, false, 16, 0);
+            gl.vertexAttribPointer(attruv, 2, gl.FLOAT, false, 16, 8);
             gl.enableVertexAttribArray(attrp);
             gl.enableVertexAttribArray(attruv);
-            gl.uniform4fv(p.Uniforms['uColor'],color.raw);
-            gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+            gl.uniform4fv(p.Uniforms['uColor'], color.raw);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         }
-        if(state != null) this.restorePipeline(state);
+        if (state != null) this.restorePipeline(state);
     }
 
-    public savePipeline(...type:number[]):GLPipelineState{
-        return new GLPipelineState(this.gl,...type);
+    public savePipeline(...type: number[]): GLPipelineState {
+        return new GLPipelineState(this.gl, ...type);
     }
 
-    public restorePipeline(state:GLPipelineState){
-        if(state == null) return;
+    public restorePipeline(state: GLPipelineState) {
+        if (state == null) return;
         state.restore(this.gl);
     }
 }
