@@ -807,7 +807,7 @@ export class mat4 {
     }
 
     public static orthographic(w:number,h:number,n:number,f:number){
-        let d = n-f;
+        let d = f-n;
         return new mat4([
             2.0/w,0,0,0,
             0,2.0/h,0,0,
