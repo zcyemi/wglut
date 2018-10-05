@@ -248,17 +248,23 @@ export class GLContext {
 
         return true;
     }
-    public drawTexFullscreen(tex: WebGLTexture, flipY: boolean = false, retain: boolean = true) {
+
+    public drawTex(tex: WebGLTexture, flipY: boolean = false,retain: boolean = true,viewport?:vec4){
         let gl = this.gl;
         if (!gl.isTexture(tex)) return;
         if (!this.drawTexCheckInit()) {
             console.log('draw tex init failed');
             return;
         }
-
         let state = retain ? this.savePipeline(gl.ARRAY_BUFFER_BINDING, gl.TEXTURE_BINDING_2D, gl.CULL_FACE) : null;
-
-
+        let setViewPort = viewport != null;
+        let vp:any = null;
+        if(setViewPort){
+            if(!retain){
+                vp = gl.getParameter(gl.VIEWPORT);
+            }
+            gl.viewport(viewport.x,viewport.y,viewport.z,viewport.w);
+        }
         const dataNoFlipped = [
             -1, 1, 0, 1,
             1, 1, 1.0, 1,
@@ -273,7 +279,6 @@ export class GLContext {
         ];
 
         gl.disable(gl.CULL_FACE);
-
         gl.bindBuffer(gl.ARRAY_BUFFER, this.m_drawTexAryBuffer);
         this.m_drawTexBuffer.set(flipY ? dataFlipped : dataNoFlipped);
         gl.bufferData(gl.ARRAY_BUFFER, this.m_drawTexBuffer, gl.STREAM_DRAW);
@@ -286,16 +291,24 @@ export class GLContext {
         gl.vertexAttribPointer(attruv, 2, gl.FLOAT, false, 16, 8);
         gl.enableVertexAttribArray(attrp);
         gl.enableVertexAttribArray(attruv);
-
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, tex);
         gl.uniform1i(p.Uniforms['uSampler'], 0);
-
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
         if (state != null) {
             this.restorePipeline(state);
         }
+
+        if(setViewPort){
+            if(!retain){
+                gl.viewport(vp[0],vp[1],vp[2],vp[3]);
+            }
+        }
+    }
+
+    public drawTexFullscreen(tex: WebGLTexture, flipY: boolean = false,retain: boolean = true) {
+        this.drawTex(tex,flipY,retain);
     }
 
     public drawSampleRect(retain: boolean, x: number, y: number, w: number, h: number, color: vec4 = vec4.one) {
