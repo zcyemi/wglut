@@ -413,7 +413,7 @@ export class vec3 {
         return vec3.Cross(this,v);
     }
 
-    public crossLHS(v: vec3) {
+    public crossRev(v: vec3) {
         return vec3.Cross(v,this);
     }
 
@@ -748,12 +748,17 @@ export class mat4 {
         ]));
     }
 
+    /**
+     * Build coordinate change matrix RH->RH LH->LH
+     * @param pos pos
+     * @param forward dir
+     * @param up dir
+     */
     public static coord(pos: vec3, forward: vec3, up: vec3) {
         let f = forward.normalize();
         let u = up.normalize();
         let r = u.cross(f);
         u = f.cross(r);
-
         return new mat4([
             r.x, u.x, f.x, 0,
             r.y, u.y, f.y, 0,
@@ -762,12 +767,17 @@ export class mat4 {
         ]);
     }
 
-    public static coordLHS(pos: vec3, forward: vec3, up: vec3) {
+    /**
+     * Build matrix for coordinate conversion RH->LH LH->RH
+     * @param pos pos
+     * @param forward dir
+     * @param up dir
+     */
+    public static coordCvt(pos: vec3, forward: vec3, up: vec3) {
         let f = forward.normalize();
         let u = up.normalize();
-        let r = u.crossLHS(f);
-        u = f.crossLHS(r);
-
+        let r = u.crossRev(f);
+        u = f.crossRev(r);
         return new mat4([
             r.x, u.x, f.x, 0,
             r.y, u.y, f.y, 0,
@@ -806,13 +816,20 @@ export class mat4 {
         return this.perspective(w, h, n, f);
     }
 
+    /**
+     * Left Hand coordinate
+     * @param w 
+     * @param h 
+     * @param n 
+     * @param f 
+     */
     public static orthographic(w:number,h:number,n:number,f:number){
         let d = f-n;
         return new mat4([
             2.0/w,0,0,0,
             0,2.0/h,0,0,
             0,0,2.0/d,0,
-            0,0,(n+f)/d,1
+            0,0,-(n+f)/d,1
         ]);
     }
 

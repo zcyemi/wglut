@@ -157,7 +157,7 @@ describe('mat4',()=>{
         let m1 = mat4.coord(vec3.zero,f,u);
         let m2 = mat4.coord(vec3.zero,f.mulToRef(-1.0),u);
 
-        let m3 = mat4.coordLHS(vec3.zero,f,u);
+        let m3 = mat4.coordCvt(vec3.zero,f,u);
 
         let p = glmath.vec4(1,1,-1,1);
 
@@ -169,6 +169,37 @@ describe('mat4',()=>{
         expectVec4(p2,glmath.vec4(1,1,-1,1));
         expectVec4(p1,glmath.vec4(-1,1,1,1));
 
+    })
+
+    it("coord-LH-RH",()=>{
+        //PR(1,1,1,1)
+        let pr = glmath.vec4(1,1,1,1);
+        let mtxLH = mat4.coordCvt(vec3.zero,glmath.vec3(0,0,-1),glmath.vec3(0,1,0));
+        let mtxRH = mat4.coord(vec3.zero,glmath.vec3(0,0,-1),glmath.vec3(0,1,0));
+        expectVec4(mtxLH.mulvec(pr),glmath.vec4(1,1,-1,1),0.0001);
+        expectVec4(mtxRH.mulvec(pr),glmath.vec4(-1,1,-1,1),0.0001);
+
+
+        //PL (1,1,1,1)
+        let pl = glmath.vec4(1,1,1,1);
+        mtxLH = mat4.coord(vec3.zero,glmath.vec3(0,0,-1),glmath.vec3(0,1,0));
+        mtxRH = mat4.coordCvt(vec3.zero,glmath.vec3(0,0,-1),glmath.vec3(0,1,0));
+        expectVec4(mtxLH.mulvec(pl),glmath.vec4(-1,1,-1,1),0.0001);
+        expectVec4(mtxRH.mulvec(pl),glmath.vec4(1,1,-1,1),0.0001);
+    })
+
+    it("orthographic",()=>{
+        
+        let f = 100.0;
+        let n = 0.01;
+
+        let mtx = mat4.orthographic(1,1,n,f);
+
+        let p0 = glmath.vec4(-0.5,-0.5,n,1);
+        let p1 = glmath.vec4(0.5,0.5,f,1);
+
+        expectVec4(mtx.mulvec(p0),new vec4([-1,-1,-1,1]),0.0001);
+        expectVec4(mtx.mulvec(p1),new vec4([1,1,1,1]),0.0001);
     })
 })
 
