@@ -317,7 +317,7 @@ describe('quaternion',()=>{
 
     it("quat-2-mtx",()=>{
         var qeuler = quat.fromEulerDeg(51,-20,165);
-        var v = new vec3([1,-2,3]).normalize();
+        var v = new vec3([1,-2,3]).normalize;
         let qmtx = quat.QuatToMtx(qeuler);
         var v1 = qeuler.rota(v);
         var v2 = qmtx.mulvec(v);
@@ -351,7 +351,7 @@ describe('quaternion',()=>{
         let to = glmath.vec3(-7,11,3);
 
         let q = quat.FromTo(from,to);
-        let v = q.rota(from).normalize().mul(to.length);
+        let v = q.rota(from).normalize.mul(to.length);
 
         expectPair(v.raw,to.raw);
     });

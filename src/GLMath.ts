@@ -1,5 +1,9 @@
 import { isNumber } from "util";
 
+const DEG2RAD_HALF = Math.PI / 360.0;
+const DEG2RAD = Math.PI / 180.0;
+const RAD2DEG = 180.0 / Math.PI;
+
 export class glmath {
     public static vec3(x: number, y: number, z: number): vec3 {
         return new vec3([x, y, z]);
@@ -17,6 +21,9 @@ export class glmath {
     public static clamp(v: number, min: number, max: number) {
         return v > max ? max : (v < min ? min : v);
     }
+
+    public static readonly Deg2Rad:number = DEG2RAD;
+    public static readonly Rad2Deg:number = RAD2DEG;
 }
 
 export class vec4 {
@@ -226,6 +233,15 @@ export class vec4 {
         return new vec4([Math.random(),Math.random(),Math.random(),Math.random()]);
     }
 
+    public equals(v: vec4) {
+        let r = this.raw;
+        let rv = v.raw;
+        for(let i=0;i<4;i++){
+            if(r[i] != rv[i]) return false;
+        }
+        return true;
+    }
+
     public static readonly zero: vec4 = new vec4([0, 0, 0,0]);
     public static readonly one: vec4 = new vec4([1, 1, 1,1]);
 }
@@ -320,15 +336,15 @@ export class vec3 {
 
     public subToRef(v: number | vec3 | vec4 | number[]): vec3 {
         if (v instanceof vec3 || v instanceof vec4) {
-            let x = v.x - this.x;
-            let y = v.y - this.y;
-            let z = v.z - this.z;
+            let x = this.x - v.x;
+            let y = this.y - v.y;
+            let z = this.z - v.z;
             return glmath.vec3(x, y, z);
         }
         else if (v instanceof Array) {
-            let x = v[0] - this.x;
-            let y = v[1] - this.y;
-            let z = v[2] - this.z;
+            let x = this.x- v[0];
+            let y = this.y- v[1];
+            let z = this.z- v[2];
             return glmath.vec3(x, y, z);
         }
         else {
@@ -434,7 +450,7 @@ export class vec3 {
         return new vec3([v1.x+v2.x,v1.y+v2.y,v1.z+v2.z]);
     }
 
-    public normalize(): vec3 {
+    public get normalize(): vec3 {
         return this.div(this.length);
     }
 
@@ -455,10 +471,6 @@ export class vec3 {
     public static get right(): vec3 { return new vec3([1, 0, 0]) };
     public static get down(): vec3 { return new vec3([0, -1, 0]); }
 }
-
-const DEG2RAD_HALF = Math.PI / 360.0;
-const DEG2RAD = Math.PI / 180.0;
-const RAD2DEG = 180.0 / Math.PI;
 
 export class quat {
     public raw: number[];
@@ -733,8 +745,8 @@ export class mat4 {
     }
 
     public static lookAt(eye: vec3, target: vec3, up: vec3) {
-        let vz = eye.subToRef(target).normalize();
-        let vx = up.cross(vz).normalize();
+        let vz = eye.subToRef(target).normalize;
+        let vx = up.cross(vz).normalize;
         var vy = vz.cross(vx);
 
         return mat4.inverse(new mat4([
@@ -755,8 +767,8 @@ export class mat4 {
      * @param up dir
      */
     public static coord(pos: vec3, forward: vec3, up: vec3) {
-        let f = forward.normalize();
-        let u = up.normalize();
+        let f = forward.normalized();
+        let u = up.normalized();
         let r = u.cross(f);
         u = f.cross(r);
         return new mat4([
@@ -774,8 +786,8 @@ export class mat4 {
      * @param up dir
      */
     public static coordCvt(pos: vec3, forward: vec3, up: vec3) {
-        let f = forward.normalize();
-        let u = up.normalize();
+        let f = forward.normalized();
+        let u = up.normalized();
         let r = u.crossRev(f);
         u = f.crossRev(r);
         return new mat4([
