@@ -432,12 +432,20 @@ export class vec3 {
         return new vec3([this.x, this.y, this.z]);
     }
 
-    public cross(v: vec3) {
-        return vec3.Cross(this,v);
+    /**
+     * CrossProduct operation
+     * @param rhs right hand side
+     */
+    public cross(rhs: vec3) {
+        return vec3.Cross(this,rhs);
     }
 
-    public crossRev(v: vec3) {
-        return vec3.Cross(v,this);
+    /**
+     * Reverse CrossProduct operation
+     * @param lhs left hand side
+     */
+    public crossRev(lhs: vec3) {
+        return vec3.Cross(lhs,this);
     }
 
     public static Cross(lhs:vec3,rhs:vec3):vec3{
@@ -466,7 +474,7 @@ export class vec3 {
     }
 
     public static Random():vec3{
-        return new vec3([Math.random(),Math.random(),Math.random()]);
+        return new vec3([Math.random() - 0.5,Math.random()  - 0.5,Math.random()  - 0.5]);
     }
 
     public set(v:vec3){
@@ -623,6 +631,7 @@ export class quat {
         let v4 = axis.mulToRef(d * sin).vec4(cos);
         return new quat(v4.raw);
     }
+    
 
     public static axisRotationDeg(axis: vec3, deg: number) {
         let angle = deg * DEG2RAD;
@@ -633,19 +642,53 @@ export class quat {
         return new quat(v4.raw);
     }
 
-    public static RotaTo(vec:vec3):quat{
-        let len2 = vec.length2;
-        if(len2 == 0) return quat.Identity;
-        let v = vec.normalized();
-        let rady = Math.atan2(-v.z,v.x);
-        let radz = Math.atan2(v.y, Math.sqrt(1 - v.y * v.y));
-        return quat.fromEuler(0,rady,radz);
+    /**
+     * Calculate quaternion of rotation of vec3[from] -> vec3[to]
+     * @param from 
+     * @param to 
+     * @param normal 
+     */
+    public static FromToNormal(from:vec3,to:vec3,normal:vec3){
+        let f = from.normalized();
+        let t = to.normalized();
+        let n = normal.normalized();
+        let cross = vec3.Cross(f,t);
+
+        let croosLen2 = cross.length2;
+        if(croosLen2 == 0){
+            let dot = f.dot(t);
+            if(dot == 1){
+                return quat.Identity;
+            }
+            let cr = vec3.Cross(n,f);
+            let cu = vec3.Cross(f,cr);
+            let nor = cu.normalize;
+            return new quat([nor.x,nor.y,nor.z,0]);
+        }
+        cross.div(Math.sqrt(croosLen2));
+        let cos = f.dot(t);
+        let cosh = Math.sqrt((1+cos)/2.0);
+        let sinh =  Math.sqrt((1-cos)/2.0);
+
+        let cdotn = cross.dot(n);
+        if(cdotn < 0){
+            cross.mul(-1.0);
+            cosh *=-1.0;
+        }
+        return new quat([cross.x * sinh,cross.y * sinh,cross.z * sinh,cosh]);
     }
 
-    public static FromTo(from:vec3,to:vec3):quat{
-        let q1 = quat.RotaTo(from);
-        let q2 = quat.RotaTo(to);
-        return quat.Div(q2,q1);
+    public static Coordinate(forward:vec3,up:vec3):quat{
+        if(forward.dot(up) >0.00001){
+            throw new Error("<forward> must be perpendicular ot <up>");
+        }
+        let f = forward.normalized();
+        let u =  up.normalized();
+
+        let qf = quat.FromToNormal(vec3.forward,f,u);
+        let u1 = qf.rota(vec3.up);
+        let qu = quat.FromToNormal(u1,up,f);
+        return qu.mul(qf);
     }
 
     public static QuatToMtx(q:quat):mat3{
@@ -703,13 +746,13 @@ export class quat {
 
 
     public equals(q: quat) {
-        let qraw = q.w < 0 ? [-q.x,-q.y,-q.z,-q.w] : q.raw;
-
+        let qraw = (q.w * this.w < 0) ? [-q.x,-q.y,-q.z,-q.w] : q.raw;
         for(let i=0;i<4;i++){
-            if(Math.abs(qraw[i] - this.raw[i]) > 0.0001) return false;
+            if(Math.abs(qraw[i] - this.raw[i]) > 0.001) return false;
         }
         return true;
     }
+
 
     public determination() {
         let x = this.x;
@@ -771,7 +814,7 @@ export class mat4 {
     public static lookAt(eye: vec3, target: vec3, up: vec3) {
         let vz = eye.subToRef(target).normalize;
         let vx = up.cross(vz).normalize;
-        var vy = vz.cross(vx);
+        var vy = vz.cross(vx).normalize;
 
         return mat4.inverse(new mat4([
             vx.x, vx.y, vx.z, 0,
@@ -793,8 +836,8 @@ export class mat4 {
     public static coord(pos: vec3, forward: vec3, up: vec3) {
         let f = forward.normalized();
         let u = up.normalized();
-        let r = u.cross(f);
-        u = f.cross(r);
+        let r = u.cross(f).normalize;
+        u = f.cross(r).normalize;
         return new mat4([
             r.x, u.x, f.x, 0,
             r.y, u.y, f.y, 0,
@@ -812,8 +855,8 @@ export class mat4 {
     public static coordCvt(pos: vec3, forward: vec3, up: vec3) {
         let f = forward.normalized();
         let u = up.normalized();
-        let r = u.crossRev(f);
-        u = f.crossRev(r);
+        let r = u.crossRev(f).normalize;
+        u = f.crossRev(r).normalize;
         return new mat4([
             r.x, u.x, f.x, 0,
             r.y, u.y, f.y, 0,

@@ -1,5 +1,5 @@
 import * as chai from 'chai';
-import { pairwise, expectPair, expectVec3, expectVec4} from './GLTestHelper';
+import { pairwise, expectPair, expectVec3, expectVec4, expectQuat} from './GLTestHelper';
 import { glmath,vec3,vec4,mat3,mat4,quat} from '../src/wglut';
 
 const expect = chai.expect;
@@ -345,24 +345,99 @@ describe('quaternion',()=>{
         expectPair(q.raw,qm.raw);
     });
 
-    it("quat-rota-to",()=>{
-        let tar = new vec3([-1.9,13.5,2.7]);
-        let length = tar.length;
-        let q =quat.RotaTo(tar);
-        let v = q.rota(vec3.right.mulToRef(length));
-        expectPair(v.raw, tar.raw);
-    });
-
     it("quat-from-to",()=>{
+        //LH space
+        let vf = vec3.forward;
+        let vr = vec3.right;
+        let vu = vec3.up;
+        let vd = vec3.down;
 
-        let from = glmath.vec3(23,-3,5);
-        let to = glmath.vec3(-7,11,3);
+        let qfr = quat.FromToNormal(vf,vr,vu);
+        let qrf = quat.FromToNormal(vr,vf,vu);
 
-        let q = quat.FromTo(from,to);
-        let v = q.rota(from).normalize.mul(to.length);
+        expectVec3(qfr.rota(vf),vr);
+        expectVec3(qrf.rota(vr),vf);
 
-        expectPair(v.raw,to.raw);
-    });
+        expectVec3(qfr.rota(vu),vu);
+        expectVec3(qrf.rota(vu),vu);
+
+        let qfrd = quat.FromToNormal(vf,vr,vd);
+        let qrfd = quat.FromToNormal(vr,vf,vd);
+
+        expectVec3(qfrd.rota(vf),vr);
+        expectVec3(qrfd.rota(vr),vf);
+
+        expectVec3(qfrd.rota(vd),vd);
+        expectVec3(qrfd.rota(vd),vd);
+    })
+
+    it("quat-from-to-normalized",()=>{
+        let v1 = vec3.Random();
+        let v2 = vec3.Random();
+
+        let q = quat.FromToNormal(v1,v2,vec3.Random());
+        expectVec3(q.rota(v1).normalize,v2.normalize);
+    })
+
+    it("quat-from-to-parall",()=>{
+        let v1 = vec3.Random();
+        let v2 = vec3.Random();
+
+        let v3 = v1.cross(v2);
+        let up = v3.cross(v1);
+        let q = quat.FromToNormal(v1,v2,up);
+        expectVec3(q.rota(v1).normalize,v2.normalize);
+    })
+
+    it("quat-from-to-normal",()=>{
+        let q0 = quat.Random();
+        let v1 = vec3.Random();
+        let v2 = vec3.Random();
+
+        let cross = v1.cross(v2);
+
+        let qu = quat.FromToNormal(v1,v2,cross);
+        let qd = quat.FromToNormal(v1,v2,cross.mulToRef(-1));
+        let q1 = qu.mul(q0);
+        let q2 = qd.mul(q0);
+
+        for(let i=0;i<4;i++){
+            expect(q1.raw[i] + q2.raw[i]).to.eq(0);
+        }
+
+        for(var i=0;i<10;i++){
+            let up = vec3.Random();
+            let q = quat.FromToNormal(v1,v2,up);
+            expectQuat(q,(up.dot(cross) >=0? qu:qd));
+        }
+    })
+
+    it("quat-from-to-coord",()=>{
+        let coordverify = (f:vec3,u:vec3)=>{
+            let rn = u.cross(f).normalize;
+            let fn = f.normalized();
+            let un = u.normalized();
+            let q = quat.Coordinate(fn,un);
+            expectVec3(fn,q.rota(vec3.forward));
+            expectVec3(un,q.rota(vec3.up));
+            expectVec3(rn,q.rota(vec3.right));
+        }
+
+        for(let i=0;i<10;i++){
+            let vf = vec3.Random().normalize;
+            let vu = vec3.Random();
+            let vr = vec3.Cross(vu,vf).normalize;
+            vu = vec3.Cross(vf,vr).normalize;
+            coordverify(vf,vu);
+        }
+
+        coordverify(vec3.up,vec3.right);
+        coordverify(vec3.down,vec3.right);
+        coordverify(vec3.up,vec3.left);
+        coordverify(vec3.down,vec3.left);
+
+    })
+
 
     it("quat-div-1",()=>{
         let q1 = quat.fromEuler(Math.random(),Math.random(),Math.random());
@@ -375,11 +450,8 @@ describe('quaternion',()=>{
     it("quat-div-2",()=>{
         let q1 = quat.Random();
         let q2 = quat.Random();
-
         let qdiv = quat.Div(q2,q1);
-
         let q = qdiv.mul(q1);
-
         expectPair(q.raw, q2.raw);
     })
 
@@ -392,9 +464,7 @@ describe('quaternion',()=>{
 
     it("quat-set",()=>{
         let q = quat.Random();
-
         let qc = q.clone();
-        
         let q1 = quat.Random();
         q1.set(q);
 
