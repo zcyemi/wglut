@@ -26,6 +26,15 @@ describe('vec3',()=>{
         let v4 = v3.vec4(5); 
         expect(v4.w).to.equal(5);
     });
+
+    it('cross-crossverify',()=>{
+        let v1 = vec3.Random().normalize;
+        let v2 = vec3.Random().normalize;
+
+        let cross = vec3.Cross(v1,v2);
+        let dot = v1.dot(v2);
+        expect(cross.length2 + dot * dot).to.closeTo(1.0,0.00001);
+    })
 })
 
 describe('mat4',()=>{
@@ -178,7 +187,6 @@ describe('mat4',()=>{
         let mtxRH = mat4.coord(vec3.zero,glmath.vec3(0,0,-1),glmath.vec3(0,1,0));
         expectVec4(mtxLH.mulvec(pr),glmath.vec4(1,1,-1,1),0.0001);
         expectVec4(mtxRH.mulvec(pr),glmath.vec4(-1,1,-1,1),0.0001);
-
 
         //PL (1,1,1,1)
         let pl = glmath.vec4(1,1,1,1);

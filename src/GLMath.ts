@@ -8,7 +8,6 @@ export class glmath {
     public static vec3(x: number, y: number, z: number): vec3 {
         return new vec3([x, y, z]);
     }
-    
 
     public static vec4(x: number, y: number, z: number, w: number): vec4 {
         return new vec4([x, y, z, w]);
@@ -24,6 +23,8 @@ export class glmath {
 
     public static readonly Deg2Rad:number = DEG2RAD;
     public static readonly Rad2Deg:number = RAD2DEG;
+
+
 }
 
 export class vec4 {
@@ -679,7 +680,7 @@ export class quat {
     }
 
     public static Coordinate(forward:vec3,up:vec3):quat{
-        if(forward.dot(up) >0.00001){
+        if(forward.dot(up) >Number.EPSILON){
             throw new Error("<forward> must be perpendicular ot <up>");
         }
         let f = forward.normalized();
