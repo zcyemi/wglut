@@ -242,6 +242,13 @@ export class vec4 {
         return true;
     }
 
+    public set(v:vec4){
+        this.x = v.x;
+        this.y = v.y;
+        this.z = v.z;
+        this.w = v.w;
+    }
+
     public static readonly zero: vec4 = new vec4([0, 0, 0,0]);
     public static readonly one: vec4 = new vec4([1, 1, 1,1]);
 }
@@ -460,6 +467,12 @@ export class vec3 {
 
     public static Random():vec3{
         return new vec3([Math.random(),Math.random(),Math.random()]);
+    }
+
+    public set(v:vec3){
+        this.x = v.x;
+        this.y = v.y;
+        this.z = v.z;
     }
 
     public static get zero(): vec3 { return new vec3([0, 0, 0]) };
@@ -707,8 +720,19 @@ export class quat {
         return x * x + y * y + z * z + w * w;
     }
 
+    public clone():quat{
+        return new quat([this.x,this.y,this.z,this.w]);
+    }
+
     public static Random():quat{
         return quat.axisRotation(glmath.vec3(Math.random(),Math.random(),Math.random()),Math.PI * 2 * Math.random());
+    }
+
+    public set(q:quat){
+        this.x = q.x;
+        this.y = q.y;
+        this.z = q.z;
+        this.w = q.w;
     }
 }
 
@@ -1063,6 +1087,11 @@ export class mat4 {
             raw[3],raw[7],raw[9],raw[13],
         ]);
     }
+
+    public clone():mat4{
+        let ary = this.raw.splice(0);
+        return new mat4(ary);
+    }
 }
 
 export class mat3 {
@@ -1176,6 +1205,11 @@ export class mat3 {
         let rz = degz * DEG2RAD;
 
         return this.Rotation(rx,ry,rz);
+    }
+
+    public clone():mat3{
+        let ary = this.raw.splice(0);
+        return new mat3(ary);
     }
     
 }

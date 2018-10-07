@@ -261,6 +261,14 @@ describe("mat3",()=>{
         let v2 = rmat4.mulvec(v.vec4(0));
         expectPair(v1.raw,v2.raw,0.00001);
     })
+
+    it("mat3-clone",()=>{
+        let mtx = mat4.TRS(vec3.Random(),quat.Random(),vec3.Random());
+
+        let mtxc = mtx.clone();
+        mtx.raw[4] = 123;
+        expect(mtxc.raw[4]).to.that.not.eq(mtx.raw[4]);
+    })
 })
 
 describe('quaternion',()=>{
@@ -373,5 +381,25 @@ describe('quaternion',()=>{
         let q = qdiv.mul(q1);
 
         expectPair(q.raw, q2.raw);
+    })
+
+    it("quat-clone",()=>{
+        let q = quat.Random();
+        let q1 = q.clone();
+        expectPair(q1.raw,q.raw);
+        expect(q.raw).not.eq(q1.raw);
+    })
+
+    it("quat-set",()=>{
+        let q = quat.Random();
+
+        let qc = q.clone();
+        
+        let q1 = quat.Random();
+        q1.set(q);
+
+        expectPair(q.raw,qc.raw,0.001);
+        expectPair(q1.raw,q.raw);
+        expect(q1.raw).not.eq(q.raw);
     })
 })
