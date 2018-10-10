@@ -114,8 +114,8 @@ export class GLContext {
                 }
 
             };
-            img.onerror = (ev: ErrorEvent) => {
-                rej(ev.message);
+            img.onerror = (ev: Event| string) => {
+                rej(ev);
             }
             img.src = src;
         })
@@ -140,8 +140,8 @@ export class GLContext {
         return tex;
     }
 
-    public createFrameBuffer(retain: boolean, colorInternalFormat: number, depthInternalFormat?: number, width?: number, height?: number): GLFrameBuffer | null {
-        return GLFrameBuffer.create(retain, this, colorInternalFormat, depthInternalFormat, width, height);
+    public createFrameBuffer(retain: boolean, colorInternalFormat: number, depthInternalFormat?: number, width?: number, height?: number,glfb?:GLFrameBuffer): GLFrameBuffer | null {
+        return GLFrameBuffer.create(retain, this, colorInternalFormat, depthInternalFormat, width, height,glfb);
     }
 
 

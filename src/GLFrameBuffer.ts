@@ -13,15 +13,24 @@ export class GLFrameBuffer{
     public width:number;
     public height:number;
 
-    public static create(retain:boolean,glctx:GLContext,colorInternalFormat:number,depthInternalFormat?:number,width?:number,height?:number):GLFrameBuffer|null{
+    private m_valid:boolean = false;
+
+    public static create(retain:boolean,glctx:GLContext,colorInternalFormat:number,depthInternalFormat?:number,width?:number,height?:number,glfb?:GLFrameBuffer):GLFrameBuffer|null{
         let gl = glctx.gl;
         if(width == null) width = gl.canvas.width;
         if(height == null) height = gl.canvas.height;
 
+        if(glfb == null){
+            glfb = new GLFrameBuffer();
+        }
+        else{
+            if(glfb.isvalid){
+                glfb.release(glctx);
+            }
+        }
+
         let fb = gl.createFramebuffer();
         if(fb == null) return null;
-
-        let glfb = new GLFrameBuffer();
 
         let state = retain? glctx.savePipeline(
             gl.FRAMEBUFFER_BINDING,
@@ -63,7 +72,26 @@ export class GLFrameBuffer{
         if(state != null){
             glctx.restorePipeline(state);
         }
+
+        glfb.m_valid= true;
         return glfb;
+    }
+
+    public release(glctx:GLContext){
+        let gl = glctx.gl;
+        gl.deleteFramebuffer(this.frambuffer);
+        this.frambuffer = null;
+
+        gl.deleteTexture(this.colorTex0);
+        gl.deleteTexture(this.depthTex0);
+        this.colorTex0 = null;
+        this.depthTex0 = null;
+
+        this.m_valid = false;
+    }
+
+    public get isvalid():boolean{
+        return this.m_valid;
     }
 
     public bind(gl:WebGL2RenderingContext){
