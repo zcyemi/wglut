@@ -9,6 +9,7 @@ export class GLUtility{
     private static s_animationFrameFunc:OnFrameFunc[]= [];
 
 
+
     public static registerOnFrame(f:OnFrameFunc){
         if(!GLUtility.s_animationFrameRegisted){
             window.requestAnimationFrame(GLUtility.onAnimationFrame);
@@ -26,10 +27,27 @@ export class GLUtility{
         }
     }
 
+    private static s_lastTime:number = 0;
+    private static s_targetFPS:number = 60;
+    private static s_frameInterval:number = 1000 / 60.0;
+
+    public static setTargetFPS(fps:number){
+        GLUtility.s_targetFPS = fps;
+        GLUtility.s_frameInterval = 1000.0 / fps;
+    }
+
     private static onAnimationFrame(t:number){
-        let func = GLUtility.s_animationFrameFunc;
-        for(let i=0,len= func.length;i<len;i++){
-            func[i](t);
+
+        let interval = GLUtility.s_frameInterval;
+
+        let elapsed =  t- GLUtility.s_lastTime;
+
+        if(elapsed >= interval){
+            GLUtility.s_lastTime = t - elapsed % interval;
+            let func = GLUtility.s_animationFrameFunc;
+            for(let i=0,len= func.length;i<len;i++){
+                func[i](t);
+            }
         }
         window.requestAnimationFrame(GLUtility.onAnimationFrame);
     }
