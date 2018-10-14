@@ -360,6 +360,21 @@ export class vec3 {
         }
     }
 
+    /**
+     * multiply a number
+     * @param n
+     */
+    public mulNum(n:number):vec3{
+        this.x *= n;
+        this.y *= n;
+        this.z *= n;
+        return this;
+    }
+
+    public mulNumToRef(n:number):vec3{
+        return glmath.vec3(this.x *n ,this.y *n ,this.z *n);
+    }
+
 
     public mul(v: number | vec3 | vec4 | mat3 | number[] | quat): vec3 {
         if (v instanceof vec3 || v instanceof vec4) {
@@ -539,7 +554,11 @@ export class quat {
         ])
     }
 
-    public selfRota(l:quat){
+    /**
+     * Multiply self with quat <param l>, then return self
+     * @param l
+     */
+    public selfRota(l:quat):quat{
         let rw = this.w;
         let rx = this.x;
         let ry = this.y;
@@ -553,22 +572,38 @@ export class quat {
         this.y = rw * ly + lw * ry + lz * rx - lx * rz;
         this.z = rw * lz + lw * rz + lx * ry - ly * rx;
         this.w = rw * lw - lx * rx - ly * ry - lz * rz;
+
+        return this;
     }
 
-    
 
+
+    /**
+     * Identity quaternion [0,0,0,1]
+     */
     public static get Identity(): quat{
         return new quat([
             0, 0, 0, 1
         ]);
     }
 
-    public rota(p: vec3):vec3 {
+    /**
+     * Rotate vector by self
+     * @param v
+     */
+    public rota(v: vec3):vec3 {
         var q = new vec3([this.x, this.y, this.z]);
-        var t = q.cross(p).mul(2);
-        return p.clone().add(t.mulToRef(this.w)).add(q.cross(t));
+        var t = q.cross(v).mul(2);
+        return v.clone().add(t.mulToRef(this.w)).add(q.cross(t));
     }
 
+    /**
+     * Convert euler angle (degree) to quaternion
+     * width order Z-X-Y
+     * @param degx
+     * @param degy
+     * @param degz
+     */
     public static fromEulerDeg(degx: number, degy: number, degz: number) {
         let rx = degx * DEG2RAD_HALF;
         let ry = degy * DEG2RAD_HALF;
@@ -582,11 +617,18 @@ export class quat {
         return new quat([
             sinx * cosy * cosz + cosx * siny * sinz,
             cosx * siny * cosz - sinx * cosy * sinz,
-            cosx * cosy * sinz + sinx * siny * cosz,
-            cosx * cosy * cosz - sinx * siny * sinz
+            cosx * cosy * sinz - sinx * siny * cosz,
+            cosx * cosy * cosz + sinx * siny * sinz
         ]);
     }
 
+    /**
+     * Convert euler angle (radians) to quaternion
+     * width order Z-X-Y
+     * @param rx
+     * @param ry
+     * @param rz
+     */
     public static fromEuler(rx: number, ry: number, rz: number) {
         let rxh = rx/2.0;
         let ryh = ry/2.0;
@@ -600,28 +642,62 @@ export class quat {
         return new quat([
             sinx * cosy * cosz + cosx * siny * sinz,
             cosx * siny * cosz - sinx * cosy * sinz,
-            cosx * cosy * sinz + sinx * siny * cosz,
-            cosx * cosy * cosz - sinx * siny * sinz
+            cosx * cosy * sinz - sinx * siny * cosz,
+            cosx * cosy * cosz + sinx * siny * sinz
         ]);
     }
 
 
-    public toEuler() {
+    /**
+     * Convert quaternion to Euler angle (radians).
+     * Z-X-Y order
+     */
+    public toEuler():vec3{
         let v = new vec3();
-        let y = this.y;
-        let x = this.x;
-        let z = this.z;
+        let x = this.z;
+        let y = this.x;
+        let z = this.y;
         let w = this.w;
-        let ysqr = y * y;
-        var t0 = +2.0 * (w * x + y * z);
-        var t1 = +1.0 - 2.0 * (x * x + ysqr);
-        v.x = Math.atan2(t0, t1) * RAD2DEG;
-        var t2 = +2.0 * (w * y - z * x);
-        t2 = glmath.clamp(t2, -1, 1);
-        v.y = Math.asin(t2) * RAD2DEG;
-        var t3 = +2.0 * (w * z + x * y);
-        var t4 = +1.0 - 2.0 * (ysqr + z * z);
-        v.z = Math.atan2(t3, t4) * RAD2DEG;
+        let t0 = 2.0 * (w * x + y * z);
+        let t1 = 1.0 - 2.0 * (x * x + y * y);
+        v.z = Math.atan2(t0, t1);
+
+        let t2 = 2.0 * (w * y - z * x);
+          if(t2 > 1.0) {
+          t2 = 1.0;
+        } else if(t2 < -1.0){
+            t2 = -1.0;
+        }
+        v.x = Math.asin(t2);
+        let t3 = 2.0 * (w * z + x * y);
+        let t4 = 1.0 - 2.0 * (y * y + z * z);
+        v.y = Math.atan2(t3, t4);
+        return v;
+    }
+
+    /**
+     * Covert quaternion to Euler angle (degree).
+     */
+    public toEulerDeg(): vec3 {
+        let v = new vec3();
+        let x = this.z;
+        let y = this.x;
+        let z = this.y;
+        let w = this.w;
+        let t0 = 2.0 * (w * x + y * z);
+        let t1 = 1.0 - 2.0 * (x * x + y * y);
+        v.z = Math.atan2(t0, t1) * RAD2DEG;
+
+        let t2 = 2.0 * (w * y - z * x);
+          if(t2 > 1.0) {
+          t2 = 1.0;
+        } else if(t2 < -1.0){
+            t2 = -1.0;
+        }
+        v.x = Math.asin(t2) * RAD2DEG;
+        let t3 = 2.0 * (w * z + x * y);
+        let t4 = 1.0 - 2.0 * (y * y + z * z);
+        v.y = Math.atan2(t3, t4) * RAD2DEG;
         return v;
     }
 
@@ -632,7 +708,7 @@ export class quat {
         let v4 = axis.mulToRef(d * sin).vec4(cos);
         return new quat(v4.raw);
     }
-    
+
 
     public static axisRotationDeg(axis: vec3, deg: number) {
         let angle = deg * DEG2RAD;
@@ -645,9 +721,9 @@ export class quat {
 
     /**
      * Calculate quaternion of rotation of vec3[from] -> vec3[to]
-     * @param from 
-     * @param to 
-     * @param normal 
+     * @param from
+     * @param to
+     * @param normal
      */
     public static FromToNormal(from:vec3,to:vec3,normal:vec3){
         let f = from.normalized();
@@ -714,7 +790,7 @@ export class quat {
             xy2 - wz2, 1 - x2 - z2, yz2 + wx2,
             zx2 + wy2, yz2 - wx2, 1 - x2 - y2
         ]);
-        
+
     }
 
     public static Conjugate(q:quat):quat{
@@ -868,10 +944,10 @@ export class mat4 {
 
     /**
      * Left Hand Coordinate
-     * @param w 
-     * @param h 
-     * @param n 
-     * @param f 
+     * @param w
+     * @param h
+     * @param n
+     * @param f
      */
     public static perspective(w: number, h: number, n: number, f: number) {
         return new mat4([
@@ -885,10 +961,10 @@ export class mat4 {
 
     /**
      * Left Hand Coordinate
-     * @param fov 
-     * @param aspect 
-     * @param n 
-     * @param f 
+     * @param fov
+     * @param aspect
+     * @param n
+     * @param f
      */
     public static perspectiveFoV(fov: number, aspect: number, n: number, f: number) {
         let h = Math.tan(fov / 360.0 * Math.PI) * n * 2;
@@ -898,10 +974,10 @@ export class mat4 {
 
     /**
      * Left Hand coordinate
-     * @param w 
-     * @param h 
-     * @param n 
-     * @param f 
+     * @param w
+     * @param h
+     * @param n
+     * @param f
      */
     public static orthographic(w:number,h:number,n:number,f:number){
         let d = f-n;
@@ -999,7 +1075,7 @@ export class mat4 {
             (tmp_20 * m12 + tmp_23 * m22 + tmp_17 * m02));
         return new mat4(dst);
     }
-    
+
     public static Translate(v:vec3){
         return new mat4([
             1,0,0,0,
@@ -1035,7 +1111,7 @@ export class mat4 {
     public mulvec(v:vec4):vec4{
         return mat4.mul(this,v);
     }
-    
+
 
     public mulnum(n:number):mat4{
         let nary = [];
@@ -1057,11 +1133,10 @@ export class mat4 {
 
     public static Rotation(q:quat):mat4{
         let mtx = quat.QuatToMtx(q).toMat4();
-        mtx.raw[15] = 1;
         return mtx;
     }
     public static RotationEler(rad:vec3):mat4{
-        return mat3.Rotation(rad.x,rad.y,rad.z).toMat4();
+        return mat3.Rotation(quat.fromEuler(rad.x,rad.y,rad.z)).toMat4();
     }
 
     public static TRS(translate:vec3,rota:quat,scale:vec3){
@@ -1189,7 +1264,7 @@ export class mat3 {
             r[0],r[1],r[2],0,
             r[3],r[4],r[5],0,
             r[6],r[7],r[8],0,
-            0,0,0,0
+            0,0,0,1
         ])
     }
 
@@ -1229,31 +1304,52 @@ export class mat3 {
         ]);
     }
 
-    public static Rotation(rx:number, ry:number, rz:number): mat3 {
-        let cosx = Math.cos(rx);
-        let sinx = Math.sin(rx);
-        let cosy = Math.cos(ry);
-        let siny = Math.sin(ry);
-        let cosz = Math.cos(rz);
-        let sinz = Math.sin(rz);
-        return new mat3([
-            cosy * cosz, sinx * siny * cosz + cosx * sinz, -cosx * siny * cosz + sinx * sinz,
-            -cosy * sinz, -sinx * siny * sinz + cosx * cosz, cosx * siny * sinz + sinx * cosz,
-            siny, -sinx * cosy, cosx * cosy
-        ]);
+    // /**
+    //  * Rotation matrix with order Z-Y-X
+    //  * @param rx
+    //  * @param ry
+    //  * @param rz
+    //  */
+    // public static Rotation(rx:number, ry:number, rz:number): mat3 {
+    //     let cosx = Math.cos(rx);
+    //     let sinx = Math.sin(rx);
+    //     let cosy = Math.cos(ry);
+    //     let siny = Math.sin(ry);
+    //     let cosz = Math.cos(rz);
+    //     let sinz = Math.sin(rz);
+    //     return new mat3([
+    //         cosy * cosz, sinx * siny * cosz + cosx * sinz, -cosx * siny * cosz + sinx * sinz,
+    //         -cosy * sinz, -sinx * siny * sinz + cosx * cosz, cosx * siny * sinz + sinx * cosz,
+    //         siny, -sinx * cosy, cosx * cosy
+    //     ]);
+    // }
+
+    // /**
+    //  * Rotation matrix with order Z-Y-X
+    //  * @param degx
+    //  * @param degy
+    //  * @param degz
+    //  */
+    // public static RotationDeg(degx:number,degy:number,degz:number){
+    //     let rx = degx * DEG2RAD;
+    //     let ry = degy * DEG2RAD;
+    //     let rz = degz * DEG2RAD;
+
+    //     return this.Rotation(rx,ry,rz);
+    // }
+
+    /**
+     * Convert quaternion rotation to Matrix
+     * @param q 
+     */
+    public static Rotation(q:quat):mat3{
+        return quat.QuatToMtx(q);
     }
 
-    public static RotationDeg(degx:number,degy:number,degz:number){
-        let rx = degx * DEG2RAD;
-        let ry = degy * DEG2RAD;
-        let rz = degz * DEG2RAD;
-
-        return this.Rotation(rx,ry,rz);
-    }
 
     public clone():mat3{
         let ary = this.raw.splice(0);
         return new mat3(ary);
     }
-    
+
 }

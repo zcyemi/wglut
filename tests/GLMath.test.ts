@@ -251,7 +251,7 @@ describe("mat3",()=>{
     })
 
     it("mat3-rotation",()=>{
-        let mtx = mat3.RotationDeg(60.9,-75.2,17.4);
+        let mtx = mat3.Rotation(quat.fromEulerDeg(60.9,-75.2,17.4));
         let q = quat.fromEulerDeg(60.9,-75.2,17.4);
         let v = vec3.Random();
         let v1 = mtx.mulvec(v);
@@ -261,9 +261,9 @@ describe("mat3",()=>{
     })
 
     it("mat3-toMat4",()=>{
-        let rota = vec3.Random();
+        let rota = quat.Random();
         let v =vec3.Random();
-        let rmat3 = mat3.Rotation(rota.x,rota.y,rota.z);
+        let rmat3 = mat3.Rotation(rota);
         let rmat4 =rmat3.toMat4();
         let v1 = rmat3.mulvec(v).vec4();
         let v2 = rmat4.mulvec(v.vec4(0));
@@ -280,24 +280,66 @@ describe("mat3",()=>{
 })
 
 describe('quaternion',()=>{
-    it('fromEuler-0',()=>{
-        let q = quat.fromEulerDeg(10,20,30);
-        pairwise(q.raw,(s,t)=>{
-            expect(s).closeTo(t,0.001);
-        },[0.128,0.145,0.269,0.944]);
-    });
-    it('fromEuler-1',()=>{
-        let q = quat.fromEulerDeg(-125.830, 90.831,-22.499);
-        pairwise(q.raw,(s,t)=>{
-            expect(s).closeTo(t,0.001);
-        },[-0.676,0.196,-0.684,0.190]);
-    });
-    it('fromEuler-2',()=>{
-        let q = quat.fromEulerDeg(-90,0,-180.0);
-        pairwise(q.raw,(s,t)=>{
-            expect(s).closeTo(t,0.001);
-        },[0.0,-0.707,-0.707,0.0]);
-    });
+    it("rota",()=>{
+        let v = vec3.Random();
+        let q = quat.fromEuler(v.x,v.y,v.z);
+        let v1 = q.toEuler();
+        expectVec3(v,v1);
+    })
+
+    it("fromEuler",()=>{
+        let q = quat.fromEulerDeg(10,54,-78);
+        let q1 = glmath.quat(-0.224268,0.400345,-0.5893449,0.6649063);
+        expectQuat(q1,q);
+
+        let v = q.toEulerDeg();
+        expectVec3(glmath.vec3(10,54,-78),v,0.001);
+    })
+
+    it("mul-verify-1",()=>{
+        let q1 = quat.Random();
+        let q2 = quat.Random();
+        let q3 = quat.Random();
+        let qa = q1.mul(q2).mul(q3);
+        let qb = q1.mul(q2.mul(q3));
+
+        expectQuat(qa,qb);
+    })
+
+    it("mul-verify-2",()=>{
+        let qt = quat.Random();
+        let pt = quat.Random();
+
+        let q0 = qt.w;
+        let p0 = pt.w;
+
+        let q = glmath.vec3(qt.x,qt.y,qt.z);
+        let p = glmath.vec3(pt.x,pt.y,pt.z);
+
+        let mul = qt.mul(pt);
+
+        let t0 = p0 * q0 - p.dot(q);
+        let t = p.mulNumToRef(q0).add(q.mulNumToRef(p0)).add(q.cross(p));
+        let tt = new quat([t.x,t.y,t.z,t0]);
+
+        expectQuat(mul,tt);
+    })
+
+
+    it("conjugate-verify",()=>{
+        let q = quat.Random();
+        let qc = q.conjugate();
+
+        expectQuat(q.mul(qc),qc.mul(q));
+        expectQuat(q.mul(qc),quat.Identity);
+
+        let q1 = quat.Random();
+        let q2 = quat.Random();
+
+        let qc1 = q1.conjugate().mul(q2.conjugate());
+        let qc2 = q2.mul(q1).conjugate();
+        expectQuat(qc1,qc2);
+    })
 
     it('quat-multiple',()=>{
         var p = quat.axisRotation(glmath.vec3(2,3,5),1.0);
@@ -327,7 +369,7 @@ describe('quaternion',()=>{
         var qx = quat.axisRotationDeg(vec3.right,271);
         var qy = quat.axisRotationDeg(vec3.up,-34);
         var qz = quat.axisRotationDeg(vec3.forward,59);
-        var qm = qx.mul(qy).mul(qz);
+        var qm = qy.mul(qx.mul(qz));
         expectPair(qeuler.raw,qm.raw);
     })
 
@@ -345,13 +387,6 @@ describe('quaternion',()=>{
         let qv4 = quat.MtxToQuat(quat.QuatToMtx(qeuler));
         expect(qeuler.equals(qv4)).that.eq(true);
     })
-
-    it("mtx-2-quat-2",()=>{
-        var q = quat.fromEulerDeg(30,-70,90);
-        let mtxrota =mat3.RotationDeg(30,-70,90);
-        let qm = quat.MtxToQuat(mtxrota);
-        expectPair(q.raw,qm.raw);
-    });
 
     it("quat-from-to",()=>{
         //LH space
@@ -374,7 +409,6 @@ describe('quaternion',()=>{
 
         expectVec3(qfrd.rota(vf),vr);
         expectVec3(qrfd.rota(vr),vf);
-
         expectVec3(qfrd.rota(vd),vd);
         expectVec3(qrfd.rota(vd),vd);
     })
@@ -418,6 +452,9 @@ describe('quaternion',()=>{
             let q = quat.FromToNormal(v1,v2,up);
             expectQuat(q,(up.dot(cross) >=0? qu:qd));
         }
+    })
+
+    it("quat-euler-rotamtx",()=>{
     })
 
     it("quat-from-to-coord",()=>{
