@@ -104,7 +104,7 @@ export class GLTFmaterial{
     public pbrMetallicRoughness?:GLTFpbrMetallicRoughness;
     public normalTexture?:GLTFnormalTextureInfo;
     public occlusionTexture?:GLTFocclusionTextureInfo;
-    public emissiveTexture?:object;
+    public emissiveTexture?:GLTFtextureInfo;
     public emissiveFactor?:number[] = [0,0,0];
     public alphaMode:string = "OPAQUE";
     public alphaCufOff?:number;
@@ -161,10 +161,10 @@ export class GLTForthographic{
 
 export class GLTFpbrMetallicRoughness{
     public baseColorFactor:number[] = [1,1,1,1];
-    public baseColorTexture?:object;
+    public baseColorTexture?:GLTFtextureInfo;
     public metallicFactor:number = 1;
     public roughnessFactor:number = 1;
-    public metallicRoughnessTexture?:GLTFpbrMetallicRoughness;
+    public metallicRoughnessTexture?:GLTFtextureInfo;
     public extensions?:object;
     public extras?:any;
 }
