@@ -5,7 +5,7 @@ type TODO = any;
 type int = number;
 
 export class GLTFaccessor{
-    public bufferview?:number;
+    public bufferView?:number;
     public byteOffset:number = 0;
     public componentType:number;
     public normalized:boolean = false;
