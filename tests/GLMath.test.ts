@@ -127,6 +127,20 @@ describe('mat4',()=>{
         expectPair(mtx.raw,m.raw);
     })
 
+    it("Decompose TRS",()=>{
+        let s = glmath.vec3(Math.random(),Math.random(),Math.random());
+        let r = quat.Random();
+        let t = vec3.Random();
+
+        let mtx = mat4.TRS(t,r,s);
+
+        let [tx,rx,sx] = mat4.Decompose(mtx);
+
+        expectVec3(t,tx);
+        expectVec3(s,sx);
+        expectQuat(r,rx);
+    })
+
     it("Rota-vector",()=>{
         let q = quat.Random();
         let v = vec3.Random();
@@ -276,6 +290,19 @@ describe("mat3",()=>{
         let mtxc = mtx.clone();
         mtx.raw[4] = 123;
         expect(mtxc.raw[4]).to.that.not.eq(mtx.raw[4]);
+    })
+
+    it("mat3-decompose",()=>{
+
+        let s = glmath.vec3(1,2,3);
+        let q = quat.fromEulerDeg(30,20,70);
+
+        let mtx = mat3.fromRS(q,s);
+
+        let [qt,st] = mat3.Decompose(mtx);
+
+        expectVec3(s,st);
+        expectQuat(q,qt);
     })
 })
 

@@ -1207,6 +1207,30 @@ export class mat4 {
         ]);
     }
 
+    /**
+     * Decompose mat4 into translation rotation and scale
+     * Scale component must be positive
+     * @param mat 
+     * @returns [T,R,S]
+     */
+    public static Decompose(mat:mat4):[vec3,quat,vec3]{
+        let raw = mat.raw;
+        let t = glmath.vec3(raw[12],raw[13],raw[14]);
+
+        let c0 = glmath.vec3(raw[0],raw[1],raw[2]);
+        let c1 = glmath.vec3(raw[4],raw[5],raw[6]);
+        let c2 = glmath.vec3(raw[8],raw[9],raw[10]);
+
+        let scale = glmath.vec3(c0.length,c1.length,c2.length);
+        let rota = quat.MtxToQuat(mat3.fromColumns(
+            c0.div(scale.x),
+            c1.div(scale.y),
+            c2.div(scale.z)
+        ))
+
+        return [t,rota,scale];
+    }
+
     public clone():mat4{
         let ary = this.raw.splice(0);
         return new mat4(ary);
@@ -1225,12 +1249,20 @@ export class mat3 {
         }
     }
 
+    /**
+     * Get column of matrix
+     * @param index 
+     */
     public column(index: number): vec3 {
         let raw = this.raw;
         let o = index * 3;
         return new vec3([raw[o], raw[o + 1], raw[o + 2]]);
     }
 
+    /**
+     * Get row of matrix
+     * @param index 
+     */
     public row(index: number): vec3 {
         let raw = this.raw;
         let o = index;
@@ -1274,6 +1306,70 @@ export class mat3 {
             -lhs.z,0,lhs.x,
             lhs.y,-lhs.x,0
         ])
+    }
+
+    /**
+     * Create mat3 from composition of scaling and rotation.
+     * @param rota 
+     * @param s 
+     */
+    public static fromRS(rota:quat,s:vec3){
+        return mat3.Mul(quat.QuatToMtx(rota),mat3.Scale(s.x,s.y,s.z));
+    }
+
+    public static Mul(lhs:mat3,rhs:mat3):mat3{
+        let m0 = lhs.row(0);
+        let m1 = lhs.row(1);
+        let m2 = lhs.row(2);
+        let n0 = rhs.column(0);
+        let n1 = rhs.column(1);
+        let n2 = rhs.column(2);
+        return new mat3([
+            m0.dot(n0),m1.dot(n0),m2.dot(n0),
+            m0.dot(n1),m1.dot(n1),m2.dot(n1),
+            m0.dot(n2),m1.dot(n2),m2.dot(n2)
+        ])
+    }
+    
+    public static fromRows(r0:vec3,r1:vec3,r2:vec3):mat3{
+        return new mat3([
+            r0.x,r1.x,r2.x,
+            r0.y,r1.y,r2.y,
+            r0.z,r1.z,r2.z
+        ]);
+    }
+
+    public static fromColumns(c0:vec3,c1:vec3,c2:vec3):mat3{
+        return new mat3([
+            c0.x,c0.y,c0.z,
+            c1.x,c1.y,c1.z,
+            c2.x,c2.y,c2.z,
+        ])
+    }
+
+    public mul(rhs:mat3):mat3{
+        return mat3.Mul(this,rhs);
+    }
+
+    /**
+     * Decompose mat3 into scale and rotation.
+     * @param mat 
+     */
+    public static Decompose(mat:mat3):[quat,vec3]{
+
+        let c0 = mat.column(0);
+        let c1 = mat.column(1);
+        let c2 = mat.column(2);
+
+        let scale = glmath.vec3(c0.length,c1.length,c2.length);
+
+        let rota = quat.MtxToQuat(mat3.fromColumns(
+            c0.div(scale.x),
+            c1.div(scale.y),
+            c2.div(scale.z)
+        ))
+
+        return [rota,scale];
     }
 
     public static CrossRHS(rhs:vec3){
