@@ -1176,6 +1176,14 @@ export class mat4 {
         raw[15] = 1;
     }
 
+    public set(mtx:mat4){
+        let raw =this.raw;
+        let mraw = mtx.raw;
+        for(let i=0;i<16;i++){
+            raw[i] = mraw[i];
+        }
+    }
+
     public mul(rhs:mat4):mat4{
         let m0 = this.row(0);
         let m1 = this.row(1);
