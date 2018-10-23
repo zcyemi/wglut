@@ -1,3 +1,9 @@
+0.1.1
+ - Fix conversion between quat and euler.
+ - Fix mat4.coord.
+ - Fix GLTFtool typo.
+ - Add target FPS settings.
+ - Utility functions for GLFramebuffer and Texture.
 0.0.3
  - Switch to AMD module.
 
