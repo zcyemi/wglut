@@ -35,6 +35,15 @@ describe('vec3',()=>{
         let dot = v1.dot(v2);
         expect(cross.length2 + dot * dot).to.closeTo(1.0,0.00001);
     })
+
+    it('cross',()=>{
+        let c = vec3.up.cross(vec3.down).normalize;
+        let cs = vec3.SafeCross(vec3.up,vec3.down).normalize;
+
+        expect(cs.x).not.eq(NaN);
+        expect(cs.y).not.eq(NaN);
+        expect(cs.z).not.eq(NaN);
+    })
 })
 
 describe('mat4',()=>{

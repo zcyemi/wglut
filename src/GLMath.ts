@@ -472,6 +472,17 @@ export class vec3 {
         ]);
     }
 
+    public static SafeCross(lhs:vec3,rhs:vec3):vec3{
+        let c = new vec3([
+            lhs.y * rhs.z - lhs.z * rhs.y,
+            lhs.z * rhs.x - lhs.x * rhs.z,
+            lhs.x * rhs.y - lhs.y * rhs.x
+        ]);
+        if(c.x == 0 && c.y == 0 && c.z == 0){
+            return this.Cross(lhs.addToRef([0.0000001,0.0000001,0.0000001]),rhs);
+        }
+        return c;
+    }
 
     public static Dot(v1: vec3, v2: vec3) {
         return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
