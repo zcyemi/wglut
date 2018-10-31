@@ -807,9 +807,20 @@ export class quat {
     public static Conjugate(q:quat):quat{
         return new quat([-q.x,-q.y,-q.z,q.w]);
     }
-
-    public static Div(q1:quat,q2:quat): quat{
-        return q1.mul(q2.conjugate());
+    
+    /**
+     * div LHS quat by default
+     * @param p 
+     * @param q 
+     * @param rhs false: p = rq, true: p =qr
+     */
+    public static Div(p:quat,q:quat,rhs:boolean = false): quat{
+        if(rhs){
+            return p.mul(q.conjugate());
+        }
+        else{
+            return q.conjugate().mul(p);
+        }
     }
 
     public static MtxToQuat(mtx:mat3){
