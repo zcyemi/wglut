@@ -221,7 +221,7 @@ export class vec4 {
         return new vec4([this.x, this.y, this.z, this.w]);
     }
 
-    public normalize(): vec4 {
+    public get normalize(): vec4 {
         return this.div(this.length);
     }
 
@@ -436,7 +436,7 @@ export class vec3 {
         return glmath.vec3(this.x / v, this.y / v, this.z / v);
     }
 
-    public vec4(w: number = 0) {
+    public vec4(w: number = 0):vec4{
         return glmath.vec4(this.x, this.y, this.z, w);
     }
 

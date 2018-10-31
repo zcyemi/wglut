@@ -16,7 +16,6 @@ describe('vec3',()=>{
         expect(v1.raw).that.deep.eq([1,2,3]);
         expect(v.x).that.eq(2);
     })
-
     it('ctor null',()=>{
         let v3 = new vec3();
         expect(v3.raw).to.be.an('array').that.deep.eq([0,0,0]);
@@ -26,7 +25,6 @@ describe('vec3',()=>{
         let v4 = v3.vec4(5); 
         expect(v4.w).to.equal(5);
     });
-
     it('cross-crossverify',()=>{
         let v1 = vec3.Random().normalize;
         let v2 = vec3.Random().normalize;
@@ -35,7 +33,6 @@ describe('vec3',()=>{
         let dot = v1.dot(v2);
         expect(cross.length2 + dot * dot).to.closeTo(1.0,0.00001);
     })
-
     it('cross',()=>{
         let c = vec3.up.cross(vec3.down).normalize;
         let cs = vec3.SafeCross(vec3.up,vec3.down).normalize;
@@ -43,6 +40,14 @@ describe('vec3',()=>{
         expect(cs.x).not.eq(NaN);
         expect(cs.y).not.eq(NaN);
         expect(cs.z).not.eq(NaN);
+    })
+    it('normalize',()=>{
+        let v =vec3.Random();
+        let vn1 = v.normalized();
+        expect(vn1.raw).not.eq(v.raw);
+        let vn = v.normalize;
+        expect(vn).eq(v);
+        expectVec3(vn1,v);
     })
 })
 
