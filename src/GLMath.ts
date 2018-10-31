@@ -1251,7 +1251,7 @@ export class mat4 {
     }
 
     public clone():mat4{
-        let ary = this.raw.splice(0);
+        let ary = this.raw.slice(0);
         return new mat4(ary);
     }
 }
@@ -1461,9 +1461,8 @@ export class mat3 {
         return quat.QuatToMtx(q);
     }
 
-
     public clone():mat3{
-        let ary = this.raw.splice(0);
+        let ary = this.raw.slice(0);
         return new mat3(ary);
     }
 
