@@ -524,7 +524,7 @@ describe('quaternion',()=>{
         let q1 = quat.fromEuler(Math.random(),Math.random(),Math.random());
         let q2 = quat.fromEuler(Math.random(),Math.random(),Math.random());
         let q = q1.mul(q2);
-        let qdiv = quat.Div(q,q2);
+        let qdiv = quat.Div(q,q2,true);
         expectPair(qdiv.raw,q1.raw);
     })
 
@@ -532,7 +532,7 @@ describe('quaternion',()=>{
         let q1 = quat.Random();
         let q2 = quat.Random();
         let qdiv = quat.Div(q2,q1);
-        let q = qdiv.mul(q1);
+        let q = q1.mul(qdiv);
         expectPair(q.raw, q2.raw);
     })
 
