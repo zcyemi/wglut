@@ -853,13 +853,16 @@ export class quat {
     }
 
 
-    public determination() {
+    public magnitude2():number{
         let x = this.x;
         let y = this.y;
         let z = this.z;
         let w = this.w;
-
         return x * x + y * y + z * z + w * w;
+    }
+
+    public magnitude():number{
+        return Math.sqrt(this.magnitude2());
     }
 
     public clone():quat{
@@ -1239,31 +1242,84 @@ export class mat4 {
 
     /**
      * Decompose mat4 into translation rotation and scale
-     * Scale component must be positive
      * @param mat 
+     * @param hasNegativeScale optimize when scale components all positive.
      * @returns [T,R,S]
      */
-    public static Decompose(mat:mat4):[vec3,quat,vec3]{
+    public static Decompose(mat:mat4,hasNegativeScale?:boolean):[vec3,quat,vec3]{
         let raw = mat.raw;
         let t = glmath.vec3(raw[12],raw[13],raw[14]);
 
-        let c0 = glmath.vec3(raw[0],raw[1],raw[2]);
-        let c1 = glmath.vec3(raw[4],raw[5],raw[6]);
-        let c2 = glmath.vec3(raw[8],raw[9],raw[10]);
+        let r0 = raw[0];
+        let r1 = raw[1];
+        let r2 = raw[2];
+
+        let r4 = raw[4];
+        let r5 = raw[5];
+        let r6 = raw[6];
+
+        let r8 = raw[8];
+        let r9 = raw[9];
+        let r10 = raw[10];
+
+        let c0 = glmath.vec3(r0,r1,r2);
+        let c1 = glmath.vec3(r4,r5,r6);
+        let c2 = glmath.vec3(r8,r9,r10);
 
         let scale = glmath.vec3(c0.length,c1.length,c2.length);
+        if(hasNegativeScale == null || hasNegativeScale == true){
+            let determinant = r0*(r5*r10-r6*r9)-r1*(r4*r10-r8*r6)+r2*(r4*r9-r5*r8);
+            if(determinant <0) scale.x = -scale.x;
+        }
+
         let rota = quat.MtxToQuat(mat3.fromColumns(
             c0.div(scale.x),
             c1.div(scale.y),
             c2.div(scale.z)
         ))
-
         return [t,rota,scale];
+    }
+
+    /**
+     * Decompose mat4 into translation and roataion with scale component provided.
+     * @param mat 
+     * @param scale 
+     */
+    public static DecomposeTR(mat:mat4,scale:vec3):[vec3,quat]{
+        let raw = mat.raw;
+        let t = glmath.vec3(raw[12],raw[13],raw[14]);
+        let c0 = glmath.vec3(raw[0],raw[1],raw[2]);
+        let c1 = glmath.vec3(raw[4],raw[5],raw[6]);
+        let c2 = glmath.vec3(raw[8],raw[9],raw[10]);
+        let rota = quat.MtxToQuat(mat3.fromColumns(
+            c0.div(scale.x),
+            c1.div(scale.y),
+            c2.div(scale.z)
+        ));
+        return [t,rota];
     }
 
     public clone():mat4{
         let ary = this.raw.slice(0);
         return new mat4(ary);
+    }
+
+    public static RandomTRS():mat4{
+        return mat4.TRS(vec3.Random(),quat.Random(),vec3.Random());
+    }
+
+    public mat3Determinant():number{
+        let raw = this.raw;
+        return raw[0]*(raw[5]* raw[10] - raw[6]* raw[9]) -
+        raw[4]*(raw[1]* raw[10] - raw[2]* raw[9]) +
+        raw[8]*(raw[1]* raw[6] - raw[2]* raw[5]);
+    }
+
+    public toMat3():mat3{
+        let raw = this.raw;
+        return new mat3([raw[0],raw[1],raw[2],
+                        raw[4],raw[5],raw[6],
+                        raw[8],raw[9],raw[10]])
     }
 }
 
@@ -1475,6 +1531,13 @@ export class mat3 {
     public clone():mat3{
         let ary = this.raw.slice(0);
         return new mat3(ary);
+    }
+
+    public determinant():number{
+        let raw = this.raw;
+        return raw[0]*(raw[4]* raw[8] - raw[5]* raw[7]) -
+        raw[3]*(raw[1]* raw[8] - raw[2]* raw[7]) +
+        raw[6]*(raw[1]* raw[5] - raw[2]* raw[4]);
     }
 
 }

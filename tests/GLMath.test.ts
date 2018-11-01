@@ -141,7 +141,7 @@ describe('mat4',()=>{
         expectPair(mtx.raw,m.raw);
     })
 
-    it("Decompose TRS",()=>{
+    it("Decompose TRS - 1",()=>{
         let s = glmath.vec3(Math.random(),Math.random(),Math.random());
         let r = quat.Random();
         let t = vec3.Random();
@@ -155,6 +155,30 @@ describe('mat4',()=>{
         expectQuat(r,rx);
     })
 
+    it("Decompose TRS - 2",()=>{
+        for(let i=0;i<20;i++){
+            let s = vec3.Random();
+            let r = quat.Random();
+            let t = vec3.Random();
+            let mtx = mat4.TRS(t,r,s);
+            let [tx,rx,sx] = mat4.Decompose(mtx);
+            expect(rx.magnitude2()).closeTo(1.0,0.0001);
+        }
+    })
+
+    it("rotated-scaling",()=>{
+        let s = vec3.Random();
+        let s1 = vec3.Random();
+
+        let q = quat.Random();
+        let s2 = mat4.Decompose(mat4.TRS(vec3.zero,q,s1).mul(mat4.Scale(s)))[2];
+        
+        let s3 = s.mul(s1);
+        expect(Math.abs(s3.x)).closeTo(Math.abs(s2.x),0.001);
+        expect(Math.abs(s3.y)).closeTo(Math.abs(s2.y),0.001);
+        expect(Math.abs(s3.z)).closeTo(Math.abs(s2.z),0.001);
+    });
+
     it("Rota-vector",()=>{
         let q = quat.Random();
         let v = vec3.Random();
@@ -162,7 +186,6 @@ describe('mat4',()=>{
         let v2 = mat4.Rotation(q).mulvec(v.vec4(0)).vec3();
         expectVec3(v1,v2);
     })
-
 
     it("Rota-point",()=>{
         let q= quat.Random();
@@ -225,17 +248,18 @@ describe('mat4',()=>{
     })
 
     it("orthographic",()=>{
-        
         let f = 100.0;
         let n = 0.01;
-
         let mtx = mat4.orthographic(1,1,n,f);
-
         let p0 = glmath.vec4(-0.5,-0.5,n,1);
         let p1 = glmath.vec4(0.5,0.5,f,1);
-
         expectVec4(mtx.mulvec(p0),new vec4([-1,-1,-1,1]),0.0001);
         expectVec4(mtx.mulvec(p1),new vec4([1,1,1,1]),0.0001);
+    })
+
+    it("mat3Determiant",()=>{
+        let m = mat4.RandomTRS();
+        expect(m.mat3Determinant()).closeTo(m.toMat3().determinant(),0.00001);
     })
 })
 
@@ -317,6 +341,14 @@ describe("mat3",()=>{
 
         expectVec3(s,st);
         expectQuat(q,qt);
+    })
+
+    it("mat3-determination",()=>{
+        for(let i=0;i<20;i++){
+            let s = vec3.Random();
+            let m = mat3.fromRS(quat.Random(),s);
+            expect(m.determinant()).closeTo(s.x * s.y * s.z,0.0001);
+        }
     })
 })
 
