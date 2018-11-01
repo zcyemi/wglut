@@ -724,6 +724,18 @@ export class quat {
         return new quat(v4.raw);
     }
 
+    public get axis():vec3{
+        let magnitude = this.magnitude2();
+        if(magnitude > 1.0000001){
+            throw new Error();
+        }
+
+        let w = this.w
+        let sin = Math.sqrt(1.0 -w *w);
+        
+        return glmath.vec3(this.x/sin,this.y/sin,this.z/sin);
+    }
+
 
     public static axisRotationDeg(axis: vec3, deg: number) {
         let angle = deg * DEG2RAD;
@@ -830,21 +842,47 @@ export class quat {
     public static MtxToQuat(mtx:mat3){
         let raw = mtx.raw;
         let a1 = raw[1];
+        let a2 = raw[2];
         let a3 = raw[3];
         let a5 = raw[5];
         let a7 = raw[7];
         let a8 = raw[8];
         let a0 = raw[0];
         let a4 = raw[4];
+        let a6 = raw[6];
         let w2 = (a0 + a4 + 1 + a8)/4;
         let x2 = (a0 + 1 - 2*w2)/2;
-
         let x = Math.sqrt(x2);
-        let y = (a1 + a3)/4.0 /x;
-        let z = (a5+a7)/4.0 / y;
-        let w = (a1 - a3) /4.0/z;
-
-        return w<0 ?new quat([-x,-y,-z,-w]): new quat([x,y,z,w]);
+        let y =0;
+        let z =0;
+        let w = 0;
+        if(x == 0){
+            let y2 = 1- a8;
+            
+            if(y2 == 0){
+                y =0;
+                let zw = -a3/2.0;
+                w = Math.sqrt((a0+1)/2.0);
+                z = w == 0 ? 1.0: zw/w;
+            }
+            else{
+                y = Math.sqrt(y2/2.0);
+                z = a7 /2.0 / y;
+                w = a6 / 2.0 /y;
+            }
+        }
+        else{
+            y = (a1 + a3)/4.0 /x;
+            if(y == 0){
+                z = a2 / 2.0 / x;
+                w = a7 / -2.0 / x;
+            }
+            else{
+                z = (a5+a7)/4.0 / y;
+                w = z == 0 ? (a7 / -2.0 / x):((a1 - a3) /4.0/z);
+            }
+        }
+        return new quat([x,y,z,w]);
     }
 
 
@@ -1269,25 +1307,18 @@ export class mat4 {
         let c0 = glmath.vec3(r0,r1,r2);
         let c1 = glmath.vec3(r4,r5,r6);
         let c2 = glmath.vec3(r8,r9,r10);
-
         let scale = glmath.vec3(c0.length,c1.length,c2.length);
 
-
-        let determinant = r0*(r5*r10-r6*r9)-r1*(r4*r10-r8*r6)+r2*(r4*r9-r5*r8);
-        if(determinant <0) scale.x = -scale.x;
-
         if(hasNegativeScale == null || hasNegativeScale == true){
-            
+            let determinant = r0*(r5*r10-r6*r9)-r1*(r4*r10-r8*r6)+r2*(r4*r9-r5*r8);
+            if(determinant <0) scale.x = -scale.x;
         }
-        else{
-            console.log('skip ');
-        }
-
         let rota = quat.MtxToQuat(mat3.fromColumns(
             c0.div(scale.x),
             c1.div(scale.y),
             c2.div(scale.z)
         ))
+        if(isNaN(rota.w)) throw new Error(`quat is NaN ${scale.raw} \n ${mat.raw}`)
         return [t,rota,scale];
     }
 

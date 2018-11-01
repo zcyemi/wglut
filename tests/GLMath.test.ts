@@ -262,6 +262,17 @@ describe('mat4', () => {
         // console.log(mat4.Decompose(m3)[1].magnitude());
     })
 
+    /** @todo */
+    it("Decompose TRS -5",()=>{
+        let m1 =mat4.RandomTRS();
+        let m2 = mat4.RandomTRS();
+
+        let md = mat4.Decompose(m2.mul(m1));
+
+        let q = md[1];
+        //console.log(q.magnitude());
+    })
+
 
     it("rotated-scaling", () => {
         let s = vec3.Random();
@@ -558,6 +569,38 @@ describe('quaternion', () => {
         expect(qeuler.equals(qv4)).that.eq(true);
     })
 
+    it("mtx-2-quat-2",()=>{
+        let mtx = mat3.Identity;
+        let q = quat.MtxToQuat(mtx);
+        expectQuat(q,quat.Identity);
+    })
+
+    it("mtx-2-quat-3",()=>{
+        let f =(q:quat)=>{
+            let mtx = mat4.Rotation(q).toMat3();
+            let q1 = quat.MtxToQuat(mtx);
+            let eq = q1.equals(q);
+            expect(eq).eqls(true,`${q.raw} - ${q1.raw}`);
+        }
+
+        f(glmath.quat(1,0,0,0));
+        f(glmath.quat(0,1,0,0));
+        f(glmath.quat(0,0,1,0));
+        f(glmath.quat(0,0,0,1));
+        f(quat.axisRotationDeg(vec3.up,Math.random()));
+        f(quat.axisRotationDeg(vec3.down,Math.random()));
+        f(quat.axisRotationDeg(vec3.left,Math.random()));
+        f(quat.axisRotationDeg(vec3.right,Math.random()));
+        f(quat.axisRotationDeg(vec3.forward,Math.random()));
+        f(quat.axisRotationDeg(vec3.back,Math.random()));
+        f(quat.axisRotation(glmath.vec3(1,1,0),Math.random()));
+        f(quat.axisRotation(glmath.vec3(-1,1,0),Math.random()));
+        f(quat.axisRotation(glmath.vec3(0,1,1),Math.random()));
+        f(quat.axisRotation(glmath.vec3(0,1,-1),Math.random()));
+        f(quat.axisRotation(glmath.vec3(1,0,1),Math.random()));
+        f(quat.axisRotation(glmath.vec3(1,0,-1),Math.random()));
+    })
+
     it("quat-from-to", () => {
         //LH space
         let vf = vec3.forward;
@@ -686,6 +729,25 @@ describe('quaternion', () => {
         expectPair(q.raw, qc.raw, 0.001);
         expectPair(q1.raw, q.raw);
         expect(q1.raw).not.eq(q.raw);
+    })
+
+    /** @todo */
+    it("quat-dir",()=>{
+        let q = quat.Random();
+
+        let qaxis = q.axis;
+        let q1 = quat.Random();
+        let s1 = glmath.vec3(1,-2,1);
+
+        let m = mat4.TRS(vec3.zero,q1,s1).mul(mat4.Rotation(q));
+        let dm = mat4.Decompose(m);
+
+        let dmq = dm[1];
+        // let cosx = q.w;
+        // let sinx = q.x / qaxis.x;
+        // let v = qaxis.mulToRef(sinx).mul(s1);
+        // let q2 = new quat(v.vec4(cosx).raw);
+        // console.log(q2.magnitude2());
     })
 })
 
