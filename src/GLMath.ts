@@ -504,6 +504,10 @@ export class vec3 {
         return new vec3([Math.random() - 0.5,Math.random()  - 0.5,Math.random()  - 0.5]);
     }
 
+    public static Abs(v:vec3):vec3{
+        return new vec3([Math.abs(v.x),Math.abs(v.y),Math.abs(v.z)]);
+    }
+
     public set(v:vec3){
         this.x = v.x;
         this.y = v.y;
@@ -1267,9 +1271,16 @@ export class mat4 {
         let c2 = glmath.vec3(r8,r9,r10);
 
         let scale = glmath.vec3(c0.length,c1.length,c2.length);
+
+
+        let determinant = r0*(r5*r10-r6*r9)-r1*(r4*r10-r8*r6)+r2*(r4*r9-r5*r8);
+        if(determinant <0) scale.x = -scale.x;
+
         if(hasNegativeScale == null || hasNegativeScale == true){
-            let determinant = r0*(r5*r10-r6*r9)-r1*(r4*r10-r8*r6)+r2*(r4*r9-r5*r8);
-            if(determinant <0) scale.x = -scale.x;
+            
+        }
+        else{
+            console.log('skip ');
         }
 
         let rota = quat.MtxToQuat(mat3.fromColumns(
