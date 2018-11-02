@@ -856,9 +856,9 @@ export class quat {
         let y =0;
         let z =0;
         let w = 0;
-        if(x == 0){
+        if(x < 0.000001){
+            x = 0;
             let y2 = 1- a8;
-            
             if(y2 == 0){
                 y =0;
                 let zw = -a3/2.0;
@@ -1311,14 +1311,21 @@ export class mat4 {
 
         if(hasNegativeScale == null || hasNegativeScale == true){
             let determinant = r0*(r5*r10-r6*r9)-r1*(r4*r10-r8*r6)+r2*(r4*r9-r5*r8);
-            if(determinant <0) scale.x = -scale.x;
+            if(determinant <0) {
+                scale.z = -scale.z; //set z to negative ensures that MtxToQuat not get the NaN value.
+            }
         }
-        let rota = quat.MtxToQuat(mat3.fromColumns(
+
+        let mtx3 = mat3.fromColumns(
             c0.div(scale.x),
             c1.div(scale.y),
             c2.div(scale.z)
-        ))
-        if(isNaN(rota.w)) throw new Error(`quat is NaN ${scale.raw} \n ${mat.raw}`)
+        );
+
+        let rota = quat.MtxToQuat(mtx3);
+        if(isNaN(rota.w) || isNaN(rota.x) || isNaN(rota.y) || isNaN(rota.z)){
+            throw new Error(`quat is NaN, ${mtx3.raw}`)
+        }
         return [t,rota,scale];
     }
 

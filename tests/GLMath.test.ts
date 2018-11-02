@@ -134,9 +134,9 @@ describe('mat4', () => {
 
     });
 
-    
-    it("TRS-2",()=>{
-        for(let i=0;i<10;i++){
+
+    it("TRS-2", () => {
+        for (let i = 0; i < 10; i++) {
             let s = vec3.Random();
             let r = quat.Random();
             let t = vec3.Random();
@@ -144,7 +144,7 @@ describe('mat4', () => {
             let v = vec3.Random();
             let v1 = v.clone().mul(s).mul(r).add(t);
             let v2 = mtx.mulvec(v.vec4(1.0)).vec3();
-            expectVec3(v1,v2);
+            expectVec3(v1, v2);
         }
     })
 
@@ -180,47 +180,47 @@ describe('mat4', () => {
         }
     })
 
-    it("Decompose TRS- 3",()=>{
+    it("Decompose TRS- 3", () => {
 
         //translate
         let t1 = vec3.Random();
         let t2 = vec3.Random();
-        expectVec3(t1.addToRef(t2),mat4.Decompose(mat4.Translate(t2).mul(mat4.Translate(t1)))[0]);
+        expectVec3(t1.addToRef(t2), mat4.Decompose(mat4.Translate(t2).mul(mat4.Translate(t1)))[0]);
         //scale
         let s1 = vec3.Random();
         let s2 = vec3.Random();
-        expectVec3(vec3.Abs(s1.mulToRef(s2)),vec3.Abs(mat4.Decompose(mat4.Scale(s2).mul(mat4.Scale(s1)))[2]));
+        expectVec3(vec3.Abs(s1.mulToRef(s2)), vec3.Abs(mat4.Decompose(mat4.Scale(s2).mul(mat4.Scale(s1)))[2]));
         //rota
         let r1 = quat.Random();
         let r2 = quat.Random();
-        expectQuat(r2.mul(r1),mat4.Decompose(mat4.Rotation(r2).mul(mat4.Rotation(r1)))[1]);
+        expectQuat(r2.mul(r1), mat4.Decompose(mat4.Rotation(r2).mul(mat4.Rotation(r1)))[1]);
 
         //translate scale
         {
-            let m1 = mat4.TRS(t1,quat.Identity,s1);
-            let m2 = mat4.TRS(t2,quat.Identity,s2);
+            let m1 = mat4.TRS(t1, quat.Identity, s1);
+            let m2 = mat4.TRS(t2, quat.Identity, s2);
             let m3 = m2.mul(m1);
             let trd = mat4.Decompose(m3);
-            
+
             let t3 = t2.addToRef(s2.mulToRef(t1));
             let t4 = trd[0];
-            expectVec3(t3,t4);
-            
+            expectVec3(t3, t4);
+
             let s3 = s1.mulToRef(s2);
             let s4 = trd[2];
-            expectVec3(vec3.Abs(s3),vec3.Abs(s4));
+            expectVec3(vec3.Abs(s3), vec3.Abs(s4));
         }
         //translate rota
         {
-            let m1 = mat4.TRS(t1,r1,vec3.one);
-            let m2 = mat4.TRS(t2,r2,vec3.one);
+            let m1 = mat4.TRS(t1, r1, vec3.one);
+            let m2 = mat4.TRS(t2, r2, vec3.one);
             let m3 = m2.mul(m1);
             let trd = mat4.Decompose(m3);
 
             let t3 = t2.addToRef(r2.rota(t1));
             let t4 = trd[0];
-            expectVec3(t3,t4);
-            
+            expectVec3(t3, t4);
+
             let r3 = r2.mul(r1);
             let r4 = trd[1];
             expect(r3.equals(r4)).to.equal(true);
@@ -235,7 +235,7 @@ describe('mat4', () => {
         }
     })
 
-    
+
     it("Decompose TRS - 4", () => {
         // let rotac = quat.fromEulerDeg(30, 20, 70);
         // //let rotap = quat.fromEulerDeg(30, 20, 70);
@@ -263,14 +263,9 @@ describe('mat4', () => {
     })
 
     /** @todo */
-    it("Decompose TRS -5",()=>{
-        let m1 =mat4.RandomTRS();
+    it("Decompose TRS -5", () => {
+        let m1 = mat4.RandomTRS();
         let m2 = mat4.RandomTRS();
-
-        let md = mat4.Decompose(m2.mul(m1));
-
-        let q = md[1];
-        //console.log(q.magnitude());
     })
 
 
@@ -569,36 +564,36 @@ describe('quaternion', () => {
         expect(qeuler.equals(qv4)).that.eq(true);
     })
 
-    it("mtx-2-quat-2",()=>{
+    it("mtx-2-quat-2", () => {
         let mtx = mat3.Identity;
         let q = quat.MtxToQuat(mtx);
-        expectQuat(q,quat.Identity);
+        expectQuat(q, quat.Identity);
     })
 
-    it("mtx-2-quat-3",()=>{
-        let f =(q:quat)=>{
+    it("mtx-2-quat-3", () => {
+        let f = (q: quat) => {
             let mtx = mat4.Rotation(q).toMat3();
             let q1 = quat.MtxToQuat(mtx);
             let eq = q1.equals(q);
-            expect(eq).eqls(true,`${q.raw} - ${q1.raw}`);
+            expect(eq).eqls(true, `${q.raw} - ${q1.raw}`);
         }
 
-        f(glmath.quat(1,0,0,0));
-        f(glmath.quat(0,1,0,0));
-        f(glmath.quat(0,0,1,0));
-        f(glmath.quat(0,0,0,1));
-        f(quat.axisRotationDeg(vec3.up,Math.random()));
-        f(quat.axisRotationDeg(vec3.down,Math.random()));
-        f(quat.axisRotationDeg(vec3.left,Math.random()));
-        f(quat.axisRotationDeg(vec3.right,Math.random()));
-        f(quat.axisRotationDeg(vec3.forward,Math.random()));
-        f(quat.axisRotationDeg(vec3.back,Math.random()));
-        f(quat.axisRotation(glmath.vec3(1,1,0),Math.random()));
-        f(quat.axisRotation(glmath.vec3(-1,1,0),Math.random()));
-        f(quat.axisRotation(glmath.vec3(0,1,1),Math.random()));
-        f(quat.axisRotation(glmath.vec3(0,1,-1),Math.random()));
-        f(quat.axisRotation(glmath.vec3(1,0,1),Math.random()));
-        f(quat.axisRotation(glmath.vec3(1,0,-1),Math.random()));
+        f(glmath.quat(1, 0, 0, 0));
+        f(glmath.quat(0, 1, 0, 0));
+        f(glmath.quat(0, 0, 1, 0));
+        f(glmath.quat(0, 0, 0, 1));
+        f(quat.axisRotationDeg(vec3.up, Math.random()));
+        f(quat.axisRotationDeg(vec3.down, Math.random()));
+        f(quat.axisRotationDeg(vec3.left, Math.random()));
+        f(quat.axisRotationDeg(vec3.right, Math.random()));
+        f(quat.axisRotationDeg(vec3.forward, Math.random()));
+        f(quat.axisRotationDeg(vec3.back, Math.random()));
+        f(quat.axisRotation(glmath.vec3(1, 1, 0), Math.random()));
+        f(quat.axisRotation(glmath.vec3(-1, 1, 0), Math.random()));
+        f(quat.axisRotation(glmath.vec3(0, 1, 1), Math.random()));
+        f(quat.axisRotation(glmath.vec3(0, 1, -1), Math.random()));
+        f(quat.axisRotation(glmath.vec3(1, 0, 1), Math.random()));
+        f(quat.axisRotation(glmath.vec3(1, 0, -1), Math.random()));
     })
 
     it("quat-from-to", () => {
@@ -732,22 +727,37 @@ describe('quaternion', () => {
     })
 
     /** @todo */
-    it("quat-dir",()=>{
-        let q = quat.Random();
+    it("quat-dir", () => {
+
+        let q = new quat([ 0.05093453236756254,
+            0.0038927438516036437,
+            0.07666092079120512,
+            -0.9957477708643129 ]);
 
         let qaxis = q.axis;
-        let q1 = quat.Random();
-        let s1 = glmath.vec3(1,-2,1);
+        let q1 = new quat([ 0.28487179022886616,
+            0.07648757903221542,
+            0.5418739879402702,
+            -0.7870008224768887 ])
+        let s1 = glmath.vec3(1, -2, 1);
 
-        let m = mat4.TRS(vec3.zero,q1,s1).mul(mat4.Rotation(q));
+        let m = mat4.TRS(vec3.zero, q1, s1).mul(mat4.Rotation(q));
         let dm = mat4.Decompose(m);
 
-        let dmq = dm[1];
-        // let cosx = q.w;
-        // let sinx = q.x / qaxis.x;
-        // let v = qaxis.mulToRef(sinx).mul(s1);
-        // let q2 = new quat(v.vec4(cosx).raw);
-        // console.log(q2.magnitude2());
+        let qm = dm[1].magnitude();
+        let q2 = dm[1];
+        q2.x /= qm;
+        q2.y /= qm;
+        q2.z /= qm;
+
+        let mt = mat4.TRS(dm[0],q2,dm[2]);
+
+        let v =glmath.vec4(1,2,3,1.0);
+        let v1 = m.mulvec(v);
+        let v2 = mt.mulvec(v);
+
+        console.log(v1,v2);
+
     })
 })
 
