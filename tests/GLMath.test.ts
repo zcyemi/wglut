@@ -225,49 +225,7 @@ describe('mat4', () => {
             let r4 = trd[1];
             expect(r3.equals(r4)).to.equal(true);
         }
-
-        //rota scale
-        {
-            // let m1 = mat4.TRS(vec3.zero,r1,s1);
-            // let m2 = mat4.TRS(vec3.zero,r2,s2);
-            // let m3 = m2.mul(m1);
-            // let trd = mat4.Decompose(m3);
-        }
     })
-
-
-    it("Decompose TRS - 4", () => {
-        // let rotac = quat.fromEulerDeg(30, 20, 70);
-        // //let rotap = quat.fromEulerDeg(30, 20, 70);
-
-        // let m1 = mat4.Rotation(rotac);
-        // let m2 = mat4.TRS(vec3.zero,quat.Identity,glmath.vec3(1,2,1));
-
-        // let m3 = m2.mul(m1);
-
-        // let d = mat4.Decompose(m3);
-        // console.log(d[1].magnitude());
-        // console.log(m3);
-
-        // let m = mat4.TRS(vec3.zero,d[1],glmath.vec3(1,2,1));
-
-        // console.log(m);
-
-        // let m1 = mat4.RandomTRS();
-        // let m2 = mat4.RandomTRS();
-        // let m3 = m2.mul(m1);
-
-        // console.log(mat4.Decompose(m1)[1].magnitude());
-        // console.log(mat4.Decompose(m2)[1].magnitude());
-        // console.log(mat4.Decompose(m3)[1].magnitude());
-    })
-
-    /** @todo */
-    it("Decompose TRS -5", () => {
-        let m1 = mat4.RandomTRS();
-        let m2 = mat4.RandomTRS();
-    })
-
 
     it("rotated-scaling", () => {
         let s = vec3.Random();
@@ -724,40 +682,6 @@ describe('quaternion', () => {
         expectPair(q.raw, qc.raw, 0.001);
         expectPair(q1.raw, q.raw);
         expect(q1.raw).not.eq(q.raw);
-    })
-
-    /** @todo */
-    it("quat-dir", () => {
-
-        let q = new quat([ 0.05093453236756254,
-            0.0038927438516036437,
-            0.07666092079120512,
-            -0.9957477708643129 ]);
-
-        let qaxis = q.axis;
-        let q1 = new quat([ 0.28487179022886616,
-            0.07648757903221542,
-            0.5418739879402702,
-            -0.7870008224768887 ])
-        let s1 = glmath.vec3(1, -2, 1);
-
-        let m = mat4.TRS(vec3.zero, q1, s1).mul(mat4.Rotation(q));
-        let dm = mat4.Decompose(m);
-
-        let qm = dm[1].magnitude();
-        let q2 = dm[1];
-        q2.x /= qm;
-        q2.y /= qm;
-        q2.z /= qm;
-
-        let mt = mat4.TRS(dm[0],q2,dm[2]);
-
-        let v =glmath.vec4(1,2,3,1.0);
-        let v1 = m.mulvec(v);
-        let v2 = mt.mulvec(v);
-
-        console.log(v1,v2);
-
     })
 })
 

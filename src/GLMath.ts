@@ -726,7 +726,7 @@ export class quat {
 
     public get axis():vec3{
         let magnitude = this.magnitude2();
-        if(magnitude > 1.0000001){
+        if(magnitude >= 1.0000001){
             throw new Error();
         }
 
@@ -819,11 +819,39 @@ export class quat {
         ]);
 
     }
-
     public static Conjugate(q:quat):quat{
         return new quat([-q.x,-q.y,-q.z,q.w]);
     }
-    
+
+    /**
+     * Flip coordinate axis of quaternion
+     * @param q 
+     * @param xaxis 
+     * @param yaxis 
+     * @param zaxis 
+     */
+    public static Flip(q:quat,xaxis:boolean,yaxis:boolean,zaxis:boolean):quat{
+        let r = q.clone();
+        let c = 0;
+        if(xaxis){
+            r.x = - r.x;
+            c++;
+        }
+        if(yaxis){
+            r.y = -r.y;
+            c++;
+        }
+        if(zaxis){
+            r.z = -r.z;
+            c++;
+        }
+        if(c %2 == 1){
+            r.x = -r.x;
+            r.y = -r.y;
+            r.z = -r.z;
+        }
+        return r;
+    }
     /**
      * div LHS quat by default
      * @param p 
@@ -838,7 +866,6 @@ export class quat {
             return q.conjugate().mul(p);
         }
     }
-
     public static MtxToQuat(mtx:mat3){
         let raw = mtx.raw;
         let a1 = raw[1];
@@ -884,8 +911,6 @@ export class quat {
         }
         return new quat([x,y,z,w]);
     }
-
-
     public equals(q: quat) {
         let qraw = (q.w * this.w < 0) ? [-q.x,-q.y,-q.z,-q.w] : q.raw;
         for(let i=0;i<4;i++){
@@ -893,8 +918,6 @@ export class quat {
         }
         return true;
     }
-
-
     public magnitude2():number{
         let x = this.x;
         let y = this.y;
@@ -902,19 +925,15 @@ export class quat {
         let w = this.w;
         return x * x + y * y + z * z + w * w;
     }
-
     public magnitude():number{
         return Math.sqrt(this.magnitude2());
     }
-
     public clone():quat{
         return new quat([this.x,this.y,this.z,this.w]);
     }
-
     public static Random():quat{
         return quat.axisRotation(glmath.vec3(Math.random(),Math.random(),Math.random()),Math.PI * 2 * Math.random());
     }
-
     public set(q:quat){
         this.x = q.x;
         this.y = q.y;
@@ -977,7 +996,7 @@ export class mat4 {
      * @param forward dir
      * @param up dir
      */
-    public static coord(pos: vec3, forward: vec3, up: vec3) {
+    public static coord(pos: vec3, forward: vec3, up: vec3):mat4{
         let f = forward.normalized();
         let u = up.normalized();
         let r = u.cross(f).normalize;
