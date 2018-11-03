@@ -1,6 +1,8 @@
 import * as chai from 'chai';
 import { pairwise, expectPair, expectVec3, expectVec4, expectQuat } from './GLTestHelper';
 import { glmath, vec3, vec4, mat3, mat4, quat } from '../src/wglut';
+import { Transform } from 'stream';
+import { version } from 'punycode';
 
 const expect = chai.expect;
 
@@ -225,6 +227,43 @@ describe('mat4', () => {
             let r4 = trd[1];
             expect(r3.equals(r4)).to.equal(true);
         }
+    })
+
+    it("decompose-affine",()=>{
+        let t0 = vec3.Random();
+        let q0 = quat.Random();
+        let s0 = vec3.Random();
+
+        let m = mat4.TRS(t0,q0,s0);
+
+        let t1 = vec3.zero;
+        let q1 = quat.Identity;
+        let s1 = vec3.one;
+        let sk = vec3.zero;
+
+        mat4.DecomposeAffine(m,t1,q1,s1,sk);
+
+        // console.log(t0,t1);
+        // console.log(q0,q1);
+        // console.log(s0,s1);
+        // console.log(sk);
+
+    });
+
+    it("decompose-affine-2",()=>{
+        let m1 = mat4.RandomTRS();
+        let m2 = mat4.RandomTRS();
+
+        let m3 = m2.mul(m1);
+        
+        let t = vec3.zero;
+        let q=  quat.Identity;
+        let s = vec3.zero;
+        let sk = vec3.zero;
+
+        mat4.DecomposeAffine(m3,t,q,s,sk);
+
+        expect(q.magnitude()).closeTo(1.0,0.0001);
     })
 
     it("rotated-scaling", () => {

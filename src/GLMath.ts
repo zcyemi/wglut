@@ -1302,7 +1302,7 @@ export class mat4 {
     }
 
     /**
-     * Decompose mat4 into translation rotation and scale
+     * Decompose mat4 into translation rotation and scale, No shear
      * @param mat 
      * @param hasNegativeScale optimize when scale components all positive.
      * @returns [T,R,S]
@@ -1328,6 +1328,7 @@ export class mat4 {
         let c2 = glmath.vec3(r8,r9,r10);
         let scale = glmath.vec3(c0.length,c1.length,c2.length);
 
+        //
         if(hasNegativeScale == null || hasNegativeScale == true){
             let determinant = r0*(r5*r10-r6*r9)-r1*(r4*r10-r8*r6)+r2*(r4*r9-r5*r8);
             if(determinant <0) {
@@ -1346,6 +1347,67 @@ export class mat4 {
             throw new Error(`quat is NaN, ${mtx3.raw}`)
         }
         return [t,rota,scale];
+    }
+
+    /**
+     * Decompose Affine Matrix
+     * https://matthew-brett.github.io/transforms3d/reference/transforms3d.affines.html#decompose44?tdsourcetag=s_pctim_aiomsg
+     * @param mat 
+     * @param t translate
+     * @param q rotation
+     * @param s zoom [sx,sy,sz]
+     * @param sk skew [sxy,sxz,syz]
+     */
+    public static DecomposeAffine(mat:mat4,t:vec3,q:quat,s:vec3,sk:vec3){
+        let raw = mat.raw;
+        t.x = raw[12];
+        t.y = raw[13];
+        t.z = raw[14];
+
+        let r0 = raw[0];
+        let r1 = raw[1];
+        let r2 = raw[2];
+        let r4 = raw[4];
+        let r5 = raw[5];
+        let r6 = raw[6];
+        let r8 = raw[8];
+        let r9 = raw[9];
+        let r10 = raw[10];
+
+        let M0 = glmath.vec3(r0,r1,r2);
+        let M1 = glmath.vec3(r4,r5,r6);
+        let M2 = glmath.vec3(r8,r9,r10);
+
+        let sx = M0.length;
+        M0.div(sx);
+        let sx_sxy = M0.dot(M1);
+        M1.sub(M0.mulNumToRef(sx_sxy)); //c1:= R1 * sy
+        let sy = M1.length; //mag(R1) == 1
+        M1.div(sy) // c1:= R1;
+        let sxy = sx_sxy / sy;
+        let sx_sxz =  M0.dot(M2);
+        let sy_syz = M1.dot(M2);
+        M2.sub(M0.mulNumToRef(sx_sxz).add(M1.mulNumToRef(sy_syz)));
+        let sz = M2.length;
+        M2.div(sz);
+        let sxz = sx_sxz / sx;
+        let syz = sy_syz / sy;
+
+        let Rmat = mat3.fromColumns(M0,M1,M2);
+        if(Rmat.determinant() < 0){
+            sx *=-1;
+            let raw = Rmat.raw;
+            raw[0] *=-1;
+            raw[1] *=-1;
+            raw[2] *=-1;
+        }
+        q.set(quat.MtxToQuat(Rmat));
+        s.x = sx;
+        s.y = sy;
+        s.z = sz;
+        sk.x = sxy;
+        sk.y = sxz;
+        sk.z = syz;
     }
 
     /**
