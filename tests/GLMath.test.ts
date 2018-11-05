@@ -454,14 +454,12 @@ describe("mat3", () => {
     })
 
     it("mat3-decompose", () => {
-
         let s = glmath.vec3(1, 2, 3);
         let q = quat.fromEulerDeg(30, 20, 70);
-
         let mtx = mat3.fromRS(q, s);
-
-        let [qt, st] = mat3.Decompose(mtx);
-
+        let qt:quat = new quat();
+        let st:vec3 = new vec3();
+        mat3.DecomposeRS(mtx,qt,st);
         expectVec3(s, st);
         expectQuat(q, qt);
     })

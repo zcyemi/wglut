@@ -21,12 +21,12 @@ export class glmath {
         return v > max ? max : (v < min ? min : v);
     }
 
-    public static readonly Deg2Rad:number = DEG2RAD;
-    public static readonly Rad2Deg:number = RAD2DEG;
+    public static readonly Deg2Rad: number = DEG2RAD;
+    public static readonly Rad2Deg: number = RAD2DEG;
 }
 
-export class vec2{
-    public raw:number[] = [0,0];
+export class vec2 {
+    public raw: number[] = [0, 0];
     public get x(): number { return this.raw[0]; }
     public get y(): number { return this.raw[1]; }
     public set x(v: number) { this.raw[0] = v; }
@@ -35,112 +35,112 @@ export class vec2{
     public get maginatude(): number {
         let x = this.raw[0];
         let y = this.raw[1];
-        return Math.sqrt(x*x+ y*y);
+        return Math.sqrt(x * x + y * y);
     }
 
-    public constructor(v?:number[]){
-        if(v!=null){
+    public constructor(v?: number[]) {
+        if (v != null) {
             this.raw[0] = v[0];
             this.raw[1] = v[1];
-        } 
+        }
     }
-    
-    public add(v:vec2):vec2{
+
+    public add(v: vec2): vec2 {
         this.x += v.x;
-        this.y +=v.y;
+        this.y += v.y;
         return this;
     }
-    public addToRef(v:vec2,ref?:vec2):vec2{
-        if(ref == null){
-            return new vec2([this.x + v.x,this.y + v.y]);
+    public addToRef(v: vec2, ref?: vec2): vec2 {
+        if (ref == null) {
+            return new vec2([this.x + v.x, this.y + v.y]);
         }
-        else{
+        else {
             ref.x = this.x + v.x;
             ref.y = this.y + v.y;
             return ref;
         }
     }
-    public sub(v:vec2):vec2{
+    public sub(v: vec2): vec2 {
         this.x -= v.x;
-        this.y -=v.y;
+        this.y -= v.y;
         return this;
     }
-    public subToRef(v:vec2,ref?:vec2):vec2{
-        if(ref == null){
-            return new vec2([this.x - v.x,this.y - v.y]);
+    public subToRef(v: vec2, ref?: vec2): vec2 {
+        if (ref == null) {
+            return new vec2([this.x - v.x, this.y - v.y]);
         }
-        else{
+        else {
             ref.x = this.x - v.x;
             ref.y = this.y - v.y;
             return ref;
         }
     }
 
-    public mulNum(v:number){
-        this.x*=v;
-        this.y*=v;
+    public mulNum(v: number) {
+        this.x *= v;
+        this.y *= v;
     }
-    public mulNumToRef(v:number,ref?:vec2):vec2{
-        if(ref){
-            ref.x = this.x *v;
+    public mulNumToRef(v: number, ref?: vec2): vec2 {
+        if (ref) {
+            ref.x = this.x * v;
             ref.y = this.y * v;
             return ref;
         }
-        return new vec2([this.x * v,this.y *v]);
+        return new vec2([this.x * v, this.y * v]);
     }
 
-    public mul(v:vec2){
-        this.x *=v.x;
+    public mul(v: vec2) {
+        this.x *= v.x;
         this.y *= v.y;
     }
 
-    public mulToRef(v:vec2,ref?:vec2):vec2{
-        if(ref){
+    public mulToRef(v: vec2, ref?: vec2): vec2 {
+        if (ref) {
             ref.x = this.x * v.x;
             ref.y = this.y * v.y;
             return ref;
         }
-        return new vec2([this.x * v.x,this.y * v.y]);
+        return new vec2([this.x * v.x, this.y * v.y]);
     }
 
-    public div(v:vec2){
-        this.x /=v.x;
+    public div(v: vec2) {
+        this.x /= v.x;
         this.y /= v.y;
     }
 
-    public divToRef(v:vec2,ref?:vec2):vec2{
-        if(ref){
+    public divToRef(v: vec2, ref?: vec2): vec2 {
+        if (ref) {
             ref.x = this.x / v.x;
             ref.y = this.y / v.y;
             return ref;
         }
-        return new vec2([this.x / v.x,this.y / v.y]);
+        return new vec2([this.x / v.x, this.y / v.y]);
     }
 
-    public dot(v:vec2):number{
+    public dot(v: vec2): number {
         return this.x * v.x + this.y * v.y;
     }
 
-    public clone():vec2{
-        return new vec2([this.x,this.y]);
+    public clone(): vec2 {
+        return new vec2([this.x, this.y]);
     }
-    
-    public get normalize():vec2{
-        this.mulNum(1.0/this.maginatude);
+
+    public get normalize(): vec2 {
+        this.mulNum(1.0 / this.maginatude);
         return this;
     }
 
-    public normalized():vec2{
+    public normalized(): vec2 {
         return this.mulNumToRef(this.maginatude);
     }
 
-    public set(v:vec2){
+    public set(v: vec2) {
         this.x = v.x;
         this.y = v.y;
     }
 
-    public static get zero():vec2{ return new vec2()};
-    public static get one():vec2{ return new vec2([1,1])};
+    public static get zero(): vec2 { return new vec2() };
+    public static get one(): vec2 { return new vec2([1, 1]) };
 }
 
 export class vec4 {
@@ -169,7 +169,7 @@ export class vec4 {
         }
     }
 
-    public add(v: number | vec3 | vec4 | number[]):vec4{
+    public add(v: number | vec3 | vec4 | number[]): vec4 {
         if (v instanceof vec3 || v instanceof vec4) {
             this.x += v.x;
             this.y += v.y;
@@ -213,7 +213,7 @@ export class vec4 {
     }
 
 
-    public sub(v: number | vec3 | vec4 | number[]):vec4 {
+    public sub(v: number | vec3 | vec4 | number[]): vec4 {
         if (v instanceof vec3 || v instanceof vec4) {
             this.x -= v.x;
             this.y -= v.y;
@@ -255,24 +255,24 @@ export class vec4 {
         }
     }
 
-    public mulNum(v:number){
-        this.x *=v;
-        this.y *=v;
-        this.z *=v;
-        this.w *=v;
+    public mulNum(v: number) {
+        this.x *= v;
+        this.y *= v;
+        this.z *= v;
+        this.w *= v;
         return this;
     }
 
-    public mulNumToRef(v:number){
+    public mulNumToRef(v: number) {
         return glmath.vec4(this.x * v, this.y * v, this.z * v, this.w * v);
     }
 
-    public mul(v: number | vec4 | mat4 | number[] | quat):vec4{
+    public mul(v: number | vec4 | mat4 | number[] | quat): vec4 {
         if (v instanceof vec4) {
-            this.x *=v.x;
-            this.y *=v.y;
-            this.z *=v.z;
-            this.w *=v.w;
+            this.x *= v.x;
+            this.y *= v.y;
+            this.z *= v.z;
+            this.w *= v.w;
         }
         else if (v instanceof Array) {
             this.x *= v[0];
@@ -281,16 +281,16 @@ export class vec4 {
             this.w *= v[3];
         }
         else if (v instanceof mat4) {
-            this.raw =v.mulvec(this).raw;
+            this.raw = v.mulvec(this).raw;
         }
         else if (v instanceof quat) {
-            this.raw = v.rota(new vec3([this.x,this.y,this.z])).raw;
+            this.raw = v.rota(new vec3([this.x, this.y, this.z])).raw;
         }
-        else if(isNumber(v)){
-            this.x *=v;
-            this.y *=v;
-            this.z *=v;
-            this.w *=v;
+        else if (isNumber(v)) {
+            this.x *= v;
+            this.y *= v;
+            this.z *= v;
+            this.w *= v;
         }
         return this;
     }
@@ -308,16 +308,16 @@ export class vec4 {
         else if (v instanceof quat) {
             return null;
         }
-        else if(isNumber(v)){
+        else if (isNumber(v)) {
             return glmath.vec4(this.x * v, this.y * v, this.z * v, this.w * v);
         }
     }
 
     public div(v: number) {
-        this.x /=v;
-        this.y /=v;
-        this.z /=v;
-        this.w /=v;
+        this.x /= v;
+        this.y /= v;
+        this.z /= v;
+        this.w /= v;
         return this;
     }
 
@@ -342,32 +342,32 @@ export class vec4 {
     }
 
     /** return new vec4 ref */
-    public normalized():vec4{
+    public normalized(): vec4 {
         return this.divToRef(this.length);
     }
 
-    public static Random():vec4{
-        return new vec4([Math.random(),Math.random(),Math.random(),Math.random()]);
+    public static Random(): vec4 {
+        return new vec4([Math.random(), Math.random(), Math.random(), Math.random()]);
     }
 
     public equals(v: vec4) {
         let r = this.raw;
         let rv = v.raw;
-        for(let i=0;i<4;i++){
-            if(r[i] != rv[i]) return false;
+        for (let i = 0; i < 4; i++) {
+            if (r[i] != rv[i]) return false;
         }
         return true;
     }
 
-    public set(v:vec4){
+    public set(v: vec4) {
         this.x = v.x;
         this.y = v.y;
         this.z = v.z;
         this.w = v.w;
     }
 
-    public static get zero(): vec4{ return new vec4();}
-    public static get one(): vec4{return new vec4([1, 1, 1,1]);}
+    public static get zero(): vec4 { return new vec4(); }
+    public static get one(): vec4 { return new vec4([1, 1, 1, 1]); }
 }
 
 export class vec3 {
@@ -386,11 +386,11 @@ export class vec3 {
         return Math.sqrt(this.dot(this));
     }
 
-    public get length2():number{
+    public get length2(): number {
         let x = this.x;
         let y = this.y;
         let z = this.z;
-        return x*x + y* y +z*z;
+        return x * x + y * y + z * z;
     }
 
     public constructor(v?: number[]) {
@@ -402,7 +402,7 @@ export class vec3 {
         }
     }
 
-    public add(v: number | vec3 | vec4 | number[]):vec3{
+    public add(v: number | vec3 | vec4 | number[]): vec3 {
         if (v instanceof vec3 || v instanceof vec4) {
             this.x += v.x;
             this.y += v.y;
@@ -414,14 +414,14 @@ export class vec3 {
             this.x += v[2];
         }
         else {
-            this.x +=v;
-            this.y +=v;
-            this.z +=v;
+            this.x += v;
+            this.y += v;
+            this.z += v;
         }
         return this;
     }
 
-    public addToRef(v: number | vec3 | vec4 | number[]):vec3{
+    public addToRef(v: number | vec3 | vec4 | number[]): vec3 {
         if (v instanceof vec3 || v instanceof vec4) {
             let x = v.x + this.x;
             let y = v.y + this.y;
@@ -466,9 +466,9 @@ export class vec3 {
             return glmath.vec3(x, y, z);
         }
         else if (v instanceof Array) {
-            let x = this.x- v[0];
-            let y = this.y- v[1];
-            let z = this.z- v[2];
+            let x = this.x - v[0];
+            let y = this.y - v[1];
+            let z = this.z - v[2];
             return glmath.vec3(x, y, z);
         }
         else {
@@ -480,23 +480,23 @@ export class vec3 {
      * multiply a number
      * @param n
      */
-    public mulNum(n:number):vec3{
+    public mulNum(n: number): vec3 {
         this.x *= n;
         this.y *= n;
         this.z *= n;
         return this;
     }
 
-    public mulNumToRef(n:number):vec3{
-        return glmath.vec3(this.x *n ,this.y *n ,this.z *n);
+    public mulNumToRef(n: number): vec3 {
+        return glmath.vec3(this.x * n, this.y * n, this.z * n);
     }
 
 
     public mul(v: number | vec3 | vec4 | mat3 | number[] | quat): vec3 {
         if (v instanceof vec3 || v instanceof vec4) {
-            this.x *=v.x;
-            this.y *=v.y;
-            this.z *=v.z;
+            this.x *= v.x;
+            this.y *= v.y;
+            this.z *= v.z;
         }
         else if (v instanceof Array) {
             this.x *= v[0];
@@ -510,9 +510,9 @@ export class vec3 {
             this.raw = v.rota(this).raw;
         }
         else {
-            this.x *=v;
-            this.y *=v;
-            this.z *=v;
+            this.x *= v;
+            this.y *= v;
+            this.z *= v;
         }
         return this;
     }
@@ -541,18 +541,18 @@ export class vec3 {
         }
     }
 
-    public div(v: number):vec3 {
-        this.x /=v;
-        this.y /=v;
-        this.z /=v;
+    public div(v: number): vec3 {
+        this.x /= v;
+        this.y /= v;
+        this.z /= v;
         return this;
     }
 
-    public divToRef(v: number):vec3 {
+    public divToRef(v: number): vec3 {
         return glmath.vec3(this.x / v, this.y / v, this.z / v);
     }
 
-    public vec4(w: number = 0):vec4{
+    public vec4(w: number = 0): vec4 {
         return glmath.vec4(this.x, this.y, this.z, w);
     }
 
@@ -569,7 +569,7 @@ export class vec3 {
      * @param rhs right hand side
      */
     public cross(rhs: vec3) {
-        return vec3.Cross(this,rhs);
+        return vec3.Cross(this, rhs);
     }
 
     /**
@@ -577,10 +577,10 @@ export class vec3 {
      * @param lhs left hand side
      */
     public crossRev(lhs: vec3) {
-        return vec3.Cross(lhs,this);
+        return vec3.Cross(lhs, this);
     }
 
-    public static Cross(lhs:vec3,rhs:vec3):vec3{
+    public static Cross(lhs: vec3, rhs: vec3): vec3 {
         return new vec3([
             lhs.y * rhs.z - lhs.z * rhs.y,
             lhs.z * rhs.x - lhs.x * rhs.z,
@@ -588,14 +588,14 @@ export class vec3 {
         ]);
     }
 
-    public static SafeCross(lhs:vec3,rhs:vec3):vec3{
+    public static SafeCross(lhs: vec3, rhs: vec3): vec3 {
         let c = new vec3([
             lhs.y * rhs.z - lhs.z * rhs.y,
             lhs.z * rhs.x - lhs.x * rhs.z,
             lhs.x * rhs.y - lhs.y * rhs.x
         ]);
-        if(c.x == 0 && c.y == 0 && c.z == 0){
-            return this.Cross(lhs.addToRef([0.0000001,0.0000001,0.0000001]),rhs);
+        if (c.x == 0 && c.y == 0 && c.z == 0) {
+            return this.Cross(lhs.addToRef([0.0000001, 0.0000001, 0.0000001]), rhs);
         }
         return c;
     }
@@ -604,8 +604,8 @@ export class vec3 {
         return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
     }
 
-    public static Add(v1:vec3,v2:vec3){
-        return new vec3([v1.x+v2.x,v1.y+v2.y,v1.z+v2.z]);
+    public static Add(v1: vec3, v2: vec3) {
+        return new vec3([v1.x + v2.x, v1.y + v2.y, v1.z + v2.z]);
     }
 
     public get normalize(): vec3 {
@@ -616,24 +616,24 @@ export class vec3 {
         return this.divToRef(this.length);
     }
 
-    public static Random(allpositive:boolean = false):vec3{
-        if(allpositive){
-            return new vec3([Math.random(),Math.random(),Math.random()]);
+    public static Random(allpositive: boolean = false): vec3 {
+        if (allpositive) {
+            return new vec3([Math.random(), Math.random(), Math.random()]);
         }
-        else{
-            return new vec3([Math.random() - 0.5,Math.random()  - 0.5,Math.random()  - 0.5]);
+        else {
+            return new vec3([Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]);
         }
     }
 
-    public static RandomNorm():vec3{
+    public static RandomNorm(): vec3 {
         return quat.Random().rota(vec3.right);
     }
 
-    public static Abs(v:vec3):vec3{
-        return new vec3([Math.abs(v.x),Math.abs(v.y),Math.abs(v.z)]);
+    public static Abs(v: vec3): vec3 {
+        return new vec3([Math.abs(v.x), Math.abs(v.y), Math.abs(v.z)]);
     }
 
-    public set(v:vec3){
+    public set(v: vec3) {
         this.x = v.x;
         this.y = v.y;
         this.z = v.z;
@@ -671,15 +671,15 @@ export class quat {
         }
     }
 
-    public conjugate():quat{
+    public conjugate(): quat {
         return quat.Conjugate(this);
     }
 
     /**
      * flip all component when w is negative;
      */
-    public fmt(){
-        if(this.w <0){
+    public fmt() {
+        if (this.w < 0) {
             let r = this.raw;
             r[0] = - r[0];
             r[1] = - r[1];
@@ -689,7 +689,7 @@ export class quat {
         return this;
     }
 
-    public mul(r: quat):quat {
+    public mul(r: quat): quat {
         let l = this;
         let rw = r.w;
         let rx = r.x;
@@ -711,7 +711,7 @@ export class quat {
      * Multiply self with quat <param l>, then return self
      * @param l
      */
-    public selfRota(l:quat):quat{
+    public selfRota(l: quat): quat {
         let rw = this.w;
         let rx = this.x;
         let ry = this.y;
@@ -732,7 +732,7 @@ export class quat {
     /**
      * Identity quaternion [0,0,0,1]
      */
-    public static get Identity(): quat{
+    public static get Identity(): quat {
         return new quat([
             0, 0, 0, 1
         ]);
@@ -742,7 +742,7 @@ export class quat {
      * Rotate vector by self
      * @param v
      */
-    public rota(v: vec3):vec3 {
+    public rota(v: vec3): vec3 {
         var q = new vec3([this.x, this.y, this.z]);
         var t = q.cross(v).mul(2);
         return v.clone().add(t.mulToRef(this.w)).add(q.cross(t));
@@ -781,9 +781,9 @@ export class quat {
      * @param rz
      */
     public static fromEuler(rx: number, ry: number, rz: number) {
-        let rxh = rx/2.0;
-        let ryh = ry/2.0;
-        let rzh = rz/2.0;
+        let rxh = rx / 2.0;
+        let ryh = ry / 2.0;
+        let rzh = rz / 2.0;
         let cosx = Math.cos(rxh);
         let cosy = Math.cos(ryh);
         let cosz = Math.cos(rzh);
@@ -803,7 +803,7 @@ export class quat {
      * Convert quaternion to Euler angle (radians).
      * Z-X-Y order
      */
-    public toEuler():vec3{
+    public toEuler(): vec3 {
         let v = new vec3();
         let x = this.z;
         let y = this.x;
@@ -814,9 +814,9 @@ export class quat {
         v.z = Math.atan2(t0, t1);
 
         let t2 = 2.0 * (w * y - z * x);
-          if(t2 > 1.0) {
-          t2 = 1.0;
-        } else if(t2 < -1.0){
+        if (t2 > 1.0) {
+            t2 = 1.0;
+        } else if (t2 < -1.0) {
             t2 = -1.0;
         }
         v.x = Math.asin(t2);
@@ -840,9 +840,9 @@ export class quat {
         v.z = Math.atan2(t0, t1) * RAD2DEG;
 
         let t2 = 2.0 * (w * y - z * x);
-          if(t2 > 1.0) {
-          t2 = 1.0;
-        } else if(t2 < -1.0){
+        if (t2 > 1.0) {
+            t2 = 1.0;
+        } else if (t2 < -1.0) {
             t2 = -1.0;
         }
         v.x = Math.asin(t2) * RAD2DEG;
@@ -860,16 +860,16 @@ export class quat {
         return new quat(v4.raw);
     }
 
-    public get axis():vec3{
+    public get axis(): vec3 {
         let magnitude = this.magnitude2();
-        if(magnitude >= 1.0000001){
+        if (magnitude >= 1.0000001) {
             throw new Error();
         }
 
         let w = this.w
-        let sin = Math.sqrt(1.0 -w *w);
-        
-        return glmath.vec3(this.x/sin,this.y/sin,this.z/sin);
+        let sin = Math.sqrt(1.0 - w * w);
+
+        return glmath.vec3(this.x / sin, this.y / sin, this.z / sin);
     }
 
 
@@ -888,50 +888,50 @@ export class quat {
      * @param to
      * @param normal
      */
-    public static FromToNormal(from:vec3,to:vec3,normal:vec3){
+    public static FromToNormal(from: vec3, to: vec3, normal: vec3) {
         let f = from.normalized();
         let t = to.normalized();
         let n = normal.normalized();
-        let cross = vec3.Cross(f,t);
+        let cross = vec3.Cross(f, t);
 
         let croosLen2 = cross.length2;
-        if(croosLen2 == 0){
+        if (croosLen2 == 0) {
             let dot = f.dot(t);
-            if(dot == 1){
+            if (dot == 1) {
                 return quat.Identity;
             }
-            let cr = vec3.Cross(n,f);
-            let cu = vec3.Cross(f,cr);
+            let cr = vec3.Cross(n, f);
+            let cu = vec3.Cross(f, cr);
             let nor = cu.normalize;
-            return new quat([nor.x,nor.y,nor.z,0]);
+            return new quat([nor.x, nor.y, nor.z, 0]);
         }
         cross.div(Math.sqrt(croosLen2));
         let cos = f.dot(t);
-        let cosh = Math.sqrt((1+cos)/2.0);
-        let sinh =  Math.sqrt((1-cos)/2.0);
+        let cosh = Math.sqrt((1 + cos) / 2.0);
+        let sinh = Math.sqrt((1 - cos) / 2.0);
 
         let cdotn = cross.dot(n);
-        if(cdotn < 0){
+        if (cdotn < 0) {
             cross.mul(-1.0);
-            cosh *=-1.0;
+            cosh *= -1.0;
         }
-        return new quat([cross.x * sinh,cross.y * sinh,cross.z * sinh,cosh]);
+        return new quat([cross.x * sinh, cross.y * sinh, cross.z * sinh, cosh]);
     }
 
-    public static Coordinate(forward:vec3,up:vec3):quat{
-        if(forward.dot(up) >Number.EPSILON){
+    public static Coordinate(forward: vec3, up: vec3): quat {
+        if (forward.dot(up) > Number.EPSILON) {
             throw new Error("<forward> must be perpendicular ot <up>");
         }
         let f = forward.normalized();
-        let u =  up.normalized();
+        let u = up.normalized();
 
-        let qf = quat.FromToNormal(vec3.forward,f,u);
+        let qf = quat.FromToNormal(vec3.forward, f, u);
         let u1 = qf.rota(vec3.up);
-        let qu = quat.FromToNormal(u1,up,f);
+        let qu = quat.FromToNormal(u1, up, f);
         return qu.mul(qf);
     }
 
-    public static QuatToMtx(q:quat):mat3{
+    public static QuatToMtx(q: quat): mat3 {
         let x = q.x;
         let y = q.y;
         let z = q.z;
@@ -955,8 +955,8 @@ export class quat {
         ]);
 
     }
-    public static Conjugate(q:quat):quat{
-        return new quat([-q.x,-q.y,-q.z,q.w]);
+    public static Conjugate(q: quat): quat {
+        return new quat([-q.x, -q.y, -q.z, q.w]);
     }
 
     /**
@@ -966,22 +966,22 @@ export class quat {
      * @param yaxis 
      * @param zaxis 
      */
-    public static Flip(q:quat,xaxis:boolean,yaxis:boolean,zaxis:boolean):quat{
+    public static Flip(q: quat, xaxis: boolean, yaxis: boolean, zaxis: boolean): quat {
         let r = q.clone();
         let c = 0;
-        if(xaxis){
+        if (xaxis) {
             r.x = - r.x;
             c++;
         }
-        if(yaxis){
+        if (yaxis) {
             r.y = -r.y;
             c++;
         }
-        if(zaxis){
+        if (zaxis) {
             r.z = -r.z;
             c++;
         }
-        if(c %2 == 1){
+        if (c % 2 == 1) {
             r.x = -r.x;
             r.y = -r.y;
             r.z = -r.z;
@@ -994,15 +994,15 @@ export class quat {
      * @param q 
      * @param rhs false: p = rq, true: p =qr
      */
-    public static Div(p:quat,q:quat,rhs:boolean = false): quat{
-        if(rhs){
+    public static Div(p: quat, q: quat, rhs: boolean = false): quat {
+        if (rhs) {
             return p.mul(q.conjugate());
         }
-        else{
+        else {
             return q.conjugate().mul(p);
         }
     }
-    public static MtxToQuat(mtx:mat3){
+    public static MtxToQuat(mtx: mat3) {
         let raw = mtx.raw;
         let a1 = raw[1];
         let a2 = raw[2];
@@ -1013,64 +1013,66 @@ export class quat {
         let a0 = raw[0];
         let a4 = raw[4];
         let a6 = raw[6];
-        let w2 = (a0 + a4 + 1 + a8)/4;
-        let x2 = (a0 + 1 - 2*w2)/2;
+        let w2 = (a0 + a4 + 1 + a8) / 4;
+        let x2 = (a0 + 1 - 2 * w2) / 2;
         let x = Math.sqrt(x2);
-        let y =0;
-        let z =0;
+        let y = 0;
+        let z = 0;
         let w = 0;
-        if(x < 0.000001){
+        if (x < 0.000001) {
             x = 0;
-            let y2 = 1- a8;
-            if(y2 == 0){
-                y =0;
-                let zw = -a3/2.0;
-                w = Math.sqrt((a0+1)/2.0);
-                z = w == 0 ? 1.0: zw/w;
+            let y2 = 1 - a8;
+            if (y2 == 0) {
+                y = 0;
+                let zw = -a3 / 2.0;
+                w = Math.sqrt((a0 + 1) / 2.0);
+                z = w == 0 ? 1.0 : zw / w;
             }
-            else{
-                y = Math.sqrt(y2/2.0);
-                z = a7 /2.0 / y;
-                w = a6 / 2.0 /y;
+            else {
+                y = Math.sqrt(y2 / 2.0);
+                z = a7 / 2.0 / y;
+                w = a6 / 2.0 / y;
             }
         }
-        else{
-            y = (a1 + a3)/4.0 /x;
-            if(y == 0){
+        else {
+            y = (a1 + a3) / 4.0 / x;
+            if (y == 0) {
                 z = a2 / 2.0 / x;
                 w = a7 / -2.0 / x;
             }
-            else{
-                z = (a5+a7)/4.0 / y;
-                w = z == 0 ? (a7 / -2.0 / x):((a1 - a3) /4.0/z);
+            else {
+                z = (a5 + a7) / 4.0 / y;
+                w = z == 0 ? (a7 / -2.0 / x) : ((a1 - a3) / 4.0 / z);
             }
         }
-        return new quat([x,y,z,w]);
+        return new quat([x, y, z, w]);
     }
     public equals(q: quat) {
-        let qraw = (q.w * this.w < 0) ? [-q.x,-q.y,-q.z,-q.w] : q.raw;
-        for(let i=0;i<4;i++){
-            if(Math.abs(qraw[i] - this.raw[i]) > 0.001) return false;
+        let qraw = (q.w * this.w < 0) ? [-q.x, -q.y, -q.z, -q.w] : q.raw;
+        for (let i = 0; i < 4; i++) {
+            if (Math.abs(qraw[i] - this.raw[i]) > 0.001) return false;
         }
         return true;
     }
-    public magnitude2():number{
+    public magnitude2(): number {
         let x = this.x;
         let y = this.y;
         let z = this.z;
         let w = this.w;
         return x * x + y * y + z * z + w * w;
     }
-    public magnitude():number{
+    public magnitude(): number {
         return Math.sqrt(this.magnitude2());
     }
-    public clone():quat{
-        return new quat([this.x,this.y,this.z,this.w]);
+    public clone(): quat {
+        return new quat([this.x, this.y, this.z, this.w]);
     }
-    public static Random():quat{
-        return quat.axisRotation(glmath.vec3(Math.random(),Math.random(),Math.random()),Math.PI * 2 * Math.random());
+    public static Random(): quat {
+        let q = quat.axisRotation(glmath.vec3(Math.random(), Math.random(), Math.random()), Math.PI * 2 * Math.random());
+        q.fmt();
+        return q;
     }
-    public set(q:quat){
+    public set(q: quat) {
         this.x = q.x;
         this.y = q.y;
         this.z = q.z;
@@ -1132,7 +1134,7 @@ export class mat4 {
      * @param forward dir
      * @param up dir
      */
-    public static coord(pos: vec3, forward: vec3, up: vec3):mat4{
+    public static coord(pos: vec3, forward: vec3, up: vec3): mat4 {
         let f = forward.normalized();
         let u = up.normalized();
         let r = u.cross(f).normalize;
@@ -1201,13 +1203,13 @@ export class mat4 {
      * @param n
      * @param f
      */
-    public static orthographic(w:number,h:number,n:number,f:number){
-        let d = f-n;
+    public static orthographic(w: number, h: number, n: number, f: number) {
+        let d = f - n;
         return new mat4([
-            2.0/w,0,0,0,
-            0,2.0/h,0,0,
-            0,0,2.0/d,0,
-            0,0,-(n+f)/d,1
+            2.0 / w, 0, 0, 0,
+            0, 2.0 / h, 0, 0,
+            0, 0, 2.0 / d, 0,
+            0, 0, -(n + f) / d, 1
         ]);
     }
 
@@ -1298,16 +1300,16 @@ export class mat4 {
         return new mat4(dst);
     }
 
-    public static Translate(v:vec3){
+    public static Translate(v: vec3) {
         return new mat4([
-            1,0,0,0,
-            0,1,0,0,
-            0,0,1,0,
-            v.x,v.y,v.z,1
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            v.x, v.y, v.z, 1
         ]);
     }
 
-    public static mul(mtx:mat4,v:vec4):vec4{
+    public static mul(mtx: mat4, v: vec4): vec4 {
         return new vec4([
             v.dot(mtx.row(0)),
             v.dot(mtx.row(1)),
@@ -1316,52 +1318,52 @@ export class mat4 {
         ])
     }
 
-    public add(m:mat4){
-        return mat4.add(this,m);
+    public add(m: mat4) {
+        return mat4.add(this, m);
     }
 
-    public static add(m1:mat4,m2:mat4){
+    public static add(m1: mat4, m2: mat4) {
         let ary = [];
         let raw1 = m1.raw;
         let raw2 = m2.raw;
-        for(var i=0;i<16;i++){
+        for (var i = 0; i < 16; i++) {
             ary.push(raw1[i] + raw2[i]);
         }
         return new mat4(ary);
     }
 
-    public mulvec(v:vec4):vec4{
-        return mat4.mul(this,v);
+    public mulvec(v: vec4): vec4 {
+        return mat4.mul(this, v);
     }
 
 
-    public mulnum(n:number):mat4{
+    public mulnum(n: number): mat4 {
         let nary = [];
         let raw = this.raw;
-        for(var i=0;i<16;i++){
-            nary.push(raw[i] *n);
+        for (var i = 0; i < 16; i++) {
+            nary.push(raw[i] * n);
         }
         return new mat4(nary);
     }
 
-    public static Scale(scale:vec3):mat4{
+    public static Scale(scale: vec3): mat4 {
         return new mat4([
-            scale.x,0,0,0,
-            0,scale.y,0,0,
-            0,0,scale.z,0,
-            0,0,0,1
+            scale.x, 0, 0, 0,
+            0, scale.y, 0, 0,
+            0, 0, scale.z, 0,
+            0, 0, 0, 1
         ]);
     }
 
-    public static Rotation(q:quat):mat4{
+    public static Rotation(q: quat): mat4 {
         let mtx = quat.QuatToMtx(q).toMat4();
         return mtx;
     }
-    public static RotationEler(rad:vec3):mat4{
-        return mat3.Rotation(quat.fromEuler(rad.x,rad.y,rad.z)).toMat4();
+    public static RotationEler(rad: vec3): mat4 {
+        return mat3.Rotation(quat.fromEuler(rad.x, rad.y, rad.z)).toMat4();
     }
 
-    public static TRS(translate:vec3,rota:quat,scale:vec3){
+    public static TRS(translate: vec3, rota: quat, scale: vec3) {
         let mtxr = quat.QuatToMtx(rota).raw;
         let x = scale.x;
         let y = scale.y;
@@ -1374,7 +1376,7 @@ export class mat4 {
         ]);
     }
 
-    public setTRS(translate:vec3,rota:quat,scale:vec3){
+    public setTRS(translate: vec3, rota: quat, scale: vec3) {
         let raw = this.raw;
         let r = quat.QuatToMtx(rota).raw;
         let x = scale.x;
@@ -1398,15 +1400,15 @@ export class mat4 {
         raw[15] = 1;
     }
 
-    public set(mtx:mat4){
-        let raw =this.raw;
+    public set(mtx: mat4) {
+        let raw = this.raw;
         let mraw = mtx.raw;
-        for(let i=0;i<16;i++){
+        for (let i = 0; i < 16; i++) {
             raw[i] = mraw[i];
         }
     }
 
-    public mul(rhs:mat4):mat4{
+    public mul(rhs: mat4): mat4 {
         let m0 = this.row(0);
         let m1 = this.row(1);
         let m2 = this.row(2);
@@ -1416,24 +1418,24 @@ export class mat4 {
         let n2 = rhs.column(2);
         let n3 = rhs.column(3);
         return new mat4([
-            m0.dot(n0),m1.dot(n0),m2.dot(n0),m3.dot(n0),
-            m0.dot(n1),m1.dot(n1),m2.dot(n1),m3.dot(n1),
-            m0.dot(n2),m1.dot(n2),m2.dot(n2),m3.dot(n2),
-            m0.dot(n3),m1.dot(n3),m2.dot(n3),m3.dot(n3)
+            m0.dot(n0), m1.dot(n0), m2.dot(n0), m3.dot(n0),
+            m0.dot(n1), m1.dot(n1), m2.dot(n1), m3.dot(n1),
+            m0.dot(n2), m1.dot(n2), m2.dot(n2), m3.dot(n2),
+            m0.dot(n3), m1.dot(n3), m2.dot(n3), m3.dot(n3)
         ])
     }
 
-    public transpose():mat4{
+    public transpose(): mat4 {
         return mat4.Transpose(this);
     }
 
-    public static Transpose(m:mat4){
+    public static Transpose(m: mat4) {
         let raw = m.raw;
         return new mat4([
-            raw[0],raw[4],raw[8],raw[10],
-            raw[1],raw[5],raw[7],raw[11],
-            raw[2],raw[6],raw[8],raw[12],
-            raw[3],raw[7],raw[9],raw[13],
+            raw[0], raw[4], raw[8], raw[10],
+            raw[1], raw[5], raw[7], raw[11],
+            raw[2], raw[6], raw[8], raw[12],
+            raw[3], raw[7], raw[9], raw[13],
         ]);
     }
 
@@ -1443,9 +1445,9 @@ export class mat4 {
      * @param hasNegativeScale optimize when scale components all positive.
      * @returns [T,R,S]
      */
-    public static Decompose(mat:mat4,hasNegativeScale?:boolean):[vec3,quat,vec3]{
+    public static Decompose(mat: mat4, hasNegativeScale?: boolean): [vec3, quat, vec3] {
         let raw = mat.raw;
-        let t = glmath.vec3(raw[12],raw[13],raw[14]);
+        let t = glmath.vec3(raw[12], raw[13], raw[14]);
 
         let r0 = raw[0];
         let r1 = raw[1];
@@ -1459,14 +1461,14 @@ export class mat4 {
         let r9 = raw[9];
         let r10 = raw[10];
 
-        let c0 = glmath.vec3(r0,r1,r2);
-        let c1 = glmath.vec3(r4,r5,r6);
-        let c2 = glmath.vec3(r8,r9,r10);
-        let scale = glmath.vec3(c0.length,c1.length,c2.length);
+        let c0 = glmath.vec3(r0, r1, r2);
+        let c1 = glmath.vec3(r4, r5, r6);
+        let c2 = glmath.vec3(r8, r9, r10);
+        let scale = glmath.vec3(c0.length, c1.length, c2.length);
 
-        if(hasNegativeScale == null || hasNegativeScale == true){
-            let determinant = r0*(r5*r10-r6*r9)-r1*(r4*r10-r8*r6)+r2*(r4*r9-r5*r8);
-            if(determinant <0) {
+        if (hasNegativeScale == null || hasNegativeScale == true) {
+            let determinant = r0 * (r5 * r10 - r6 * r9) - r1 * (r4 * r10 - r8 * r6) + r2 * (r4 * r9 - r5 * r8);
+            if (determinant < 0) {
                 scale.z = -scale.z; //set z to negative ensures that MtxToQuat not get the NaN value.
             }
         }
@@ -1476,11 +1478,20 @@ export class mat4 {
             c2.div(scale.z)
         );
         let rota = quat.MtxToQuat(mtx3);
-        if(isNaN(rota.w) || isNaN(rota.x) || isNaN(rota.y) || isNaN(rota.z)){
+        if (isNaN(rota.w) || isNaN(rota.x) || isNaN(rota.y) || isNaN(rota.z)) {
             throw new Error(`quat is NaN, ${mtx3.raw}`)
         }
-        return [t,rota,scale];
+        return [t, rota, scale];
     }
+
+
+
+    public static DecomposeTRS(mat: mat4, t: vec3, q: quat, s: vec3){
+        let smtx = new mat3();
+        mat4.DecomposeAffine(mat,t,smtx,s);
+        q.set(quat.MtxToQuat(smtx));
+    }
+    
 
     /**
      * Decompose Affine Matrix
@@ -1491,119 +1502,36 @@ export class mat4 {
      * @param s zoom [sx,sy,sz]
      * @param sk skew [sxy,sxz,syz]
      */
-    public static DecomposeAffine(mat:mat4,t:vec3,q:mat3,s:vec3,sk:vec3){
+    public static DecomposeAffine(mat: mat4, t: vec3, q: mat3, s: vec3, sk?: vec3) {
         let raw = mat.raw;
         t.x = raw[12];
         t.y = raw[13];
         t.z = raw[14];
-
-        let r0 = raw[0];
-        let r1 = raw[1];
-        let r2 = raw[2];
-        let r4 = raw[4];
-        let r5 = raw[5];
-        let r6 = raw[6];
-        let r8 = raw[8];
-        let r9 = raw[9];
-        let r10 = raw[10];
-
-        let m0 = glmath.vec3(r0,r1,r2);
-        let m1 = glmath.vec3(r4,r5,r6);
-        let m2 = glmath.vec3(r8,r9,r10);
-
-
-        let M0 = m0.clone();
-        let M1 = m1.clone();
-        let M2 = m2.clone();
-
-        let sx = M0.length;
-        M0.div(sx);
-        let sx_sxy = M0.dot(M1);
-        M1.sub(M0.mulNumToRef(sx_sxy)); //c1:= R1 * sy
-        let sy = M1.length; //mag(R1) == 1
-        M1.div(sy) // c1:= R1;
-        let sx_sxz =  M0.dot(M2);
-        let sy_syz = M1.dot(M2);
-        M2.sub(M0.mulNumToRef(sx_sxz).add(M1.mulNumToRef(sy_syz)));
-        let sz = M2.length;
-        M2.div(sz);
-
-        q.setColumn(M0,0);
-        q.setColumn(M1,1);
-        q.setColumn(M2,2);
-        if(q.determinant() < 0){
-            let raw = q.raw;
-            for(let i=0;i<9;i++){
-                raw[i] = - raw[i];
-            }
-        }
-
-        let Smat = new mat3();
-        let rraw = Smat.raw;
-
-        M0 = q.column(0);
-        M1 = q.column(1);
-        M2 = q.column(2);
-        
-        rraw[0] = M0.dot(m0);
-
-        rraw[3] = M0.dot(m1);
-        rraw[4] = M1.dot(m1);
-        
-        rraw[6] = M0.dot(m2);
-        rraw[7] = M1.dot(m2);
-        rraw[8] = M2.dot(m2);
-
-        s.x = rraw[0];
-        s.y = rraw[4];
-        s.z = rraw[8];
-
-        let invsx = 1.0/ s.x;
-        sk.x = rraw[3] *invsx;
-        sk.y = rraw[6] *invsx;
-        sk.z = rraw[7] / s.y;
+        let mtx3 = mat.toMat3();
+        mat3.DecomposeAffine(mtx3,q,s,sk);
     }
 
-    /**
-     * Decompose mat4 into translation and roataion with scale component provided.
-     * @param mat 
-     * @param scale 
-     */
-    public static DecomposeTR(mat:mat4,scale:vec3):[vec3,quat]{
-        let raw = mat.raw;
-        let t = glmath.vec3(raw[12],raw[13],raw[14]);
-        let c0 = glmath.vec3(raw[0],raw[1],raw[2]);
-        let c1 = glmath.vec3(raw[4],raw[5],raw[6]);
-        let c2 = glmath.vec3(raw[8],raw[9],raw[10]);
-        let rota = quat.MtxToQuat(mat3.fromColumns(
-            c0.div(scale.x),
-            c1.div(scale.y),
-            c2.div(scale.z)
-        ));
-        return [t,rota];
-    }
-
-    public clone():mat4{
+    public clone(): mat4 {
         let ary = this.raw.slice(0);
         return new mat4(ary);
     }
 
-    public static RandomTRS():mat4{
-        return mat4.TRS(vec3.Random(),quat.Random(),vec3.Random());
+    public static RandomTRS(): mat4 {
+        return mat4.TRS(vec3.Random(), quat.Random(), vec3.Random());
     }
 
-    public mat3Determinant():number{
+    public mat3Determinant(): number {
         let raw = this.raw;
-        return raw[0]*(raw[5]* raw[10] - raw[6]* raw[9]) -
-        raw[4]*(raw[1]* raw[10] - raw[2]* raw[9]) +
-        raw[8]*(raw[1]* raw[6] - raw[2]* raw[5]);
+        return raw[0] * (raw[5] * raw[10] - raw[6] * raw[9]) -
+            raw[4] * (raw[1] * raw[10] - raw[2] * raw[9]) +
+            raw[8] * (raw[1] * raw[6] - raw[2] * raw[5]);
     }
 
-    public toMat3():mat3{
+    public toMat3(): mat3 {
         let raw = this.raw;
-        return new mat3([raw[0],raw[1],raw[2],
-                        raw[4],raw[5],raw[6],
-                        raw[8],raw[9],raw[10]])
+        return new mat3([raw[0], raw[1], raw[2],
+        raw[4], raw[5], raw[6],
+        raw[8], raw[9], raw[10]])
     }
 }
 
@@ -1629,12 +1557,12 @@ export class mat3 {
         return new vec3([raw[o], raw[o + 1], raw[o + 2]]);
     }
 
-    public setColumn(c:vec3,index:number){
+    public setColumn(c: vec3, index: number) {
         let raw = this.raw;
-        let o = index *3;
+        let o = index * 3;
         raw[o] = c.x;
-        raw[o+1] = c.y;
-        raw[o+2] = c.z;
+        raw[o + 1] = c.y;
+        raw[o + 2] = c.z;
     }
 
     /**
@@ -1647,64 +1575,64 @@ export class mat3 {
         return new vec3([raw[o], raw[o + 3], raw[o + 6]]);
     }
 
-    public setRow(r:vec3,index:number){
-        let raw =this.raw;
+    public setRow(r: vec3, index: number) {
+        let raw = this.raw;
         raw[index] = r.x;
-        raw[index+3] = r.y;
-        raw[index+6] = r.z;
+        raw[index + 3] = r.y;
+        raw[index + 6] = r.z;
     }
 
     public static get Identity(): mat3 {
         return new mat3([1, 0, 0, 0, 1, 0, 0, 0, 1]);
     }
 
-    public static Transpose(m:mat3){
+    public static Transpose(m: mat3) {
         let raw = m.raw;
         return new mat3([
-            raw[0],raw[3],raw[6],
-            raw[1],raw[4],raw[7],
-            raw[2],raw[5],raw[8]
+            raw[0], raw[3], raw[6],
+            raw[1], raw[4], raw[7],
+            raw[2], raw[5], raw[8]
         ]);
     }
 
-    public transpose():mat3{
+    public transpose(): mat3 {
         return mat3.Transpose(this);
     }
 
-    public toMat4(){
+    public toMat4() {
         return mat3.ToMat4(this);
     }
 
-    public static ToMat4(m:mat3){
+    public static ToMat4(m: mat3) {
         let r = m.raw;
         return new mat4([
-            r[0],r[1],r[2],0,
-            r[3],r[4],r[5],0,
-            r[6],r[7],r[8],0,
-            0,0,0,1
+            r[0], r[1], r[2], 0,
+            r[3], r[4], r[5], 0,
+            r[6], r[7], r[8], 0,
+            0, 0, 0, 1
         ])
     }
 
-    public static Cross(lhs:vec3){
+    public static Cross(lhs: vec3) {
         return new mat3([
             0, lhs.z, -lhs.y,
-            -lhs.z,0,lhs.x,
-            lhs.y,-lhs.x,0
+            -lhs.z, 0, lhs.x,
+            lhs.y, -lhs.x, 0
         ])
     }
 
-    public static Diagonal(v:vec3){
+    public static Diagonal(v: vec3) {
         return new mat3([
-            v.x,0,0,
-            0,v.y,0,
-            0,0,v.z
+            v.x, 0, 0,
+            0, v.y, 0,
+            0, 0, v.z
         ]);
     }
-    public static UpperTri(v:vec3){
+    public static UpperTri(v: vec3) {
         return new mat3([
-            1,v.x,v.y,
-            0,1,v.z,
-            0,0,1
+            1, v.x, v.y,
+            0, 1, v.z,
+            0, 0, 1
         ]);
     }
 
@@ -1713,11 +1641,11 @@ export class mat3 {
      * @param rota 
      * @param s 
      */
-    public static fromRS(rota:quat,s:vec3){
-        return mat3.Mul(quat.QuatToMtx(rota),mat3.Scale(s.x,s.y,s.z));
+    public static fromRS(rota: quat, s: vec3) {
+        return mat3.Mul(quat.QuatToMtx(rota), mat3.Scale(s.x, s.y, s.z));
     }
 
-    public static Mul(lhs:mat3,rhs:mat3):mat3{
+    public static Mul(lhs: mat3, rhs: mat3): mat3 {
         let m0 = lhs.row(0);
         let m1 = lhs.row(1);
         let m2 = lhs.row(2);
@@ -1725,66 +1653,46 @@ export class mat3 {
         let n1 = rhs.column(1);
         let n2 = rhs.column(2);
         return new mat3([
-            m0.dot(n0),m1.dot(n0),m2.dot(n0),
-            m0.dot(n1),m1.dot(n1),m2.dot(n1),
-            m0.dot(n2),m1.dot(n2),m2.dot(n2)
+            m0.dot(n0), m1.dot(n0), m2.dot(n0),
+            m0.dot(n1), m1.dot(n1), m2.dot(n1),
+            m0.dot(n2), m1.dot(n2), m2.dot(n2)
         ])
     }
-    
-    public static fromRows(r0:vec3,r1:vec3,r2:vec3):mat3{
+
+    public static fromRows(r0: vec3, r1: vec3, r2: vec3): mat3 {
         return new mat3([
-            r0.x,r1.x,r2.x,
-            r0.y,r1.y,r2.y,
-            r0.z,r1.z,r2.z
+            r0.x, r1.x, r2.x,
+            r0.y, r1.y, r2.y,
+            r0.z, r1.z, r2.z
         ]);
     }
 
-    public static fromColumns(c0:vec3,c1:vec3,c2:vec3):mat3{
+    public static fromColumns(c0: vec3, c1: vec3, c2: vec3): mat3 {
         return new mat3([
-            c0.x,c0.y,c0.z,
-            c1.x,c1.y,c1.z,
-            c2.x,c2.y,c2.z,
+            c0.x, c0.y, c0.z,
+            c1.x, c1.y, c1.z,
+            c2.x, c2.y, c2.z,
         ])
     }
 
-    public mul(rhs:mat3):mat3{
-        return mat3.Mul(this,rhs);
+    public mul(rhs: mat3): mat3 {
+        return mat3.Mul(this, rhs);
     }
 
-    /**
-     * Decompose mat3 into scale and rotation.
-     * @param mat 
-     */
-    public static Decompose(mat:mat3):[quat,vec3]{
 
-        let c0 = mat.column(0);
-        let c1 = mat.column(1);
-        let c2 = mat.column(2);
-
-        let scale = glmath.vec3(c0.length,c1.length,c2.length);
-
-        let rota = quat.MtxToQuat(mat3.fromColumns(
-            c0.div(scale.x),
-            c1.div(scale.y),
-            c2.div(scale.z)
-        ))
-
-        return [rota,scale];
-    }
-
-    public static CrossRHS(rhs:vec3){
+    public static CrossRHS(rhs: vec3) {
         return new mat3([
             0, -rhs.z, rhs.y,
-            rhs.z,0,-rhs.x,
-            -rhs.y,rhs.x,0
+            rhs.z, 0, -rhs.x,
+            -rhs.y, rhs.x, 0
         ])
     }
 
-    public mulvec(v:vec3):vec3{
-        return mat3.MulVec(this,v);
+    public mulvec(v: vec3): vec3 {
+        return mat3.MulVec(this, v);
     }
 
-    public static MulVec(mat:mat3,v:vec3):vec3{
+    public static MulVec(mat: mat3, v: vec3): vec3 {
         return new vec3([
             mat.row(0).dot(v),
             mat.row(1).dot(v),
@@ -1792,19 +1700,19 @@ export class mat3 {
         ])
     }
 
-    public static Scale(sx:number,sy:number,sz:number):mat3{
+    public static Scale(sx: number, sy: number, sz: number): mat3 {
         return new mat3([
-            sx,0,0,
-            0,sy,0,
-            0,0,sz
+            sx, 0, 0,
+            0, sy, 0,
+            0, 0, sz
         ]);
     }
 
-    public static Shear(sk:vec3){
+    public static Shear(sk: vec3) {
         return new mat3([
-            1,sk.x,sk.y,
-            0,1,sk.z,
-            0,0,1
+            1, sk.x, sk.y,
+            0, 1, sk.z,
+            0, 0, 1
         ])
     }
 
@@ -1813,13 +1721,13 @@ export class mat3 {
      * @param s 
      * @param sk 
      */
-    public static ScaleShear(s:vec3,sk:vec3){
+    public static ScaleShear(s: vec3, sk: vec3) {
         let sx = s.x;
         let sy = s.y;
         return new mat3([
-            sx,sx * sk.x,sx*sk.y,
-            0,sy,sy*sk.z,
-            0,0,s.z
+            sx, sx * sk.x, sx * sk.y,
+            0, sy, sy * sk.z,
+            0, 0, s.z
         ])
     }
 
@@ -1827,20 +1735,86 @@ export class mat3 {
      * Convert quaternion rotation to Matrix
      * @param q 
      */
-    public static Rotation(q:quat):mat3{
+    public static Rotation(q: quat): mat3 {
         return quat.QuatToMtx(q);
     }
 
-    public clone():mat3{
+    public clone(): mat3 {
         let ary = this.raw.slice(0);
         return new mat3(ary);
     }
 
-    public determinant():number{
+    public determinant(): number {
         let raw = this.raw;
-        return raw[0]*(raw[4]* raw[8] - raw[5]* raw[7]) -
-        raw[3]*(raw[1]* raw[8] - raw[2]* raw[7]) +
-        raw[6]*(raw[1]* raw[5] - raw[2]* raw[4]);
+        return raw[0] * (raw[4] * raw[8] - raw[5] * raw[7]) -
+            raw[3] * (raw[1] * raw[8] - raw[2] * raw[7]) +
+            raw[6] * (raw[1] * raw[5] - raw[2] * raw[4]);
     }
+
+    /**
+     * Decompose Affine matrix
+     * @param mat 
+     * @param q Rotation matrix
+     * @param s Diagonal matrix
+     * @param sk Shear matrix
+     */
+    public static DecomposeAffine(mat:mat3,q:mat3,s:vec3,sk?:vec3){
+        let raw = mat.raw;
+        let r0 = raw[0];
+        let r1 = raw[1];
+        let r2 = raw[2];
+        let r3 = raw[3];
+        let r4 = raw[4];
+        let r5 = raw[5];
+        let r6 = raw[6];
+        let r7 = raw[7];
+        let r8 = raw[8];
+        let m0 = glmath.vec3(r0, r1, r2);
+        let m1 = glmath.vec3(r3, r4, r5);
+        let m2 = glmath.vec3(r6, r7, r8);
+        let M0 = m0.clone();
+        let M1 = m1.clone();
+        let M2 = m2.clone();
+        let sx = M0.length;
+        M0.div(sx);
+        let sx_sxy = M0.dot(M1);
+        M1.sub(M0.mulNumToRef(sx_sxy));
+        let sy = M1.length;
+        M1.div(sy);
+        let sx_sxz = M0.dot(M2);
+        let sy_syz = M1.dot(M2);
+        M2.sub(M0.mulNumToRef(sx_sxz).add(M1.mulNumToRef(sy_syz)));
+        let sz = M2.length;
+        M2.div(sz);
+        q.setColumn(M0, 0);
+        q.setColumn(M1, 1);
+        q.setColumn(M2, 2);
+        if (q.determinant() < 0) {
+            let raw = q.raw;
+            for (let i = 0; i < 9; i++) {
+                raw[i] = - raw[i];
+            }
+            M0.mulNum(-1);
+            M1.mulNum(-1);
+            M2.mulNum(-1);
+        }
+        s.x = M0.dot(m0);
+        s.y = M1.dot(m1);
+        s.z = M2.dot(m2);
+        if(sk != null){
+            let invsx = 1.0 / s.x;
+            sk.x = M0.dot(m1) * invsx;
+            sk.y = M0.dot(m2) * invsx;
+            sk.z = M1.dot(m2) / s.y;
+        }
+    }
+
+    public static DecomposeRS(mat:mat3,q:quat,s:vec3){
+        let smtx = new mat3();
+        mat3.DecomposeAffine(mat,smtx,s);
+        q.set(quat.MtxToQuat(smtx));
+        q.fmt();
+    }
+
 
 }
