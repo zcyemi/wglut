@@ -23,8 +23,6 @@ export class glmath {
 
     public static readonly Deg2Rad:number = DEG2RAD;
     public static readonly Rad2Deg:number = RAD2DEG;
-
-
 }
 
 export class Vec2{
@@ -368,8 +366,8 @@ export class vec4 {
         this.w = v.w;
     }
 
-    public static readonly zero: vec4 = new vec4([0, 0, 0,0]);
-    public static readonly one: vec4 = new vec4([1, 1, 1,1]);
+    public static get zero(): vec4{ return new vec4();}
+    public static get one(): vec4{return new vec4([1, 1, 1,1]);}
 }
 
 export class vec3 {
