@@ -249,6 +249,18 @@ describe('mat4', () => {
             let m2 = mat4.Translate(t1).mul(mat3.Rotation(q1).mul(mat3.ScaleShear(s1,sk)).toMat4());
             expectPair(m2.raw,m.raw);
         }
+
+        for(let i=0;i<20;i++){
+            let m = mat4.RandomTRS();
+            let t1 = vec3.zero;
+            let qmat = mat3.Identity;
+            let s1 = vec3.one;
+            let k = vec3.zero;
+            mat4.DecomposeAffine(m,t1,qmat,s1,k);
+            let q1 = quat.MtxToQuat(qmat);
+            let m1 = mat4.TRS(t1,q1,s1);
+            expectPair(m1.raw,m.raw);
+        }
     });
 
     it("decompose-affine-2",()=>{
@@ -273,7 +285,7 @@ describe('mat4', () => {
 
         let p1 = m3.mulvec(p);
         let p2 = m5.mulvec(p);
-        
+
     })
 
 
