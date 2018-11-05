@@ -230,24 +230,25 @@ describe('mat4', () => {
     })
 
     it("decompose-affine",()=>{
-        let t0 = vec3.Random();
-        let q0 = quat.Random();
-        let s0 = vec3.Random();
-
-        let m = mat4.TRS(t0,q0,s0);
-
-        let t1 = vec3.zero;
-        let q1 = quat.Identity;
-        let s1 = vec3.one;
-        let sk = vec3.zero;
-
-        mat4.DecomposeAffine(m,t1,q1,s1,sk);
-
-        // console.log(t0,t1);
-        // console.log(q0,q1);
-        // console.log(s0,s1);
-        // console.log(sk);
-
+        //Decompose TRS with positive scale
+        for(let i=0;i<20;i++){
+            let t0 = vec3.Random();
+            let q0 = quat.Random();
+            let s0 = vec3.Random(true);
+            let m = mat4.TRS(t0,q0,s0);
+            let t1 = vec3.zero;
+            let qmat = mat3.Identity;
+            let s1 = vec3.one;
+            let sk = vec3.zero;
+            mat4.DecomposeAffine(m,t1,qmat,s1,sk);
+            expectVec3(t0,t1);
+            let q1 = quat.MtxToQuat(qmat);
+            expectQuat(q0,q1);
+            expectVec3(s0,s1);
+            expectVec3(sk,new vec3([0,0,0]));
+            let m2 = mat4.Translate(t1).mul(mat3.Rotation(q1).mul(mat3.ScaleShear(s1,sk)).toMat4());
+            expectPair(m2.raw,m.raw);
+        }
     });
 
     it("decompose-affine-2",()=>{
@@ -257,14 +258,24 @@ describe('mat4', () => {
         let m3 = m2.mul(m1);
         
         let t = vec3.zero;
-        let q=  quat.Identity;
+        let qmat=  mat3.Identity;
         let s = vec3.zero;
         let sk = vec3.zero;
 
-        mat4.DecomposeAffine(m3,t,q,s,sk);
+        mat4.DecomposeAffine(m3,t,qmat,s,sk);
 
+        let q = quat.MtxToQuat(qmat);
         expect(q.magnitude()).closeTo(1.0,0.0001);
+
+        let m5 = mat4.TRS(t,q,s);
+
+        let p = glmath.vec4(30,10,-10,0);
+
+        let p1 = m3.mulvec(p);
+        let p2 = m5.mulvec(p);
+        
     })
+
 
     it("rotated-scaling", () => {
         let s = vec3.Random();
@@ -527,7 +538,7 @@ describe('quaternion', () => {
         var dot = vec3.Dot(pv, qv);
         var s = cross.add(pv.mul(q0)).add(qv.mul(p0));
         let sv = new vec4([s.x, s.y, s.z, q0 * p0 - dot]);
-        expectPair(f.raw, sv.raw);
+        expectQuat(f,new quat(sv.raw));
     });
 
     it('quat_vec', () => {
@@ -543,7 +554,7 @@ describe('quaternion', () => {
         var qy = quat.axisRotationDeg(vec3.up, -34);
         var qz = quat.axisRotationDeg(vec3.forward, 59);
         var qm = qy.mul(qx.mul(qz));
-        expectPair(qeuler.raw, qm.raw);
+        expectQuat(qeuler,qm);
     })
 
     it("quat-2-mtx", () => {
@@ -648,9 +659,7 @@ describe('quaternion', () => {
         let q1 = qu.mul(q0);
         let q2 = qd.mul(q0);
 
-        for (let i = 0; i < 4; i++) {
-            expect(q1.raw[i] + q2.raw[i]).to.eq(0);
-        }
+        expectQuat(q1,q2);
 
         for (var i = 0; i < 10; i++) {
             let up = vec3.Random();
@@ -694,7 +703,7 @@ describe('quaternion', () => {
         let q2 = quat.fromEuler(Math.random(), Math.random(), Math.random());
         let q = q1.mul(q2);
         let qdiv = quat.Div(q, q2, true);
-        expectPair(qdiv.raw, q1.raw);
+        expectQuat(qdiv, q1);
     })
 
     it("quat-div-2", () => {
@@ -702,7 +711,7 @@ describe('quaternion', () => {
         let q2 = quat.Random();
         let qdiv = quat.Div(q2, q1);
         let q = q1.mul(qdiv);
-        expectPair(q.raw, q2.raw);
+        expectQuat(q,q2);
     })
 
     it("quat-clone", () => {
