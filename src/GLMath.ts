@@ -27,6 +27,124 @@ export class glmath {
 
 }
 
+export class Vec2{
+    public raw:number[] = [0,0];
+    public get x(): number { return this.raw[0]; }
+    public get y(): number { return this.raw[1]; }
+    public set x(v: number) { this.raw[0] = v; }
+    public set y(v: number) { this.raw[1] = v; }
+
+    public get maginatude(): number {
+        let x = this.raw[0];
+        let y = this.raw[1];
+        return Math.sqrt(x*x+ y*y);
+    }
+
+    public constructor(v?:number[]){
+        if(v!=null){
+            this.raw[0] = v[0];
+            this.raw[1] = v[1];
+        } 
+    }
+    
+    public add(v:Vec2):Vec2{
+        this.x += v.x;
+        this.y +=v.y;
+        return this;
+    }
+    public addToRef(v:Vec2,ref?:Vec2):Vec2{
+        if(ref == null){
+            return new Vec2([this.x + v.x,this.y + v.y]);
+        }
+        else{
+            ref.x = this.x + v.x;
+            ref.y = this.y + v.y;
+            return ref;
+        }
+    }
+    public sub(v:Vec2):Vec2{
+        this.x -= v.x;
+        this.y -=v.y;
+        return this;
+    }
+    public subToRef(v:Vec2,ref?:Vec2):Vec2{
+        if(ref == null){
+            return new Vec2([this.x - v.x,this.y - v.y]);
+        }
+        else{
+            ref.x = this.x - v.x;
+            ref.y = this.y - v.y;
+            return ref;
+        }
+    }
+
+    public mulNum(v:number){
+        this.x*=v;
+        this.y*=v;
+    }
+    public mulNumToRef(v:number,ref?:Vec2):Vec2{
+        if(ref){
+            ref.x = this.x *v;
+            ref.y = this.y * v;
+            return ref;
+        }
+        return new Vec2([this.x * v,this.y *v]);
+    }
+
+    public mul(v:Vec2){
+        this.x *=v.x;
+        this.y *= v.y;
+    }
+
+    public mulToRef(v:Vec2,ref?:Vec2):Vec2{
+        if(ref){
+            ref.x = this.x * v.x;
+            ref.y = this.y * v.y;
+            return ref;
+        }
+        return new Vec2([this.x * v.x,this.y * v.y]);
+    }
+
+    public div(v:Vec2){
+        this.x /=v.x;
+        this.y /= v.y;
+    }
+
+    public divToRef(v:Vec2,ref?:Vec2):Vec2{
+        if(ref){
+            ref.x = this.x / v.x;
+            ref.y = this.y / v.y;
+            return ref;
+        }
+        return new Vec2([this.x / v.x,this.y / v.y]);
+    }
+
+    public dot(v:Vec2):number{
+        return this.x * v.x + this.y * v.y;
+    }
+
+    public clone():Vec2{
+        return new Vec2([this.x,this.y]);
+    }
+    
+    public get normalize():Vec2{
+        this.mulNum(1.0/this.maginatude);
+        return this;
+    }
+
+    public normalized():Vec2{
+        return this.mulNumToRef(this.maginatude);
+    }
+
+    public set(v:Vec2){
+        this.x = v.x;
+        this.y = v.y;
+    }
+
+    public static get zero():Vec2{ return new Vec2()};
+    public static get one():Vec2{ return new Vec2([1,1])};
+}
+
 export class vec4 {
     public raw: number[];
 
