@@ -1,6 +1,7 @@
+0.1.3
+ - Add  matrix decompose.
 0.1.2
- - add vec3.SafeCross
-
+ - add vec3.SafeCross.
 0.1.1
  - Fix conversion between quat and euler.
  - Fix mat4.coord.
